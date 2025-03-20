@@ -1,11 +1,14 @@
+import { BrowserRouter } from "react-router-dom"
 import PgMain from "./pages/PgMain"
 
 function App() {
 
   return (
-    <>
-      <PgMain/>
-    </>
+    <BrowserRouter>
+      <>
+        <PgMain/>
+      </>
+    </BrowserRouter>
   )
 }
 
