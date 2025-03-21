@@ -33,7 +33,7 @@ const HeroSection = () => {
       {/* Волнистый фон внизу с помощью SVG */}
       <svg className="wave" viewBox="0 0 1440 100" preserveAspectRatio="none">
         <path
-          fill="#fff"
+          fill="#f9f9f9"
           d="M0,0 Q720,200 1440,0 L1440,100 L0,100 Z"
         />
       </svg>

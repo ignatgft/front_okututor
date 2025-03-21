@@ -1,0 +1,138 @@
+/* Основные стили для секции категорий */
+.category-section {
+    padding: 50px 100px;
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+
+  .inter {
+    font-family: "Inter";
+    font-optical-sizing: auto;
+    font-weight: 450;
+    font-style: normal;
+  }
+  /* Заголовок и подзаголовок */
+  .category-header {
+    margin-bottom: 40px;
+  }
+  
+  .category-subtitle {
+    display: inline-block;
+    font-size: 14px;
+    color: #61B082;
+    background-color: rgba(97, 176, 130, 0.1);
+    padding: 5px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .category-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1A1A1A;
+  }
+  
+  /* Сетка карточек */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  
+  /* Карточка категории */
+  .category-card {
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-icon {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 15px;
+  }
+  
+  .category-icon img {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .category-card-title {
+    font-size: 20px;
+    font-weight: 550;
+    color: #1A1A1A;
+    margin-bottom: 10px;
+  }
+  
+  .category-card-description {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .category-card-link {
+    font-size: 14px;
+    color: #426E5B;
+    text-decoration: none;
+  }
+  
+  .category-card-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Адаптивность для мобильных устройств */
+  @media (max-width: 768px) {
+    .category-section {
+      padding: 30px 20px;
+    }
+  
+    .category-title {
+      font-size: 24px;
+    }
+  
+    .category-grid {
+      grid-template-columns: repeat(2, 1fr); /* 2 карточки в ряд */
+      gap: 15px;
+    }
+  
+    .category-card {
+      padding: 15px;
+    }
+  
+    .category-icon {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 10px;
+    }
+  
+    .category-card-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+  
+    .category-card-description {
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+  
+    .category-card-link {
+      font-size: 12px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .category-grid {
+      grid-template-columns: 1fr; /* 1 карточка в ряд */
+      gap: 10px;
+    }
+  }
