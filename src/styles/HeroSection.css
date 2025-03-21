@@ -1,0 +1,182 @@
+/* Основные стили для hero section */
+.hero-section {
+  display: flex;
+  justify-content: start;
+  gap: 20px;
+  background: linear-gradient(
+    to bottom right, /* Направление: от левого верхнего угла к правому нижнему */
+    #426E5B 0%, /* Тёмный цвет в левом верхнем углу */
+    #426E5B 0%, /* Тёмный цвет сохраняется до 40% */
+    #61B082 70%, /* Переход к светлому цвету */
+    #61B082 100% /* Светлый цвет в правом нижнем углу */
+  );
+  color: #fff;
+  padding: 0px 50px 0px 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Шрифты */
+.inter {
+  font-family: "Inter";
+  font-optical-sizing: auto;
+  font-weight: 450;
+  font-style: normal;
+}
+
+.poppins-bold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.poppins-regular {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Текстовая часть */
+.hero-content {
+  min-width: 50%;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 88px 0 20px 0;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+/* Блок с текстом и кнопкой */
+.hero-buttons {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 6px 20px;
+  width: fit-content;box-shadow: 0 4px 4px rgba(0, 0, 0, 0.16); /* Добавляем тень */
+}
+
+.find-tutor-text {
+  font-size: 16px;
+  color: #426E5B;
+}
+
+.btn {
+  border-radius: 6px;
+  font-size: 16px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.start-btn {
+  padding: 6px 30px;
+  background-color: #426E5B;
+  color: #fff;
+  border: none;
+}
+
+.start-btn:hover {
+  background-color: #1b5e20;
+}
+
+/* Изображение */
+.hero-image-container {
+  position: relative;
+  margin-top: 41px;
+  max-width: 36%;
+  z-index: 1; /* Устанавливаем z-index ниже, чем у волны */
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  position: relative; /* Смещаем изображение вниз, чтобы волна перекрывала его */
+}
+
+/* Волнистый фон внизу */
+.wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 82px; /* Увеличиваем высоту волны, чтобы она перекрывала изображение */
+  fill: #fff;
+  z-index: 2; /* Волна должна быть выше изображения, но ниже иконок */
+}
+
+
+
+
+
+
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .hero-section {
+    display: flex;
+    align-items: center;
+    flex-direction: column; /* Вертикальное расположение */
+    padding: 0px 20px 0px 20px; /* Уменьшаем отступы */
+    background: linear-gradient(
+      to bottom, /* На мобильных градиент идёт сверху вниз */
+      #426E5B 0%, /* Тёмный цвет вверху */
+      #426E5B 0%, /* Тёмный цвет до 40% */
+      #61B082 70%, /* Переход к светлому цвету */
+      #61B082 100% /* Светлый цвет внизу, где девушка */
+    );
+    text-align: center; /* Центрируем текст */
+  }
+
+  .hero-content {
+    min-width: 100%; /* Текстовая часть занимает всю ширину */
+  }
+
+  .hero-title {
+    font-size: 32px; /* Уменьшаем размер заголовка */
+    margin: 40px 0 15px 0; /* Уменьшаем отступы */
+    line-height: 1.3;
+  }
+
+  .hero-subtitle {
+    font-size: 16px; /* Уменьшаем размер подзаголовка */
+    margin-bottom: 20px; /* Уменьшаем отступ снизу */
+  }
+
+  .hero-buttons {
+    flex-direction: column; /* Кнопки и текст в колонку */
+    gap: 10px; /* Уменьшаем расстояние между элементами */
+    padding: 10px; /* Уменьшаем внутренние отступы */
+    width: 60%; /* Растягиваем блок на всю ширину */
+    margin: 0 auto; /* Центрируем блок */
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.16); /* Тень остаётся на мобильных */
+  }
+
+  .find-tutor-text {
+    font-size: 14px; /* Уменьшаем размер текста */
+  }
+
+  .start-btn {
+    padding: 8px 20px; /* Уменьшаем размер кнопки */
+    font-size: 14px; /* Уменьшаем шрифт кнопки */
+    width: 40%;
+  }
+
+  .hero-image-container {
+    max-width: 80%; /* Увеличиваем ширину изображения */
+    margin-top: 20px; /* Добавляем отступ сверху */
+  }
+
+  .wave {
+    height: 60px; /* Уменьшаем высоту волны для мобильных */
+  }
+}
