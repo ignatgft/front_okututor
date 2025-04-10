@@ -1,16 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/Category.css';
+import '../../styles/HomeSectionCSS/Category.css'
 
 // Импортируем иконки (замените на свои пути)
-import ortIcon from '../assets/ort-icon.svg';
-import englishIcon from '../assets/english-icon.svg';
-import mathIcon from '../assets/math-icon.svg';
-import itIcon from '../assets/it-icon.svg';
-import russianIcon from '../assets/russian-icon.svg';
-import salesIcon from '../assets/sales-icon.svg';
-import designIcon from '../assets/design-icon.svg';
-import musicIcon from '../assets/music-icon.svg';
+import ortIcon from '../../assets/CategorySection/ort-icon.svg';
+import englishIcon from '../../assets/CategorySection/english-icon.svg';
+import mathIcon from '../../assets/CategorySection/math-icon.svg';
+import itIcon from '../../assets/CategorySection/it-icon.svg';
+import russianIcon from '../../assets/CategorySection/russian-icon.svg';
+import salesIcon from '../../assets/CategorySection/sales-icon.svg';
+import designIcon from '../../assets/CategorySection/design-icon.svg';
+import musicIcon from '../../assets/CategorySection/music-icon.svg';
 
 const categories = [
   {

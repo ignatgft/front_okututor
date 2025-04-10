@@ -1,0 +1,28 @@
+.show-more-button {
+    display: block;
+    max-width: 200px; /* Ограничиваем ширину кнопки */
+    padding: 8px 31.5px;
+    font-size: 14px;
+    color: #426E5B;
+    background-color: #fff;
+    border: 1px solid #426E5B;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Стили для нажатого состояния */
+  .show-more-button:hover {
+    background-color: #426E5B;
+    color: #fff;
+    border: none;
+  }
+  
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .show-more-button {
+      padding: 6px 28.5px;
+      font-size: 12px;
+    }
+  }

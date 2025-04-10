@@ -1,0 +1,196 @@
+/* Основные стили для секции */
+.for-tutors-section {
+    padding: 60px 100px;
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+  
+  
+  /* Контейнер контента */
+  .for-tutors-content {
+    display: flex;
+    justify-content: center; /* Центрирование контента */
+    align-items: center;
+    gap: 40px; /* Увеличенный зазор между шагами и изображением */
+    margin: 0 auto; /* Центрирование контейнера */
+  }
+  /* Контейнер шагов */
+  .steps-container {
+    flex: 1;
+    max-width: 700px; /* Ограничение ширины шагов */
+    text-align: left;
+  }
+  
+  /* Элемент шага */
+  .step-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px; /* Уменьшенный отступ между шагами */
+    position: relative;
+  }
+  
+  /* Номер шага */
+  .step-number {
+    width: 40px; /* Уменьшенный размер */
+    height: 40px;
+    background-color: #426e5b; /* Зелёный цвет для первого шага */
+    color: #fff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+    margin-right: 15px; /* Уменьшенный отступ */
+    flex-shrink: 0;
+  }
+  
+  /* Для второго и третьего шага — серый фон */
+  .step-item:nth-child(2) .step-number,
+  .step-item:nth-child(3) .step-number {
+    background-color: #d3d3d3; /* Серый цвет */
+  }
+  
+  /* Текст шага */
+  .step-text {
+    flex: 1;
+    padding-left: 50px;
+  }
+  
+  .step-title {
+    font-size: 20px; /* Уменьшенный шрифт */
+    font-weight: 600;
+    color: #1a3c34; /* Тёмно-зелёный цвет */
+    margin-bottom: 5px;
+  }
+  
+  .step-description {
+    font-size: 16px; /* Уменьшенный шрифт */
+    color: #666;
+  }
+  
+  /* Соединительные линии */
+  .step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px; /* Половина ширины .step-number */
+    top: 30px; /* Высота .step-number */
+    width: 2px;
+    height: calc(100% - 30px);
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2" height="10"><line x1="1" y1="0" x2="1" y2="10" stroke="gray" stroke-width="2" stroke-dasharray="4,4"/></svg>') repeat-y;
+  }
+  
+  /* Обёртка для кнопки */
+  .button-wrapper {
+    text-align: right; /* Выравнивание кнопки по левому краю */
+  }
+  
+  /* Кнопка */
+  .create-course-btn {
+    padding: 10px 20px; /* Уменьшенные отступы */
+    background-color: #426e5b; /* Зелёный цвет */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px; /* Уменьшенный шрифт */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 440px;
+  }
+  
+  .create-course-btn:hover {
+    background-color: #355a4a; /* Темнее при наведении */
+  }
+  
+  /* Изображение */
+  .tutor-image {
+    flex: 1;
+    max-width: 400px; /* Уменьшенная ширина изображения */
+  }
+  
+  .tutor-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+  }
+  
+  /* Шрифт Inter */
+  .inter {
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 450;
+    font-style: normal;
+  }
+  
+  /* Адаптивность для мобильных устройств (ширина экрана <= 768px) */
+  @media (max-width: 768px) {
+    .for-tutors-section {
+      padding: 40px 15px; /* Уменьшенные отступы */
+    }
+  
+    .category-title {
+      font-size: 24px; /* Уменьшенный шрифт заголовка */
+    }
+  
+    .category-subtitle {
+      font-size: 12px;
+    }
+  
+    .for-tutors-content {
+      flex-direction: column; /* Вертикальное расположение */
+      gap: 30px;
+    }
+  
+    .steps-container {
+      text-align: center; /* Центрирование текста на мобильных */
+      max-width: 100%; /* Шаги занимают всю ширину */
+    }
+  
+    .step-item {
+      flex-direction: column;
+      align-items: start;
+      margin-bottom: 30px; /* Уменьшенный отступ */
+    }
+  
+    .step-number {
+      width: 25px; /* Ещё меньший размер */
+      height: 25px;
+      font-size: 14px;
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+  
+    .step-text {
+      text-align: left;
+    }
+  
+    .step-title {
+      font-size: 18px;
+    }
+  
+    .step-description {
+      font-size: 14px;
+    }
+  
+    /* Соединительные линии для мобильных */
+    .step-item:not(:last-child)::after {
+      left: 8%;
+      transform: translateX(-40%);
+      top: 35px; /* Учитываем уменьшенный размер .step-number */
+      height: calc(100% - 30px);
+    }
+  
+    .button-wrapper {
+      text-align: center; /* Центрирование кнопки на мобильных */
+    }
+  
+    .create-course-btn {
+      font-size: 14px;
+      padding: 8px 16px; /* Уменьшенные отступы */
+      margin-left: 0px;
+    }
+  
+    .tutor-image {
+      max-width: 300px; /* Уменьшенная ширина изображения */
+    }
+  }

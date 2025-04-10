@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import '../styles/HeroSection.css';
-import heroSection from '../assets/heroSection.svg'
+import '../../styles/HomeSectionCSS/HeroSection.css';
+import heroSection from '../../assets/Navbar/heroSection.svg'
 
 
 const HeroSection = () => {

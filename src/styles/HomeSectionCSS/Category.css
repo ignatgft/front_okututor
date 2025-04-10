@@ -1,6 +1,6 @@
 /* Основные стили для секции категорий */
 .category-section {
-    padding: 50px 100px;
+    padding: 30px 100px;
     background-color: #f9f9f9;
     text-align: center;
   }
@@ -90,12 +90,22 @@
     text-decoration: underline;
   }
   
+
+
+
+
   /* Адаптивность для мобильных устройств */
   @media (max-width: 768px) {
     .category-section {
       padding: 30px 20px;
     }
+    .category-subtitle {
+      margin-bottom: 0px;
+    } 
   
+    .category-title {
+      margin: 10px 0 0 0;
+    } 
     .category-title {
       font-size: 24px;
     }

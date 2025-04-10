@@ -1,0 +1,148 @@
+/* Основные стили для секции */
+.how-it-works-section {
+  padding: 30px 100px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+/* Сетка карточек */
+.how-it-works-grid {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 30px;
+  gap: 130px;
+}
+
+.inter {
+  font-family: "Inter";
+  font-optical-sizing: auto;
+  font-weight: 450;
+  font-style: normal;
+}
+
+/* Карточка шага */
+.how-it-works-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: #E5FFE8;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  position: relative;
+  flex: 1;
+}
+
+.cart-content {
+  padding: 0 74px 40px 74px;
+  background-color: #fff;
+  border-radius: 0 0 15px 15px;
+}
+
+.step-number {
+  position: absolute;
+  top: -18px;
+  width: 38px;
+  height: 38px;
+  background-color: #426E5B;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.step-image {
+  margin: 28px 0 -24px 0;
+}
+
+.step-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.step-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #1A1A1A;
+  margin-bottom: 10px;
+}
+
+.step-description {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Адаптивность для мобильных устройств (ширина экрана <= 768px) */
+@media (max-width: 768px) {
+  .how-it-works-section {
+      padding: 20px 15px; /* Уменьшенные отступы для мобильных */
+  }
+
+  .how-it-works-grid {
+      flex-direction: column; /* Карточки располагаются вертикально */
+      align-items: center;
+      gap: 30px; /* Уменьшенный зазор между карточками */
+  }
+
+  .how-it-works-card {
+      width: 90%; /* Карточки занимают почти всю ширину экрана */
+      max-width: 400px; /* Ограничение максимальной ширины */
+  }
+
+  .cart-content {
+      padding: 0 20px 30px 20px; /* Уменьшенные отступы для контента */
+  }
+
+  .step-number {
+      width: 30px; /* Уменьшенный размер круга */
+      height: 30px;
+      font-size: 16px; /* Уменьшенный шрифт */
+      top: -15px; /* Скорректированное положение */
+  }
+
+  .step-image {
+      width: 70%;
+      margin: 20px 0 -20px 0; /* Уменьшенные отступы для изображения */
+  }
+
+  .step-title {
+      font-size: 16px; /* Уменьшенный шрифт для заголовка */
+  }
+
+  .step-description {
+      font-size: 12px; /* Уменьшенный шрифт для описания */
+  }
+}
+  /* Адаптивность для мобильных устройств */
+  @media (max-width: 768px) {
+    .how-it-works-section {
+      padding: 30px 20px;
+    }
+  
+    .how-it-works-grid {
+      flex-direction: column;
+      gap: 30px;
+    }
+  
+    .step-number {
+      width: 25px;
+      height: 25px;
+      font-size: 14px;
+      top: -12px;
+      left: 15px;
+    }
+  
+    .step-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+  
+    .step-description {
+      font-size: 12px;
+    }
+  }

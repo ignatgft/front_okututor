@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Navbar.css';
-import logo from '../assets/logo.svg'
-import login from '../assets/login.svg'
+import logo from '../assets/Navbar/logo.svg'
+import login from '../assets/Navbar/login.svg'
 
 
 const Navbar = () => {
