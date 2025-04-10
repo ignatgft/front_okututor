@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom"; // Добавлен useNavigate
 import '../styles/Navbar.css';
 import logo from '../assets/Navbar/logo.svg'
 import login from '../assets/Navbar/login.svg'
@@ -7,9 +7,19 @@ import login from '../assets/Navbar/login.svg'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  // Функции для перехода на страницы
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+  
+  const handleSignup = () => {
+    navigate('/register');
   };
 
   return (
@@ -47,11 +57,11 @@ const Navbar = () => {
 
         {/* Кнопки Log in и Sign up */}
         <div className="navbar-buttons">
-          <button className="btn login-btn">
+          <button className="btn login-btn" onClick={handleLogin}>
             <img src={login} className="login-svg" alt="Logo" />
             Log in
           </button>
-          <button className="btn signup-btn">Sign up</button>
+          <button className="btn signup-btn" onClick={handleSignup}>Sign up</button>
         </div>
       </div>
     </nav>

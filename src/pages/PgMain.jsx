@@ -5,6 +5,7 @@ import PopTutor from "../components/HomeSection/PopTutor"
 import HowItWorks from "../components/HomeSection/HowItWorks"
 import ForTutors from "../components/HomeSection/ForTutors"
 import Footer from "../components/HomeSection/Footer"
+
 function PgMain() {
 
     return (
