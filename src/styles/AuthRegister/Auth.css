@@ -1,177 +1,202 @@
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f5f5f5;
-    padding: 20px;
-  }
-  
-  .auth-form {
-    background-color: white;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-  }
-  
+/* Устанавливаем box-sizing для всех элементов */
+* {
+  box-sizing: border-box;
+}
+
+.auth-form {
+  width: 100%;
+}
+
+.auth-form h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.hand-icon {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+
+.google-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: white;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.2s;
+}
+
+.google-btn:hover {
+  background-color: #f9f9f9;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.divider {
+  display: flex; /* Используем flex для выравнивания */
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider span {
+  padding: 0 10px;
+  color: #888;
+  font-size: 14px;
+  text-transform: uppercase; /* "OR" в верхнем регистре */
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1; /* Линии занимают оставшееся пространство */
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Стили для иконки глаза */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  padding-right: 30px; /* Исправляем padding-right для иконки */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggle-password img {
+  width: 19px;
+  height: 18px;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.remember-me input {
+  margin-right: 5px;
+}
+
+.forgot-password {
+  font-size: 14px;
+  color: #3eb489;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #3eb489;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #356d5a;
+}
+
+.signup-link {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.signup-link a {
+  color: #3eb489;
+  text-decoration: none;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
   .auth-form h2 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    text-align: center;
+    font-size: 20px;
   }
-  
-  .google-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    background-color: white;
-    cursor: pointer;
-    margin-bottom: 20px;
-    transition: background-color 0.2s;
-  }
-  
-  .google-btn:hover {
-    background-color: #f9f9f9;
-  }
-  
-  .google-icon {
+
+  .hand-icon {
     width: 20px;
     height: 20px;
   }
-  
-  .divider {
-    position: relative;
-    text-align: center;
-    margin: 20px 0;
-  }
-  
-  .divider span {
-    background-color: white;
-    padding: 0 10px;
-    color: #888;
-    font-size: 14px;
-  }
-  
-  .divider::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: #e0e0e0;
-    z-index: -1;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-size: 14px;
-    color: #333;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    font-size: 14px;
-  }
-  
-  .form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .remember-me {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .remember-me input {
-    margin-right: 5px;
-  }
-  
-  .forgot-password {
-    font-size: 14px;
-    color: #3eb489;
-    text-decoration: none;
-  }
-  
-  .forgot-password:hover {
-    text-decoration: underline;
-  }
-  
+
   .submit-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #3eb489;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .submit-btn:hover {
-    background-color: #356d5a;
-  }
-  
-  .signup-link {
-    text-align: center;
+    padding: 10px;
     font-size: 14px;
-    color: #333;
-    margin-top: 20px;
   }
-  
-  .signup-link a {
-    color: #3eb489;
-    text-decoration: none;
+
+  .form-group input {
+    padding: 8px;
+    font-size: 12px;
   }
-  
-  .signup-link a:hover {
-    text-decoration: underline;
+
+  .signup-link {
+    font-size: 12px;
   }
-  
-  /* Адаптивность */
-  @media (max-width: 600px) {
-    .auth-form {
-      padding: 20px;
-      max-width: 100%;
-    }
-  
-    .auth-form h2 {
-      font-size: 20px;
-    }
-  
-    .submit-btn {
-      padding: 10px;
-      font-size: 14px;
-    }
-  
-    .form-group input {
-      padding: 8px;
-      font-size: 12px;
-    }
-  
-    .signup-link {
-      font-size: 12px;
-    }
+
+  .toggle-password img {
+    width: 16px;
+    height: 15px;
   }
+}

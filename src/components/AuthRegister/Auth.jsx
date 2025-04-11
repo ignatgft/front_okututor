@@ -1,14 +1,18 @@
 import React, { useState } from "react";
+import Modal from "./Modal";
 import "../../styles/AuthRegister/Auth.css";
-import googleIcon from "../../assets/AuthRegister/google-icon.svg"; // Предполагается, что у вас есть иконка Google
+import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import handIcon from "../../assets/AuthRegister/hand-icon.svg";
+import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg"; // Импортируем иконку глаза
+import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg"; // Опционально: иконка для "пароль виден"
 
-const Auth = () => {
+const Auth = ({ isOpen, onClose, onOpenRegister }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,9 +34,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="auth-container">
+    <Modal isOpen={isOpen} onClose={onClose}>
       <div className="auth-form">
-        <h2>Welcome Back <span role="img" aria-label="wave">👋</span></h2>
+        <h2>
+          Welcome Back{" "}
+          <span role="img" aria-label="wave">
+            <img src={handIcon} alt="Hand Icon" className="hand-icon" />
+          </span>
+        </h2>
 
         {/* Кнопка Google */}
         <button className="google-btn" onClick={handleGoogleLogin}>
@@ -59,14 +68,23 @@ const Auth = () => {
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <img src={showPassword ? hidePasswordIcon : showPasswordIcon} alt="Toggle Password Visibility" /> 
+              </button>
+            </div>
           </div>
 
           <div className="form-options">
@@ -79,9 +97,9 @@ const Auth = () => {
               />
               Remember me
             </label>
-            <a href="#" className="forgot-password">
+            {/* <a href="#" className="forgot-password">
               Forgot your password?
-            </a>
+            </a> */}
           </div>
 
           <button type="submit" className="submit-btn">
@@ -91,10 +109,13 @@ const Auth = () => {
 
         {/* Ссылка на регистрацию */}
         <p className="signup-link">
-          Don’t have an account? <a href="/register">Create account</a>
+          Don’t have an account?{" "}
+          <a href="#" onClick={onOpenRegister}>
+            Create account
+          </a>
         </p>
       </div>
-    </div>
+    </Modal>
   );
 };
 
