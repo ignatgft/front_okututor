@@ -3,8 +3,10 @@ import Modal from "./Modal";
 import "../../styles/AuthRegister/Auth.css";
 import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import handIcon from "../../assets/AuthRegister/hand-icon.svg";
-import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg"; // Импортируем иконку глаза
-import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg"; // Опционально: иконка для "пароль виден"
+import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
+import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
+import { auth } from "../../firebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Auth = ({ isOpen, onClose, onOpenRegister }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +15,8 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -22,15 +26,63 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login data:", formData);
-    // Здесь можно добавить логику для отправки данных на сервер
+    setError("");
+    setSuccess("");
+
+    try {
+      // Проверяем пользователя на сервере через ваш API
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+
+      // Если сервер подтвердил, что пользователь существует, выполняем вход в Firebase
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
+
+      setSuccess("Login successful!");
+      console.log("Logged in user:", user);
+
+      setTimeout(() => {
+        onClose();
+        setFormData({
+          email: "",
+          password: "",
+          rememberMe: false,
+        });
+      }, 2000);
+    } catch (error) {
+      if (error.code === "auth/wrong-password") {
+        setError("Incorrect password");
+      } else if (error.code === "auth/user-not-found") {
+        setError("User not found");
+      } else {
+        setError(error.message);
+      }
+    }
   };
 
   const handleGoogleLogin = () => {
     console.log("Google login clicked");
-    // Здесь можно добавить логику для входа через Google
   };
 
   return (
@@ -43,7 +95,6 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
           </span>
         </h2>
 
-        {/* Кнопка Google */}
         <button className="google-btn" onClick={handleGoogleLogin}>
           <img src={googleIcon} alt="Google Icon" className="google-icon" />
         </button>
@@ -52,7 +103,6 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
           <span>OR</span>
         </div>
 
-        {/* Форма */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">E-mail address</label>
@@ -81,8 +131,12 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                <img src={showPassword ? hidePasswordIcon : showPasswordIcon} alt="Toggle Password Visibility" /> 
+                <img
+                  src={showPassword ? hidePasswordIcon : showPasswordIcon}
+                  alt="Toggle Password Visibility"
+                />
               </button>
             </div>
           </div>
@@ -97,17 +151,16 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
               />
               Remember me
             </label>
-            {/* <a href="#" className="forgot-password">
-              Forgot your password?
-            </a> */}
           </div>
+
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
           <button type="submit" className="submit-btn">
             Log in
           </button>
         </form>
 
-        {/* Ссылка на регистрацию */}
         <p className="signup-link">
           Don’t have an account?{" "}
           <a href="#" onClick={onOpenRegister}>

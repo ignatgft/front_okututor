@@ -174,3 +174,18 @@
     height: 15px;
   }
 }
+
+/* Стили для сообщений */
+.error-message {
+  color: #d32f2f;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.success-message {
+  color: #388e3c;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 15px;
+}

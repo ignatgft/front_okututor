@@ -3,8 +3,10 @@ import Modal from "./Modal";
 import "../../styles/AuthRegister/Register.css";
 import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import mankeyIcon from "../../assets/AuthRegister/mankey-icon.svg";
-import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg"; // Импортируем иконку глаза
-import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg"; // Опционально: иконка для "пароль виден"
+import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
+import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
+import { auth } from "../../firebaseConfig";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const Register = ({ isOpen, onClose, onOpenAuth }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,8 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,19 +28,76 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     if (formData.password !== formData.repeatPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
-    console.log("Register data:", formData);
-    // Здесь можно добавить логику для отправки данных на сервер
+
+    try {
+      // Регистрация пользователя в Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      const user = userCredential.user;
+
+      // Обновляем displayName пользователя в Firebase
+      await updateProfile(user, {
+        displayName: formData.fullName,
+      });
+
+      // Отправляем данные на ваш Django-сервер
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          full_name: formData.fullName,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        setError(result.error);
+        await user.delete();
+        return;
+      }
+
+      setSuccess("Registration successful! You are now logged in.");
+      console.log("Registered user:", user);
+
+      setTimeout(() => {
+        onClose();
+        setFormData({
+          fullName: "",
+          email: "",
+          password: "",
+          repeatPassword: "",
+        });
+      }, 2000);
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        setError("Email already exists");
+      } else if (error.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters");
+      } else {
+        setError(error.message);
+      }
+    }
   };
 
   const handleGoogleSignUp = () => {
     console.log("Google sign-up clicked");
-    // Здесь можно добавить логику для регистрации через Google
   };
 
   return (
@@ -49,7 +110,6 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
           </span>
         </h2>
 
-        {/* Кнопка Google */}
         <button className="google-btn" onClick={handleGoogleSignUp}>
           <img src={googleIcon} alt="Google Icon" className="google-icon" />
         </button>
@@ -58,7 +118,6 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
           <span>OR</span>
         </div>
 
-        {/* Форма */}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="fullName">Full name</label>
@@ -99,8 +158,12 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                <img src={showPassword ? hidePasswordIcon : showPasswordIcon} alt="Toggle Password Visibility" />
+                <img
+                  src={showPassword ? hidePasswordIcon : showPasswordIcon}
+                  alt="Toggle Password Visibility"
+                />
               </button>
             </div>
           </div>
@@ -120,18 +183,23 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                aria-label={showRepeatPassword ? "Hide password" : "Show password"}
               >
-                <img src={showRepeatPassword ? hidePasswordIcon : showPasswordIcon} alt="Toggle Password Visibility" />
+                <img
+                  src={showRepeatPassword ? hidePasswordIcon : showPasswordIcon}
+                  alt="Toggle Password Visibility"
+                />
               </button>
             </div>
           </div>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
           <button type="submit" className="submit-btn">
             Sign up
           </button>
         </form>
 
-        {/* Ссылка на авторизацию */}
         <p className="login-link">
           Already have an account?{" "}
           <a href="#" onClick={onOpenAuth}>

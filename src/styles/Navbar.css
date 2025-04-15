@@ -217,3 +217,33 @@
     }
 
   }
+  /* Стили для блока с аватаром и кнопкой выхода */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Расстояние между аватаром и кнопкой */
+}
+
+/* Стили для аватара */
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Круглый аватар */
+  object-fit: cover;
+}
+
+/* Стили для кнопки Log out */
+.logout-btn {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #f0f0f0;
+}

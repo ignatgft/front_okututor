@@ -1,51 +1,63 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom"; // Добавляем useNavigate
 import "../styles/Navbar.css";
 import logo from "../assets/Navbar/logo.svg";
 import login from "../assets/Navbar/login.svg";
-import Auth from "./AuthRegister/Auth"; // Импортируем компонент авторизации
-import Register from "./AuthRegister/Register"; // Импортируем компонент регистрации
+import Auth from "./AuthRegister/Auth";
+import Register from "./AuthRegister/Register";
+import { auth } from "../firebaseConfig";
+import { onAuthStateChanged } from "firebase/auth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false); // Состояние для модального окна авторизации
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false); // Состояние для модального окна регистрации
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate(); // Для перехода на страницу профиля
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  // Функции для открытия модальных окон
   const handleLogin = () => {
     setIsAuthOpen(true);
-    setIsOpen(false); // Закрываем бургер-меню, если оно открыто
+    setIsOpen(false);
   };
 
   const handleSignup = () => {
     setIsRegisterOpen(true);
-    setIsOpen(false); // Закрываем бургер-меню, если оно открыто
+    setIsOpen(false);
   };
 
-  // Функции для переключения между модальными окнами
   const openRegisterFromAuth = () => {
-    setIsAuthOpen(false); // Закрываем модальное окно авторизации
-    setIsRegisterOpen(true); // Открываем модальное окно регистрации
+    setIsAuthOpen(false);
+    setIsRegisterOpen(true);
   };
 
   const openAuthFromRegister = () => {
-    setIsRegisterOpen(false); // Закрываем модальное окно регистрации
-    setIsAuthOpen(true); // Открываем модальное окно авторизации
+    setIsRegisterOpen(false);
+    setIsAuthOpen(true);
+  };
+
+  // Переход на страницу профиля при клике на аватар
+  const handleProfileClick = () => {
+    navigate("/profile");
   };
 
   return (
     <nav className="navbar inter">
-      {/* Логотип */}
       <div className="navbar-logo">
         <div className="logo-text">
           <img src={logo} className="logo-svg" alt="Logo" />
           <h1>OKUTUTOR</h1>
         </div>
-        {/* Бургер-меню для мобильной версии */}
         <div className={`navbar-toggle ${isOpen ? "active" : ""}`} onClick={toggleMenu}>
           <span className="bar"></span>
           <span className="bar"></span>
@@ -53,7 +65,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Навигационные ссылки и кнопки внутри одного контейнера для мобильной версии */}
       <div className={`navbar-menu ${isOpen ? "active" : ""}`}>
         <ul className="navbar-links">
           <li>
@@ -70,28 +81,40 @@ const Navbar = () => {
           </li>
         </ul>
 
-        {/* Кнопки Log in и Sign up */}
         <div className="navbar-buttons">
-          <button className="btn login-btn" onClick={handleLogin}>
-            <img src={login} className="login-svg" alt="Login Icon" />
-            Log in
-          </button>
-          <button className="btn signup-btn" onClick={handleSignup}>
-            Sign up
-          </button>
+          {user ? (
+            <div className="user-profile">
+              <img
+                src={user.photoURL || "https://via.placeholder.com/40"}
+                alt="User Avatar"
+                className="user-avatar"
+                onClick={handleProfileClick} // Переход на страницу профиля
+                style={{ cursor: "pointer" }} // Указываем, что аватар кликабельный
+              />
+            </div>
+          ) : (
+            <>
+              <button className="btn login-btn" onClick={handleLogin}>
+                <img src={login} className="login-svg" alt="Login Icon" />
+                Log in
+              </button>
+              <button className="btn signup-btn" onClick={handleSignup}>
+                Sign up
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Модальные окна для авторизации и регистрации */}
       <Auth
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        onOpenRegister={openRegisterFromAuth} // Передаем функцию для открытия регистрации
+        onOpenRegister={openRegisterFromAuth}
       />
       <Register
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
-        onOpenAuth={openAuthFromRegister} // Передаем функцию для открытия авторизации
+        onOpenAuth={openAuthFromRegister}
       />
     </nav>
   );
