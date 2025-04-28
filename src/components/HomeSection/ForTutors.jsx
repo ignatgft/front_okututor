@@ -1,26 +1,41 @@
-import React from 'react';
-import '../../styles/HomeSectionCSS/ForTutors.css';
-import tutorImage from '../../assets/ForTutors/tutor-img.svg';
+import React from "react";
+import { useNavigate } from "react-router-dom"; // Добавляем useNavigate
+import { auth } from "../../firebaseConfig"; // Импортируем Firebase auth
+import "../../styles/HomeSectionCSS/ForTutors.css";
+import tutorImage from "../../assets/ForTutors/tutor-img.svg";
 
 const steps = [
   {
     number: 1,
-    title: 'Sign up',
-    description: 'to create your tutor resume',
+    title: "Sign up",
+    description: "to create your tutor resume",
   },
   {
     number: 2,
-    title: 'Create your Course',
-    description: 'to start teaching & earning',
+    title: "Create your Course",
+    description: "to start teaching & earning",
   },
   {
     number: 3,
-    title: 'Start earning',
-    description: 'by teaching and developing your successful careers',
+    title: "Start earning",
+    description: "by teaching and developing your successful careers",
   },
 ];
 
 const ForTutors = () => {
+  const navigate = useNavigate();
+
+  // Обработчик клика на кнопку "Create your Course"
+  const handleCreateCourseClick = () => {
+    if (auth.currentUser) {
+      // Если пользователь авторизован, перенаправляем на /course
+      navigate("/course");
+    } else {
+      // Если пользователь не авторизован, перенаправляем на страницу авторизации
+      navigate("/login"); // Предполагается, что у вас есть маршрут /login
+    }
+  };
+
   return (
     <section className="for-tutors-section inter">
       <div className="category-header">
@@ -43,7 +58,12 @@ const ForTutors = () => {
             ))}
           </div>
           <div className="button-wrapper">
-            <button className="create-course-btn">Create your Course</button>
+            <button
+              className="create-course-btn"
+              onClick={handleCreateCourseClick} // Добавляем обработчик
+            >
+              Create your Course
+            </button>
           </div>
         </div>
         <div className="tutor-image">
