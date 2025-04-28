@@ -6,7 +6,7 @@ import mankeyIcon from "../../assets/AuthRegister/mankey-icon.svg";
 import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
 import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
 import { auth } from "../../firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 const Register = ({ isOpen, onClose, onOpenAuth }) => {
   const [formData, setFormData] = useState({
@@ -52,7 +52,7 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
         displayName: formData.fullName,
       });
 
-      // Отправляем данные на ваш Django-сервер
+      // Отправляем данные на ваш сервер (без повторного создания пользователя)
       const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
         method: "POST",
         headers: {
@@ -61,7 +61,9 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          repeat_password: formData.repeatPassword, // Добавляем repeat_password
           full_name: formData.fullName,
+          user_id: user.uid, // Передаём user_id для сохранения в Firestore
         }),
       });
 
@@ -69,7 +71,7 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
 
       if (result.error) {
         setError(result.error);
-        await user.delete();
+        await user.delete(); // Удаляем пользователя из Firebase, если сервер вернул ошибку
         return;
       }
 
@@ -96,9 +98,47 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
     }
   };
 
-  const handleGoogleSignUp = () => {
-    console.log("Google sign-up clicked");
-  };
+  // Register.jsx
+const handleGoogleSignUp = async () => {
+  setError("");
+  setSuccess("");
+  try {
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, provider);
+    const user = userCredential.user;
+
+    // Получаем свежий ID-токен
+    const idToken = await user.getIdToken(true);
+    const tokenResult = await user.getIdTokenResult();
+    console.log("Token expiration:", tokenResult.expirationTime); // Логируем время истечения
+
+    // Отправляем ID-токен на сервер
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/google-login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id_token: idToken }),
+    });
+
+    const result = await response.json();
+
+    if (result.error) {
+      setError(result.error);
+      await auth.signOut();
+      return;
+    }
+
+    setSuccess("Google sign-up successful! You are now logged in.");
+    console.log("Google sign-up user:", user);
+
+    setTimeout(() => {
+      onClose();
+    }, 2000);
+  } catch (error) {
+    setError(error.message);
+  }
+};
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
