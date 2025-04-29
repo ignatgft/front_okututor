@@ -94,7 +94,7 @@ const Profile = () => {
       });
 
       // Обновляем данные в Firestore через бэкенд
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
         method: "PUT", // Предполагаем, что у вас есть эндпоинт для обновления данных
         headers: {
           "Content-Type": "application/json",
@@ -122,24 +122,6 @@ const Profile = () => {
     setIsEditing(false);
     setError("");
     setSuccess("");
-  };
-
-  // Удаление аккаунта
-  const handleDeleteAccount = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      return;
-    }
-
-    try {
-      const user = auth.currentUser;
-      await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`, {
-        method: "DELETE",
-      });
-      await deleteUser(user);
-      navigate("/");
-    } catch (err) {
-      setError("Failed to delete account");
-    }
   };
 
   // Выход из аккаунта
@@ -304,9 +286,6 @@ const Profile = () => {
               <>
                 <button className="btn edit-btn" onClick={handleEditProfile}>
                   Edit Profile
-                </button>
-                <button className="btn delete-btn" onClick={handleDeleteAccount}>
-                  Delete Account
                 </button>
                 <button className="btn logout-btn" onClick={handleLogout}>
                   Logout
