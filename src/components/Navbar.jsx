@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Добавляем useNavigate
+import {Link, useNavigate } from "react-router-dom"; // Добавляем useNavigate
+// import {Link} from "react-scroll"
 import "../styles/Navbar.css";
+// import Category from "../components/HomeSection/Category"
 import logo from "../assets/Navbar/logo.svg";
 import login from "../assets/Navbar/login.svg";
 import Auth from "./AuthRegister/Auth";

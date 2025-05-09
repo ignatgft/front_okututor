@@ -21,7 +21,7 @@ const Course = () => {
   // Проверяем, авторизован ли пользователь
   useEffect(() => {
     if (!auth.currentUser) {
-      navigate("/login");
+      navigate("/");
     }
   }, [navigate]);
 

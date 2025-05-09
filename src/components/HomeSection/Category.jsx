@@ -65,7 +65,7 @@ const categories = [
 
 const Category = () => {
   return (
-    <section className="category-section inter">
+    <section className="category-section inter" id='category'>
       <div className="category-header">
         <span className="category-subtitle">Tutors by Categories</span>
         <h2 className="category-title">Select the Category of Your Choice</h2>
