@@ -11,12 +11,22 @@ function PgMain() {
     return (
       <>
         <Navbar/>
-        <HeroSection/>
-        <Category/>
-        <PopTutor/>
+        <section id="hero">
+          <HeroSection/>
+        </section>
+        <section id="category">
+          <Category/>
+        </section>
+        <section id="find-tutor">
+          <PopTutor/>
+        </section>
         <HowItWorks/>
-        <ForTutors/>
-        <Footer/>
+        <section id="for-tutors">
+          <ForTutors/>
+        </section>
+        <section id="about-us">
+          <Footer/>
+        </section>
       </>
     )
   }

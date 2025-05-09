@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {Link, useNavigate } from "react-router-dom"; // Добавляем useNavigate
-// import {Link} from "react-scroll"
+import {useNavigate } from "react-router-dom"; // Добавляем useNavigate
+import {Link as ScrollLink} from "react-scroll"
 import "../styles/Navbar.css";
 // import Category from "../components/HomeSection/Category"
 import logo from "../assets/Navbar/logo.svg";
@@ -70,16 +70,19 @@ const Navbar = () => {
       <div className={`navbar-menu ${isOpen ? "active" : ""}`}>
         <ul className="navbar-links">
           <li>
-            <Link to="/">Home</Link>
+            <ScrollLink to="hero" smooth={true} duration={500}>Home</ScrollLink>
           </li>
           <li>
-            <Link to="/">Find Tutor</Link>
+            <ScrollLink to="category" smooth={true} duration={500}>Category</ScrollLink>
           </li>
           <li>
-            <Link to="/">For Tutors</Link>
+            <ScrollLink to="find-tutor" smooth={true} duration={500}>Find Tutor</ScrollLink>
           </li>
           <li>
-            <Link to="/">About us</Link>
+            <ScrollLink to="for-tutors" smooth={true} duration={500}>For Tutors</ScrollLink>
+          </li>
+          <li>
+            <ScrollLink to="about-us" smooth={true} duration={500}>About Us</ScrollLink>
           </li>
         </ul>
 
