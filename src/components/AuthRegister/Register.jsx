@@ -232,9 +232,6 @@ const handleGoogleSignUp = async () => {
               </button>
             </div>
           </div>
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
-
           <button type="submit" className="submit-btn">
             Sign up
           </button>

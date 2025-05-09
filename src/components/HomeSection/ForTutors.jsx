@@ -1,6 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Добавляем useNavigate
-import { auth } from "../../firebaseConfig"; // Импортируем Firebase auth
+import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebaseConfig";
 import "../../styles/HomeSectionCSS/ForTutors.css";
 import tutorImage from "../../assets/ForTutors/tutor-img.svg";
 
@@ -22,17 +22,16 @@ const steps = [
   },
 ];
 
-const ForTutors = () => {
+const ForTutors = ({ onLogin }) => {
   const navigate = useNavigate();
 
   // Обработчик клика на кнопку "Create your Course"
   const handleCreateCourseClick = () => {
     if (auth.currentUser) {
-      // Если пользователь авторизован, перенаправляем на /course
       navigate("/course");
     } else {
-      // Если пользователь не авторизован, перенаправляем на страницу авторизации
-      navigate("/login"); // Предполагается, что у вас есть маршрут /login
+      // Открываем модальное окно авторизации
+      if (onLogin) onLogin();
     }
   };
 
@@ -60,7 +59,7 @@ const ForTutors = () => {
           <div className="button-wrapper">
             <button
               className="create-course-btn"
-              onClick={handleCreateCourseClick} // Добавляем обработчик
+              onClick={handleCreateCourseClick}
             >
               Create your Course
             </button>

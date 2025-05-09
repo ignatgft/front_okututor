@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {useNavigate } from "react-router-dom"; // Добавляем useNavigate
-import {Link as ScrollLink} from "react-scroll"
+import { useNavigate, useLocation } from "react-router-dom";
+import { Link as ScrollLink, scroller } from "react-scroll";
 import "../styles/Navbar.css";
-// import Category from "../components/HomeSection/Category"
 import logo from "../assets/Navbar/logo.svg";
 import login from "../assets/Navbar/login.svg";
-import Auth from "./AuthRegister/Auth";
-import Register from "./AuthRegister/Register";
 import { auth } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 
-const Navbar = () => {
+const Navbar = ({ onLogin, onSignup }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const navigate = useNavigate(); // Для перехода на страницу профиля
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -29,26 +25,26 @@ const Navbar = () => {
   };
 
   const handleLogin = () => {
-    setIsAuthOpen(true);
     setIsOpen(false);
+    if (onLogin) onLogin();
   };
 
   const handleSignup = () => {
-    setIsRegisterOpen(true);
     setIsOpen(false);
+    if (onSignup) onSignup();
   };
 
-  const openRegisterFromAuth = () => {
-    setIsAuthOpen(false);
-    setIsRegisterOpen(true);
+  const handleScrollLink = (section) => {
+    if (location.pathname !== "/") {
+      navigate("/", { state: { target: section } });
+    } else {
+      scroller.scrollTo(section, {
+        duration: 500,
+        smooth: true,
+      });
+    }
   };
 
-  const openAuthFromRegister = () => {
-    setIsRegisterOpen(false);
-    setIsAuthOpen(true);
-  };
-
-  // Переход на страницу профиля при клике на аватар
   const handleProfileClick = () => {
     navigate("/profile");
   };
@@ -60,7 +56,10 @@ const Navbar = () => {
           <img src={logo} className="logo-svg" alt="Logo" />
           <h1>OKUTUTOR</h1>
         </div>
-        <div className={`navbar-toggle ${isOpen ? "active" : ""}`} onClick={toggleMenu}>
+        <div
+          className={`navbar-toggle ${isOpen ? "active" : ""}`}
+          onClick={toggleMenu}
+        >
           <span className="bar"></span>
           <span className="bar"></span>
           <span className="bar"></span>
@@ -69,32 +68,21 @@ const Navbar = () => {
 
       <div className={`navbar-menu ${isOpen ? "active" : ""}`}>
         <ul className="navbar-links">
-          <li>
-            <ScrollLink to="hero" smooth={true} duration={500}>Home</ScrollLink>
-          </li>
-          <li>
-            <ScrollLink to="category" smooth={true} duration={500}>Category</ScrollLink>
-          </li>
-          <li>
-            <ScrollLink to="find-tutor" smooth={true} duration={500}>Find Tutor</ScrollLink>
-          </li>
-          <li>
-            <ScrollLink to="for-tutors" smooth={true} duration={500}>For Tutors</ScrollLink>
-          </li>
-          <li>
-            <ScrollLink to="about-us" smooth={true} duration={500}>About Us</ScrollLink>
-          </li>
+          <li onClick={() => handleScrollLink("hero")}>Home</li>
+          <li onClick={() => handleScrollLink("category")}>Category</li>
+          <li onClick={() => handleScrollLink("find-tutor")}>Find Tutor</li>
+          <li onClick={() => handleScrollLink("for-tutors")}>For Tutors</li>
+          <li onClick={() => handleScrollLink("about-us")}>About Us</li>
         </ul>
 
         <div className="navbar-buttons">
           {user ? (
-            <div className="user-profile">
+            <div className="user-profile" onClick={handleProfileClick}>
               <img
                 src={user.photoURL || "https://via.placeholder.com/40"}
                 alt="User Avatar"
                 className="user-avatar"
-                onClick={handleProfileClick} // Переход на страницу профиля
-                style={{ cursor: "pointer" }} // Указываем, что аватар кликабельный
+                style={{ cursor: "pointer" }}
               />
             </div>
           ) : (
@@ -110,17 +98,6 @@ const Navbar = () => {
           )}
         </div>
       </div>
-
-      <Auth
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onOpenRegister={openRegisterFromAuth}
-      />
-      <Register
-        isOpen={isRegisterOpen}
-        onClose={() => setIsRegisterOpen(false)}
-        onOpenAuth={openAuthFromRegister}
-      />
     </nav>
   );
 };

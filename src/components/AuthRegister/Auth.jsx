@@ -222,10 +222,6 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
               Remember me
             </label>
           </div>
-
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
-
           <button type="submit" className="submit-btn" disabled={loading}>
             {loading ? "Logging in..." : "Log in"}
           </button>
