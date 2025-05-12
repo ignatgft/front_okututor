@@ -3,6 +3,7 @@ import PgMain from "./pages/PgMain";
 import Profile from "./pages/PgProfile";
 import Course from "./pages/PgCourse";
 import CourseView from "./pages/PgCourseView";
+import PgAuditorium from "./pages/PgAuditorium"; // <--- добавлено
 import Auth from "./components/AuthRegister/Auth";
 import Register from "./components/AuthRegister/Register";
 import { useState } from "react";
@@ -36,9 +37,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/course" element={<Course />} />
         <Route path="/course/:courseId" element={<CourseView />} />
+        <Route path="/auditorium" element={<PgAuditorium />} /> {/* новый маршрут */}
       </Routes>
 
-      {/* Модальные окна авторизации и регистрации */}
       <Auth
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}

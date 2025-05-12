@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom"; // ✅ добавлен Link
 import { Link as ScrollLink, scroller } from "react-scroll";
 import "../styles/Navbar.css";
 import logo from "../assets/Navbar/logo.svg";
@@ -49,6 +49,11 @@ const Navbar = ({ onLogin, onSignup }) => {
     navigate("/profile");
   };
 
+  const handleAuditoriumClick = () => {
+    setIsOpen(false);
+    navigate("/auditorium");
+  };
+
   return (
     <nav className="navbar inter">
       <div className="navbar-logo">
@@ -77,14 +82,19 @@ const Navbar = ({ onLogin, onSignup }) => {
 
         <div className="navbar-buttons">
           {user ? (
-            <div className="user-profile" onClick={handleProfileClick}>
-              <img
-                src={user.photoURL || "https://via.placeholder.com/40"}
-                alt="User Avatar"
-                className="user-avatar"
-                style={{ cursor: "pointer" }}
-              />
-            </div>
+            <>
+              <Link to="/auditorium">
+                <button className="signup-btn">Аудитория</button>
+              </Link>
+              <div className="user-profile" onClick={handleProfileClick}>
+                <img
+                  src={user.photoURL || "https://via.placeholder.com/40"}
+                  alt="User Avatar"
+                  className="user-avatar"
+                  style={{ cursor: "pointer" }}
+                />
+              </div>
+            </>
           ) : (
             <>
               <button className="btn login-btn" onClick={handleLogin}>
