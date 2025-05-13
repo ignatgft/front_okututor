@@ -1,0 +1,87 @@
+.card-course {
+  font-family: 'Inter', sans-serif;
+  border-radius: 5px;
+  padding: 14px;
+  width: 450px;
+  height: 218px;  
+  border: 1.5px solid #b0b0b0;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: none;
+}
+
+.card-course:hover {
+  transform: scale(1.02);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.course-info {
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.course-info h3 {
+  font-size: 18px;
+  margin: 0;
+  font-weight: 600;
+  color: #222;
+}
+
+.instructor {
+  font-size: 15px;
+  color: #666;
+  margin: 0;
+}
+
+
+.card-body p {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-buttons .tag {
+  background-color: #a9efcf;
+  padding: 6px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  color: #426E5B;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #777;
+}
+
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    .card-course {
+        width: 350px;
+        height: 250px;
+    }
+}

@@ -1,39 +1,26 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebaseConfig";
 import "../../styles/HomeSectionCSS/ForTutors.css";
 import tutorImage from "../../assets/ForTutors/tutor-img.svg";
+import { auth } from "../../firebaseConfig";
 
 const steps = [
-  {
-    number: 1,
-    title: "Sign up",
-    description: "to create your tutor resume",
-  },
-  {
-    number: 2,
-    title: "Create your Course",
-    description: "to start teaching & earning",
-  },
-  {
-    number: 3,
-    title: "Start earning",
-    description: "by teaching and developing your successful careers",
-  },
+  { number: 1, title: "Sign up", description: "to create your tutor resume" },
+  { number: 2, title: "Create your Course", description: "to start teaching & earning" },
+  { number: 3, title: "Start earning", description: "by teaching and developing your successful careers" },
 ];
 
-const ForTutors = ({ onLogin }) => {
+const ForTutors = ({ onAuthOpen }) => {
   const navigate = useNavigate();
 
-  // Обработчик клика на кнопку "Create your Course"
   const handleCreateCourseClick = () => {
     if (auth.currentUser) {
       navigate("/course");
     } else {
-      // Открываем модальное окно авторизации
-      if (onLogin) onLogin();
+      onAuthOpen("/course");
     }
   };
+  
 
   return (
     <section className="for-tutors-section inter">
@@ -43,6 +30,7 @@ const ForTutors = ({ onLogin }) => {
           Empower learners worldwide and build your career teaching.
         </h2>
       </div>
+
       <div className="for-tutors-content">
         <div className="left-content">
           <div className="steps-container">
@@ -56,15 +44,14 @@ const ForTutors = ({ onLogin }) => {
               </div>
             ))}
           </div>
+
           <div className="button-wrapper">
-            <button
-              className="create-course-btn"
-              onClick={handleCreateCourseClick}
-            >
+            <button className="create-course-btn" onClick={handleCreateCourseClick}>
               Create your Course
             </button>
           </div>
         </div>
+
         <div className="tutor-image">
           <img src={tutorImage} alt="Tutor" />
         </div>

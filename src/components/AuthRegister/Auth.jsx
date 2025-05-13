@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Modal from "./Modal";
 import "../../styles/AuthRegister/Auth.css";
 import googleIcon from "../../assets/AuthRegister/google-icon.svg";
@@ -6,9 +7,16 @@ import handIcon from "../../assets/AuthRegister/hand-icon.svg";
 import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
 import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
 import { auth } from "../../firebaseConfig";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 
-const Auth = ({ isOpen, onClose, onOpenRegister }) => {
+const Auth = ({ isOpen, onClose, onOpenRegister, onSuccess }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,7 +25,8 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false); // Добавляем состояние загрузки
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Add navigate hook
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -34,13 +43,11 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
     setLoading(true);
 
     try {
-      // Устанавливаем тип сессии в зависимости от rememberMe
       await setPersistence(
         auth,
         formData.rememberMe ? browserLocalPersistence : browserSessionPersistence
       );
 
-      // Проверяем пользователя на сервере через ваш API
       const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
         method: "POST",
         headers: {
@@ -60,7 +67,6 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
         return;
       }
 
-      // Если сервер подтвердил, что пользователь существует, выполняем вход в Firebase
       const userCredential = await signInWithEmailAndPassword(
         auth,
         formData.email,
@@ -72,7 +78,11 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
       console.log("Logged in user:", user);
 
       setTimeout(() => {
-        onClose();
+        if (onSuccess) {
+          onSuccess(navigate); // Call onSuccess with navigate
+        } else {
+          onClose(); // Fallback to closing modal if no onSuccess
+        }
         setFormData({
           email: "",
           password: "",
@@ -102,7 +112,6 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
     setLoading(true);
 
     try {
-      // Устанавливаем тип сессии в зависимости от rememberMe
       await setPersistence(
         auth,
         formData.rememberMe ? browserLocalPersistence : browserSessionPersistence
@@ -112,10 +121,8 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
 
-      // Получаем свежий ID-токен
       const idToken = await user.getIdToken(true);
 
-      // Отправляем ID-токен на сервер
       const response = await fetch(`${import.meta.env.VITE_API_URL}/google-login`, {
         method: "POST",
         headers: {
@@ -137,7 +144,11 @@ const Auth = ({ isOpen, onClose, onOpenRegister }) => {
       console.log("Google login user:", user);
 
       setTimeout(() => {
-        onClose();
+        if (onSuccess) {
+          onSuccess(navigate); // Call onSuccess with navigate
+        } else {
+          onClose(); // Fallback to closing modal
+        }
         setFormData({
           email: "",
           password: "",

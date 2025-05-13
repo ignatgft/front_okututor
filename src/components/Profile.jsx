@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConfig";
-import { updateProfile, deleteUser, signOut } from "firebase/auth";
+import { auth, storage } from "../firebaseConfig";
+import { updateProfile, signOut } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import CardCourse from "../components/CardCourse";
 import "../styles/Profile.css";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [hasCourses, setHasCourses] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [showAllCourses, setShowAllCourses] = useState(false);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -16,14 +21,30 @@ const Profile = () => {
     telegram: "",
     instagram: "",
     whatsapp: "",
+    avatar: "",
   });
+  const [errors, setErrors] = useState({ telegram: "", instagram: "", whatsapp: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const navigate = useNavigate();
 
-  // Список местоположений для выпадающего списка
+  const displayedCourses = showAllCourses ? courses : courses.slice(0, 2);
+
   const locations = ["Choose location", "New York", "London", "Tokyo", "Moscow", "Sydney"];
 
+  const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?|localhost)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/;
+
+  const validateUrl = (url, fieldName) => {
+    if (!url) return "";
+    if (!urlRegex.test(url)) return `${fieldName} link is invalid`;
+    return "";
+  };
+  const handleCreateCourseClick = () => {
+        navigate("/course");
+  };
+    
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) {
@@ -31,7 +52,6 @@ const Profile = () => {
       return;
     }
 
-    // Устанавливаем базовые данные пользователя из Firebase
     const initialData = {
       full_name: user.displayName || "No Name",
       email: user.email || "No Email",
@@ -42,42 +62,80 @@ const Profile = () => {
       telegram: "",
       instagram: "",
       whatsapp: "",
+      avatar: "",
     };
     setUserData(initialData);
     setFormData(initialData);
 
-    // Запрашиваем дополнительные данные пользователя с бэкенда
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`);
         const result = await response.json();
-        if (result.error) {
-          setError(result.error);
-        } else {
+        if (result.error) setError(result.error);
+        else {
           const updatedData = { ...initialData, ...result };
           setUserData(updatedData);
           setFormData(updatedData);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to fetch user data");
       }
     };
 
+    const fetchUserCourses = async () => {
+      try {
+        const idToken = await user.getIdToken(true);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/courses/${user.uid}`, {
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        });
+        const courses = await response.json();
+        if (Array.isArray(courses) && courses.length > 0) {
+          setHasCourses(true);
+          setCourses(courses);
+        } else {
+          setHasCourses(false);
+          setCourses([]);
+        }
+      } catch {
+        setHasCourses(false);
+        setCourses([]);
+      }
+    };
+
     fetchUserData();
+    fetchUserCourses();
   }, [navigate]);
 
-  // Обработчик изменения полей формы
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (["telegram", "instagram", "whatsapp"].includes(name)) {
+      const fieldName = name.charAt(0).toUpperCase() + name.slice(1);
+      setErrors((prev) => ({ ...prev, [name]: validateUrl(value, fieldName) }));
+    }
   };
 
-  // Редактирование профиля
+
+  const handleAvatarUpload = async (file) => {
+    try {
+      const storage = getStorage();
+      const uid = auth.currentUser.uid;
+      const storageRef = ref(storage, `avatars/${uid}`);
+    
+      await uploadBytes(storageRef, file); // безопасно
+      const url = await getDownloadURL(storageRef); // получаем ссылку
+    
+      await updateProfile(auth.currentUser, { photoURL: url }); // обновляем в Firebase Auth
+      setUserData((prev) => ({ ...prev, photoURL: url }));
+      setFormData((prev) => ({ ...prev, photoURL: url }));
+      setSuccess("Profile picture updated!");
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setError("Failed to upload avatar.");
+    }
+  };
+
   const handleEditProfile = async () => {
     if (!isEditing) {
       setIsEditing(true);
@@ -86,158 +144,133 @@ const Profile = () => {
       return;
     }
 
+    const validationErrors = {
+      telegram: validateUrl(formData.telegram, "Telegram"),
+      instagram: validateUrl(formData.instagram, "Instagram"),
+      whatsapp: validateUrl(formData.whatsapp, "WhatsApp"),
+    };
+    setErrors(validationErrors);
+    if (Object.values(validationErrors).some((err) => err !== "")) {
+      setError("Please fix the errors before saving");
+      return;
+    }
+
     try {
-      // Обновляем данные в Firebase
       await updateProfile(auth.currentUser, {
         displayName: formData.full_name,
-        photoURL: userData.photoURL, // Фото пока не редактируем через форму
+        photoURL: formData.avatar || userData.photoURL,
       });
 
-      // Обновляем данные в Firestore через бэкенд
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
-        method: "PUT", // Предполагаем, что у вас есть эндпоинт для обновления данных
-        headers: {
-          "Content-Type": "application/json",
-        },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
-      if (result.error) {
-        setError(result.error);
-      } else {
+      if (result.error) setError(result.error);
+      else {
         setUserData(formData);
         setSuccess("Profile updated successfully");
       }
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       setError("Failed to update profile");
       setIsEditing(false);
     }
   };
 
-  // Отмена редактирования
   const handleCancelEdit = () => {
     setFormData(userData);
+    setErrors({ telegram: "", instagram: "", whatsapp: "" });
     setIsEditing(false);
     setError("");
     setSuccess("");
   };
 
-  // Выход из аккаунта
   const handleLogout = async () => {
     try {
       await signOut(auth);
       navigate("/");
-    } catch (error) {
+    } catch {
       setError("Failed to log out");
     }
   };
 
-  if (!userData) {
-    return <div>Loading...</div>;
-  }
+  if (!userData) return <div>Loading...</div>;
 
   return (
     <div className="profile-page">
       <h1>My Profile</h1>
       <div className="profile-container">
-        {/* Левая часть: аватар, статус, соцсети */}
         <div className="profile-sidebar">
           <div className="profile-avatar-section">
-            <img src={userData.photoURL} alt="User Avatar" className="profile-avatar" />
+            <img
+              src={
+                avatarPreview ||
+                formData.avatar ||
+                userData.avatar ||
+                userData.photoURL ||
+                "https://via.placeholder.com/150"
+              }
+              alt="User Avatar"
+              className="profile-avatar"
+            />
             <h2>{userData.full_name}</h2>
+            {isEditing && (
+              <div>
+                <input type="file" accept="image/png, image/jpeg" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
+                {uploading && <p>Uploading...</p>}
+              </div>
+            )}
           </div>
 
-          {/* <div className="premium-section">
-            <p>Premium is inactive</p>
-            <button className="btn activate-btn">Activate</button>
-          </div> */}
+          {hasCourses && (
+            <>
+              <div className="premium-section">
+                <p>Premium is inactive</p>
+                <button className="btn activate-btn">Activate</button>
+              </div>
 
-          {/* <div className="social-links"> */}
-            {/* <h3>On the Web</h3>
-            <div className="social-item">
-              <span>Telegram</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="telegram"
-                  value={formData.telegram}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.telegram || "#"}>{userData.telegram || "Link"}</a>
-              )}
-            </div> */}
-            {/* <div className="social-item">
-              <span>Instagram</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="instagram"
-                  value={formData.instagram}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.instagram || "#"}>{userData.instagram || "Link"}</a>
-              )}
-            </div> */}
-            {/* <div className="social-item">
-              <span>WhatsApp</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.whatsapp || "#"}>{userData.whatsapp || "Link"}</a>
-              )}
-            </div> */}
-          {/* </div> */}
+              <div className="social-links">
+                <h3>On the Web</h3>
+                {['telegram', 'instagram', 'whatsapp'].map((name) => (
+                  <div key={name} className="social-item">
+                    <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                    {isEditing ? (
+                      <>
+                        <input
+                          type="text"
+                          name={name}
+                          value={formData[name]}
+                          onChange={handleInputChange}
+                          placeholder="Link"
+                          className="social-input"
+                        />
+                        {errors[name] && <p className="error-message">{errors[name]}</p>}
+                      </>
+                    ) : (
+                      userData[name] && <a href={userData[name]}>Link</a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Правая часть: информация о пользователе */}
         <div className="profile-info">
           <h2>Personal Information</h2>
 
           <div className="info-field">
-            <label>Full name</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                placeholder="Enter full name"
-              />
-            ) : (
-              <p>{userData.full_name}</p>
-            )}
-          </div>
-
-          <div className="info-field">
             <label>Email address</label>
-            <p>{userData.email}</p> {/* Email не редактируется */}
+            <p>{userData.email}</p>
           </div>
 
           <div className="info-field">
             <label>Phone</label>
             {isEditing ? (
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Enter phone number"
-              />
+              <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} />
             ) : (
               <p>{userData.phone || "Not provided"}</p>
             )}
@@ -246,13 +279,21 @@ const Profile = () => {
           <div className="info-field">
             <label>Location</label>
             {isEditing ? (
-              <select name="location" value={formData.location} onChange={handleInputChange}>
-                {locations.map((loc) => (
-                  <option key={loc} value={loc}>
-                    {loc}
-                  </option>
-                ))}
-              </select>
+              <>
+                <input
+                  type="text"
+                  list="locations"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="Enter or select your location"
+                />
+                <datalist id="locations">
+                  {locations.map((loc) => (
+                    <option key={loc} value={loc} />
+                  ))}
+                </datalist>
+              </>
             ) : (
               <p>{userData.location}</p>
             )}
@@ -261,12 +302,7 @@ const Profile = () => {
           <div className="info-field">
             <label>Bio</label>
             {isEditing ? (
-              <textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                placeholder="Write something about you"
-              />
+              <textarea name="bio" value={formData.bio} onChange={handleInputChange} />
             ) : (
               <p>{userData.bio || "Not provided"}</p>
             )}
@@ -275,26 +311,36 @@ const Profile = () => {
           <div className="profile-actions">
             {isEditing ? (
               <>
-                <button className="btn update-btn" onClick={handleEditProfile}>
-                  Update
-                </button>
-                <button className="btn cancel-btn" onClick={handleCancelEdit}>
-                  Cancel
-                </button>
+                <button className="btn update-btn" onClick={handleEditProfile}>Update</button>
+                <button className="btn cancel-btn" onClick={handleCancelEdit}>Cancel</button>
               </>
             ) : (
               <>
-                <button className="btn edit-btn" onClick={handleEditProfile}>
-                  Edit Profile
-                </button>
-                <button className="btn logout-btn" onClick={handleLogout}>
-                  Logout
-                </button>
+                <button className="btn edit-btn" onClick={handleEditProfile}>Edit Profile</button>
+                <button className="btn logout-btn" onClick={handleLogout}>Logout</button>
               </>
             )}
           </div>
         </div>
       </div>
+
+      {hasCourses && (
+        <div className="courses-section">
+          <h2>My Courses</h2>
+          <div className="courses-grid">
+            {displayedCourses.map((course) => (
+              <CardCourse key={course.id} course={course} userData={userData} />
+            ))}
+          </div>
+
+          <div className="courses-actions">
+            <button className="btn green" onClick={handleCreateCourseClick}>Create new</button>
+            <button className="btn light" onClick={() => setShowAllCourses(prev => !prev)}>
+              {showAllCourses ? "Show less" : "Show all"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

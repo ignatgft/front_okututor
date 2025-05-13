@@ -56,10 +56,7 @@ const Navbar = ({ onLogin, onSignup }) => {
           <img src={logo} className="logo-svg" alt="Logo" />
           <h1>OKUTUTOR</h1>
         </div>
-        <div
-          className={`navbar-toggle ${isOpen ? "active" : ""}`}
-          onClick={toggleMenu}
-        >
+        <div className={`navbar-toggle ${isOpen ? "active" : ""}`} onClick={toggleMenu}>
           <span className="bar"></span>
           <span className="bar"></span>
           <span className="bar"></span>
