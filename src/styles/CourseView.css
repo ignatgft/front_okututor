@@ -47,6 +47,7 @@
   border-radius: 8px;
   object-fit: cover;
   margin-bottom: 15px;
+  border: 2px solid #3eb489;
 }
 
 .teacher-info h3 {
@@ -202,6 +203,17 @@
   transition: background-color 0.2s;
 }
 
+.btn.edit-btn {
+  background-color: #3eb489;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .save-btn,
 .submit-btn {
   background-color: #28a745;
@@ -222,13 +234,8 @@
   background-color: #5a6268;
 }
 
-.edit-btn {
-  background-color: #007bff;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #0056b3;
+.btn.edit-btn:hover {
+  background-color: #329b76;
 }
 
 .delete-btn {
@@ -516,6 +523,23 @@
   }
 }
 
+.go-profile-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.go-profile-button:hover {
+  background-color: #388e3c;
+}
+
+
 @media (max-width: 480px) {
   .course-view-page {
     padding: 15px 10px;
@@ -620,4 +644,5 @@
     padding: 6px 15px;
     font-size: 12px;
   }
+
 }

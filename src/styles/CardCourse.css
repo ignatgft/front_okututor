@@ -1,137 +1,91 @@
 .card-course {
-  font-family: 'Inter', sans-serif;
-  border-radius: 5px;
-  padding: 14px;
   width: 450px;
-  max-height: 218px;  
-  border: 1.5px solid #b0b0b0;
-  background: #fff;
-  cursor: pointer;
-  transition: transform 0.1s ease-in-out;
+  height: 220px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 16px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+  cursor: pointer;
 }
 
 .card-course:hover {
-  transform: scale(1.02);
+  transform: translateY(-4px);
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 12px;
 }
 
-.avatar {
+.course-avatar {
   width: 50px;
   height: 50px;
-  border-radius: 6px;
+  border-radius: 12px;
   object-fit: cover;
-  margin-right: 18px;
 }
 
-.course-info {
-  flex-grow: 1;
+.course-title-block {
+  display: flex;
+  flex-direction: column;
 }
 
-.course-info {
-  border: none !important;
-  border-top: none !important;
-  margin-top: 0 !important;
-  padding: 0 !important;
-}
-
-
-.course-info h3 {
-  font-size: 18px;
-  margin: 4px 0;
+.course-title {
+  font-size: 16px;
   font-weight: 600;
-  color: #222;
-}
-
-.instructor {
-  margin-top: 4px;
-  font-size: 15px;
-  color: #666;
   margin: 0;
+  color: #1e3932; /* тёмно-зелёный */
 }
 
-
-.card-body p {
+.course-instructor {
   font-size: 14px;
-  color: #333;
-  line-height: 1.4;
-  margin: 0;
+  color: #9aa5a2; /* серый */
+  margin-top: 4px;
 }
 
-.card-buttons {
-  margin:10px 0;
+.card-description {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.card-tags {
   display: flex;
   gap: 8px;
+  margin: 10px 0 0 0;
   flex-wrap: wrap;
 }
 
-.card-buttons .tag {
-  background-color: #B2EBB9;
-  padding: 8px 20px;
-  border-radius: 6px;
+.tag {
+  background-color: #e2f6e9;
+  color: #2e8b57;
   font-size: 12px;
-  color: #426E5B;
-}
-
-.card-divider {
-  border: none;
-  border-top: 1px solid #e0e0e0;
-  margin: 5px 0 10px 0;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 500;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
-  font-size: 16px;
-  color: #888888;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #6b7d78;
 }
 
-  /* Адаптивность */
-@media (max-width: 600px) {
-  .card-course {
-    width: 90vw;
-    height: auto;
-    padding: 12px;
-  }
+.card-location {
+  color: #7d8d87;
+}
 
-  .card-header {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .course-info h3 {
-    font-size: 16px;
-  }
-
-  .instructor {
-    font-size: 14px;
-  }
-
-  .card-body p {
-    font-size: 13px;
-  }
-
-  .card-buttons .tag {
-    padding: 6px 16px;
-    font-size: 11px;
-  }
-
-  .card-footer {
-    font-size: 14px;
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-start;
-  }
+.card-price {
+  font-weight: 600;
+  color: #27ae60; /* мягкий зелёный */
 }

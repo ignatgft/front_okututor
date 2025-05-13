@@ -112,7 +112,7 @@ const CourseView = () => {
       <div className="course-container">
         <div className="course-sidebar">
           <div className="teacher-info">
-            <img src={userData?.photo || "https://via.placeholder.com/100"} alt="Tutor" />
+            <img src={userData?.avatar || "https://via.placeholder.com/100"} alt="Tutor" />
             <h3>{userData?.full_name}</h3>
             <p>{userData?.location}</p>
             <p>{userData?.email}</p>
