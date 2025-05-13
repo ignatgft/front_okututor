@@ -1,0 +1,75 @@
+.auditorium-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.auditorium-title {
+  text-align: center;
+  font-size: 2rem;
+  color: #1c4532;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: #f6fef9;
+  border: 2px solid #b4e1cd;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 16px rgba(50, 205, 105, 0.1);
+}
+
+.input-field {
+  padding: 0.5rem;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.green-btn {
+  background-color: #3c9a63;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.green-btn:hover {
+  background-color: #2f7c4f;
+}
+
+.meeting-link {
+  margin-top: 1rem;
+  word-break: break-all;
+}
+
+.back-button {
+  background-color: #3c9a63;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(60, 154, 99, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.back-button:hover {
+  background-color: #2f7c4f;
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(47, 124, 79, 0.5);
+}
+

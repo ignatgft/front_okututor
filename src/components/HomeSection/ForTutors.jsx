@@ -1,17 +1,32 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { auth } from "../../firebaseConfig";
 import "../../styles/HomeSectionCSS/ForTutors.css";
 import tutorImage from "../../assets/ForTutors/tutor-img.svg";
 import { auth } from "../../firebaseConfig";
 
-const steps = [
-  { number: 1, title: "Sign up", description: "to create your tutor resume" },
-  { number: 2, title: "Create your Course", description: "to start teaching & earning" },
-  { number: 3, title: "Start earning", description: "by teaching and developing your successful careers" },
-];
-
-const ForTutors = ({ onAuthOpen }) => {
+const ForTutors = ({ onLogin }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const steps = [
+    {
+      number: 1,
+      title: t("tutors.step1.title"),
+      description: t("tutors.step1.description"),
+    },
+    {
+      number: 2,
+      title: t("tutors.step2.title"),
+      description: t("tutors.step2.description"),
+    },
+    {
+      number: 3,
+      title: t("tutors.step3.title"),
+      description: t("tutors.step3.description"),
+    },
+  ];
 
   const handleCreateCourseClick = () => {
     if (auth.currentUser) {
@@ -25,10 +40,8 @@ const ForTutors = ({ onAuthOpen }) => {
   return (
     <section className="for-tutors-section inter">
       <div className="category-header">
-        <span className="category-subtitle">How to become a Tutor</span>
-        <h2 className="category-title">
-          Empower learners worldwide and build your career teaching.
-        </h2>
+        <span className="category-subtitle">{t("tutors.subtitle")}</span>
+        <h2 className="category-title">{t("tutors.title")}</h2>
       </div>
 
       <div className="for-tutors-content">
@@ -46,8 +59,11 @@ const ForTutors = ({ onAuthOpen }) => {
           </div>
 
           <div className="button-wrapper">
-            <button className="create-course-btn" onClick={handleCreateCourseClick}>
-              Create your Course
+            <button
+              className="create-course-btn"
+              onClick={handleCreateCourseClick}
+            >
+              {t("tutors.create_button")}
             </button>
           </div>
         </div>

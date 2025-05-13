@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, storage } from "../firebaseConfig";
-import { updateProfile, signOut } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CardCourse from "../components/CardCourse";
+import { updateProfile, deleteUser, signOut } from "firebase/auth";
+import { useTranslation } from "react-i18next";
 import "../styles/Profile.css";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [hasCourses, setHasCourses] = useState(false);
@@ -31,8 +33,14 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const displayedCourses = showAllCourses ? courses : courses.slice(0, 2);
-
-  const locations = ["Choose location", "New York", "London", "Tokyo", "Moscow", "Sydney"];
+  const locations = [
+    t("profile.choose_location"),
+    "New York",
+    "London",
+    "Tokyo",
+    "Moscow",
+    "Sydney",
+  ];
 
   const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?|localhost)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/;
 
@@ -53,17 +61,18 @@ const Profile = () => {
     }
 
     const initialData = {
-      full_name: user.displayName || "No Name",
-      email: user.email || "No Email",
+      full_name: user.displayName || t("profile.not_provided"),
+      email: user.email || t("profile.not_provided"),
       photoURL: user.photoURL || "https://via.placeholder.com/150",
       phone: "",
-      location: "Choose location",
+      location: t("profile.choose_location"),
       bio: "",
       telegram: "",
       instagram: "",
       whatsapp: "",
       avatar: "",
     };
+
     setUserData(initialData);
     setFormData(initialData);
 
@@ -104,7 +113,8 @@ const Profile = () => {
 
     fetchUserData();
     fetchUserCourses();
-  }, [navigate]);
+  }, [navigate, t]);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -172,6 +182,8 @@ const Profile = () => {
       else {
         setUserData(formData);
         setSuccess("Profile updated successfully");
+      } else {
+        setError(result.error);
       }
       setIsEditing(false);
     } catch {
@@ -201,7 +213,7 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
-      <h1>My Profile</h1>
+      <h1>{t("profile.my_profile")}</h1>
       <div className="profile-container">
         <div className="profile-sidebar">
           <div className="profile-avatar-section">
@@ -224,7 +236,6 @@ const Profile = () => {
               </div>
             )}
           </div>
-
           {hasCourses && (
             <>
               <div className="premium-section">
@@ -260,24 +271,45 @@ const Profile = () => {
         </div>
 
         <div className="profile-info">
-          <h2>Personal Information</h2>
+          <h2>{t("profile.personal_info")}</h2>
 
           <div className="info-field">
-            <label>Email address</label>
-            <p>{userData.email}</p>
-          </div>
-
-          <div className="info-field">
-            <label>Phone</label>
+            <label>{t("profile.full_name")}</label>
             {isEditing ? (
-              <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} />
+              <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+                placeholder={t("profile.enter_full_name")}
+              />
             ) : (
-              <p>{userData.phone || "Not provided"}</p>
+              <p>{userData.full_name}</p>
             )}
           </div>
 
           <div className="info-field">
-            <label>Location</label>
+            <label>{t("profile.email")}</label>
+            <p>{userData.email}</p>
+          </div>
+
+          <div className="info-field">
+            <label>{t("profile.phone")}</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder={t("profile.enter_phone")}
+              />
+            ) : (
+              <p>{userData.phone || t("profile.not_provided")}</p>
+            )}
+          </div>
+
+          <div className="info-field">
+            <label>{t("profile.location")}</label>
             {isEditing ? (
               <>
                 <input
@@ -300,24 +332,37 @@ const Profile = () => {
           </div>
 
           <div className="info-field">
-            <label>Bio</label>
+            <label>{t("profile.bio")}</label>
             {isEditing ? (
-              <textarea name="bio" value={formData.bio} onChange={handleInputChange} />
+              <textarea
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder={t("profile.write_bio")}
+              />
             ) : (
-              <p>{userData.bio || "Not provided"}</p>
+              <p>{userData.bio || t("profile.not_provided")}</p>
             )}
           </div>
 
           <div className="profile-actions">
             {isEditing ? (
               <>
-                <button className="btn update-btn" onClick={handleEditProfile}>Update</button>
-                <button className="btn cancel-btn" onClick={handleCancelEdit}>Cancel</button>
+                <button className="btn update-btn" onClick={handleEditProfile}>
+                  {t("profile.update")}
+                </button>
+                <button className="btn cancel-btn" onClick={handleCancelEdit}>
+                  {t("profile.cancel")}
+                </button>
               </>
             ) : (
               <>
-                <button className="btn edit-btn" onClick={handleEditProfile}>Edit Profile</button>
-                <button className="btn logout-btn" onClick={handleLogout}>Logout</button>
+                <button className="btn edit-btn" onClick={handleEditProfile}>
+                  {t("profile.edit_profile")}
+                </button>
+                <button className="btn logout-btn" onClick={handleLogout}>
+                  {t("profile.logout")}
+                </button>
               </>
             )}
           </div>
