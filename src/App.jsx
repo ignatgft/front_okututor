@@ -7,6 +7,7 @@ import CourseView from "./pages/PgCourseView";
 import PgAuditorium from "./pages/PgAuditorium"; // <--- добавлено
 import Auth from "./components/AuthRegister/Auth";
 import Register from "./components/AuthRegister/Register";
+import PgSearch from "./pages/PgSearch"
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -45,6 +46,7 @@ const handleAuthSuccess = (navigate) => {
         />
         <Route path="/profile" element={<Profile />} />
         <Route path="/course" element={<Course />} />
+        <Route path="/find-tutors" element={<PgSearch />} />
         <Route path="/course/:courseId" element={<CourseView />} />
         <Route path="/auditorium" element={<PgAuditorium />} /> {/* новый маршрут */}
       </Routes>

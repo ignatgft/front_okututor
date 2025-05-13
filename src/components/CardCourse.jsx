@@ -7,7 +7,7 @@ const CardCourse = ({ course }) => {
   const [userData, setUserData] = useState(null);
 
   const handleCardClick = () => {
-    navigate(`/course/${course.id}`);
+    navigate("/course/${course.id}");
   };
 
   useEffect(() => {
@@ -32,6 +32,7 @@ const CardCourse = ({ course }) => {
       <div className="card-header">
         <img
           src={userData?.avatar || "https://via.placeholder.com/40"}
+
           alt="Tutor Avatar"
           className="course-avatar"
         />

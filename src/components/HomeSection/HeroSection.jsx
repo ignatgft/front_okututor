@@ -1,12 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../../styles/HomeSectionCSS/HeroSection.css';
 import heroSection from '../../assets/Navbar/heroSection.svg';
 
 const HeroSection = () => {
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
+  const handleSubmitStart = () => navigate("/find-tutors")
   return (
     <section className="hero-section">
       <div className="hero-content poppins-bold">
@@ -21,9 +22,9 @@ const HeroSection = () => {
         {/* Блок с текстом и кнопкой */}
         <div className="hero-buttons inter">
           <div className="find-tutor-text">{t("hero.find_text")}</div>
-          <Link to="/start" className="btn start-btn">
+          <button className="btn start-btn" onClick={handleSubmitStart}>
             {t("hero.start_btn")}
-          </Link>
+          </button>
         </div>
       </div>
 

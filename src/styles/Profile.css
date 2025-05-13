@@ -22,8 +22,8 @@
   display: flex;
   gap: 30px;
 }
-
-/* Sidebar */
+  align-items: stretch;
+}
 .profile-sidebar {
   flex: 1;
   display: flex;
@@ -262,6 +262,14 @@
   color: #fff;
 }
 
+.delete-btn {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
 .logout-btn {
   background-color: #ccc;
   color: #333;
