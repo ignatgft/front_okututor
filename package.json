@@ -10,11 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.8.3",
+    "@zoomus/websdk": "^2.18.3",
+    "axios": "^1.9.0",
     "firebase": "^11.6.0",
+    "i18next": "^25.1.2",
+    "i18next-browser-languagedetector": "^8.1.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^15.5.1",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.3.0",
     "react-scroll": "^1.9.3"
   },
