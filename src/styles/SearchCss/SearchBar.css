@@ -1,0 +1,150 @@
+/* Основной контейнер страницы */
+.search-page {
+  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #F3F3F9;
+}
+.search-content{
+    display: flex;
+    gap: 45px;
+    margin-top: 52px;
+    width: 100%;
+    padding: 0px 50px 0px 100px;
+}
+
+.cart-courses-content{
+    display: flex;
+    
+}
+.search-page h1 {
+  width: 100%;
+  font-size: 32px;
+  color: #fff;
+  text-align: center;
+  margin: 0px;
+  background: linear-gradient(90deg, #3eb489, #356d5a);
+  padding: 40px 20px;
+}
+ 
+/* SearchBar.css */
+
+.search-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* по центру по горизонтали */
+  align-items: center;      /* по центру по вертикали (опционально) */
+  background-color: #f3f3f9;
+  width: 100%;
+}
+
+.search-page h1 {
+  width: 100%;
+  font-size: 28px;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  background: linear-gradient(90deg, #3eb489, #356d5a);
+  padding: 40px 20px;
+}
+
+.search-wrapper {
+  margin-top: -40px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  width: 90%;
+  max-width: 900px;
+  padding: 6px;
+  position: relative;
+  gap: 0;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding-left: 15px;
+}
+
+.search-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 14px;
+  opacity: 0.7;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #355B38;
+  flex-grow: 1;
+  font-weight: 520;
+}
+
+.search-btn {
+  background-color: #396d58;
+  color: white;
+  border: none;
+  padding: 8px 30px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: auto;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+  background-color: #2f5c49;
+}
+
+.search-layout {
+  display: flex;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.filter-panel {
+  width: 250px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-size: 14px;
+}
+
+.filter-panel h4 {
+  margin: 10px 0 5px;
+  font-weight: 600;
+}
+
+.filter-panel label {
+  display: block;
+  margin: 4px 0;
+}
+
+
+@media (max-width: 768px) {
+  .search-wrapper {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+}
