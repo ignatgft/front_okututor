@@ -246,6 +246,20 @@ const Profile = () => {
           <h2>{t("profile.personal_info")}</h2>
 
           <div className="info-field">
+            <label>{t("profile.full_name")}</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
+              />
+            ) : (
+              <p>{userData.full_name}</p>
+            )}
+          </div>
+
+          <div className="info-field">
             <label>{t("profile.email")}</label>
             <p>{userData.email}</p>
           </div>
