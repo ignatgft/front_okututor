@@ -1,16 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { auth } from "../../firebaseConfig";
 import "../../styles/HomeSectionCSS/ForTutors.css";
 import tutorImage from "../../assets/ForTutors/tutor-img.svg";
-import { auth } from "../../firebaseConfig";
 
 const ForTutors = ({ onLogin }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const steps = [
+  // Используем useMemo чтобы не вызывать t() вне компонента
+  const steps = useMemo(() => [
     {
       number: 1,
       title: t("tutors.step1.title"),
@@ -26,16 +26,15 @@ const ForTutors = ({ onLogin }) => {
       title: t("tutors.step3.title"),
       description: t("tutors.step3.description"),
     },
-  ];
+  ], [t]);
 
   const handleCreateCourseClick = () => {
     if (auth.currentUser) {
       navigate("/course");
     } else {
-      onAuthOpen("/course");
+      if (onLogin) onLogin();
     }
   };
-  
 
   return (
     <section className="for-tutors-section inter">

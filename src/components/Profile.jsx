@@ -1,64 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, storage } from "../firebaseConfig";
+import { auth } from "../firebaseConfig";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CardCourse from "../components/CardCourse";
-import { updateProfile, deleteUser, signOut } from "firebase/auth";
+import { updateProfile, signOut } from "firebase/auth";
 import { useTranslation } from "react-i18next";
 import "../styles/Profile.css";
 
 const Profile = () => {
   const { t } = useTranslation();
-  const [userData, setUserData] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [hasCourses, setHasCourses] = useState(false);
-  const [courses, setCourses] = useState([]);
-  const [showAllCourses, setShowAllCourses] = useState(false);
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    location: "",
-    bio: "",
-    telegram: "",
-    instagram: "",
-    whatsapp: "",
-    avatar: "",
-  });
-  const [errors, setErrors] = useState({ telegram: "", instagram: "", whatsapp: "" });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(null);
   const navigate = useNavigate();
 
+  const [userData, setUserData] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [hasCourses, setHasCourses] = useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [errors, setErrors] = useState({});
+  const [uploading, setUploading] = useState(false);
+
   const displayedCourses = showAllCourses ? courses : courses.slice(0, 2);
+
   const locations = [
     t("profile.choose_location"),
-    "New York",
-    "London",
-    "Tokyo",
-    "Moscow",
-    "Sydney",
+    "New York", "London", "Tokyo", "Moscow", "Sydney"
   ];
 
-  const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?|localhost)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/;
+  const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?|localhost)([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/;
 
   const validateUrl = (url, fieldName) => {
     if (!url) return "";
-    if (!urlRegex.test(url)) return `${fieldName} link is invalid`;
-    return "";
+    return urlRegex.test(url) ? "" : `${fieldName} ${t("profile.invalid_link")}`;
   };
-  const handleCreateCourseClick = () => {
-        navigate("/course");
-  };
-    
+
   useEffect(() => {
     const user = auth.currentUser;
-    if (!user) {
-      navigate("/");
-      return;
-    }
+    if (!user) return navigate("/");
 
     const initialData = {
       full_name: user.displayName || t("profile.not_provided"),
@@ -78,90 +59,83 @@ const Profile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`);
-        const result = await response.json();
-        if (result.error) setError(result.error);
-        else {
-          const updatedData = { ...initialData, ...result };
-          setUserData(updatedData);
-          setFormData(updatedData);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`);
+        const result = await res.json();
+        if (!result.error) {
+          const updated = { ...initialData, ...result };
+          setUserData(updated);
+          setFormData(updated);
         }
       } catch {
-        setError("Failed to fetch user data");
+        setError(t("profile.fetch_error"));
       }
     };
 
-    const fetchUserCourses = async () => {
+    const fetchCourses = async () => {
       try {
-        const idToken = await user.getIdToken(true);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/courses/${user.uid}`, {
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        const token = await user.getIdToken(true);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/courses/${user.uid}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
-        const courses = await response.json();
-        if (Array.isArray(courses) && courses.length > 0) {
-          setHasCourses(true);
-          setCourses(courses);
-        } else {
-          setHasCourses(false);
-          setCourses([]);
-        }
+        const data = await res.json();
+        setCourses(Array.isArray(data) ? data : []);
+        setHasCourses(Array.isArray(data) && data.length > 0);
       } catch {
-        setHasCourses(false);
         setCourses([]);
+        setHasCourses(false);
       }
     };
 
     fetchUserData();
-    fetchUserCourses();
+    fetchCourses();
   }, [navigate, t]);
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (["telegram", "instagram", "whatsapp"].includes(name)) {
-      const fieldName = name.charAt(0).toUpperCase() + name.slice(1);
-      setErrors((prev) => ({ ...prev, [name]: validateUrl(value, fieldName) }));
+      setErrors(prev => ({ ...prev, [name]: validateUrl(value, name) }));
     }
   };
 
-
   const handleAvatarUpload = async (file) => {
     try {
-      const storage = getStorage();
       const uid = auth.currentUser.uid;
-      const storageRef = ref(storage, `avatars/${uid}`);
-    
-      await uploadBytes(storageRef, file); // безопасно
-      const url = await getDownloadURL(storageRef); // получаем ссылку
-    
-      await updateProfile(auth.currentUser, { photoURL: url }); // обновляем в Firebase Auth
-      setUserData((prev) => ({ ...prev, photoURL: url }));
-      setFormData((prev) => ({ ...prev, photoURL: url }));
-      setSuccess("Profile picture updated!");
-    } catch (err) {
-      console.error("Upload failed:", err);
-      setError("Failed to upload avatar.");
+      const storage = getStorage();
+      const refPath = ref(storage, `avatars/${uid}`);
+      setUploading(true);
+      await uploadBytes(refPath, file);
+      const url = await getDownloadURL(refPath);
+
+      await updateProfile(auth.currentUser, { photoURL: url });
+      setAvatarPreview(url);
+      setFormData(prev => ({ ...prev, avatar: url }));
+      setSuccess(t("profile.avatar_success"));
+    } catch {
+      setError(t("profile.avatar_error"));
+    } finally {
+      setUploading(false);
     }
   };
 
   const handleEditProfile = async () => {
     if (!isEditing) {
       setIsEditing(true);
-      setSuccess("");
-      setError("");
       return;
     }
 
-    const validationErrors = {
+    const newErrors = {
       telegram: validateUrl(formData.telegram, "Telegram"),
       instagram: validateUrl(formData.instagram, "Instagram"),
       whatsapp: validateUrl(formData.whatsapp, "WhatsApp"),
     };
-    setErrors(validationErrors);
-    if (Object.values(validationErrors).some((err) => err !== "")) {
-      setError("Please fix the errors before saving");
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some(Boolean)) {
+      setError(t("profile.fix_errors"));
       return;
     }
 
@@ -171,30 +145,25 @@ const Profile = () => {
         photoURL: formData.avatar || userData.photoURL,
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
-      const result = await response.json();
-      if (result.error) setError(result.error);
-      else {
+      const result = await res.json();
+      if (!result.error) {
         setUserData(formData);
-        setSuccess("Profile updated successfully");
-      } else {
-        setError(result.error);
+        setSuccess(t("profile.update_success"));
+        setIsEditing(false);
       }
-      setIsEditing(false);
     } catch {
-      setError("Failed to update profile");
-      setIsEditing(false);
+      setError(t("profile.update_fail"));
     }
   };
 
   const handleCancelEdit = () => {
     setFormData(userData);
-    setErrors({ telegram: "", instagram: "", whatsapp: "" });
+    setErrors({});
     setIsEditing(false);
     setError("");
     setSuccess("");
@@ -205,11 +174,13 @@ const Profile = () => {
       await signOut(auth);
       navigate("/");
     } catch {
-      setError("Failed to log out");
+      setError(t("profile.logout_fail"));
     }
   };
 
-  if (!userData) return <div>Loading...</div>;
+  const handleCreateCourseClick = () => navigate("/course");
+
+  if (!userData) return <div>{t("profile.loading")}</div>;
 
   return (
     <div className="profile-page">
@@ -219,33 +190,34 @@ const Profile = () => {
           <div className="profile-avatar-section">
             <img
               src={
-                avatarPreview ||
-                formData.avatar ||
-                userData.avatar ||
-                userData.photoURL ||
-                "https://via.placeholder.com/150"
+                avatarPreview || formData.avatar || userData.avatar ||
+                userData.photoURL || "https://via.placeholder.com/150"
               }
-              alt="User Avatar"
+              alt="avatar"
               className="profile-avatar"
             />
             <h2>{userData.full_name}</h2>
             {isEditing && (
               <div>
-                <input type="file" accept="image/png, image/jpeg" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
-                {uploading && <p>Uploading...</p>}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => handleAvatarUpload(e.target.files[0])}
+                />
+                {uploading && <p>{t("profile.uploading")}</p>}
               </div>
             )}
           </div>
+
           {hasCourses && (
             <>
               <div className="premium-section">
-                <p>Premium is inactive</p>
-                <button className="btn activate-btn">Activate</button>
+                <p>{t("profile.premium_inactive")}</p>
+                <button className="btn activate-btn">{t("profile.activate")}</button>
               </div>
-
               <div className="social-links">
-                <h3>On the Web</h3>
-                {['telegram', 'instagram', 'whatsapp'].map((name) => (
+                <h3>{t("profile.on_the_web")}</h3>
+                {["telegram", "instagram", "whatsapp"].map((name) => (
                   <div key={name} className="social-item">
                     <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
                     {isEditing ? (
@@ -261,7 +233,7 @@ const Profile = () => {
                         {errors[name] && <p className="error-message">{errors[name]}</p>}
                       </>
                     ) : (
-                      userData[name] && <a href={userData[name]}>Link</a>
+                      userData[name] && <a href={userData[name]}>{userData[name]}</a>
                     )}
                   </div>
                 ))}
@@ -281,7 +253,6 @@ const Profile = () => {
                 name="full_name"
                 value={formData.full_name}
                 onChange={handleInputChange}
-                placeholder={t("profile.enter_full_name")}
               />
             ) : (
               <p>{userData.full_name}</p>
@@ -301,7 +272,6 @@ const Profile = () => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                placeholder={t("profile.enter_phone")}
               />
             ) : (
               <p>{userData.phone || t("profile.not_provided")}</p>
@@ -313,17 +283,13 @@ const Profile = () => {
             {isEditing ? (
               <>
                 <input
-                  type="text"
                   list="locations"
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  placeholder="Enter or select your location"
                 />
                 <datalist id="locations">
-                  {locations.map((loc) => (
-                    <option key={loc} value={loc} />
-                  ))}
+                  {locations.map((loc) => <option key={loc} value={loc} />)}
                 </datalist>
               </>
             ) : (
@@ -338,7 +304,6 @@ const Profile = () => {
                 name="bio"
                 value={formData.bio}
                 onChange={handleInputChange}
-                placeholder={t("profile.write_bio")}
               />
             ) : (
               <p>{userData.bio || t("profile.not_provided")}</p>
@@ -371,17 +336,18 @@ const Profile = () => {
 
       {hasCourses && (
         <div className="courses-section">
-          <h2>My Courses</h2>
+          <h2>{t("profile.my_courses")}</h2>
           <div className="courses-grid">
-            {displayedCourses.map((course) => (
+            {displayedCourses.map(course => (
               <CardCourse key={course.id} course={course} userData={userData} />
             ))}
           </div>
-
           <div className="courses-actions">
-            <button className="btn green" onClick={handleCreateCourseClick}>Create new</button>
+            <button className="btn green" onClick={handleCreateCourseClick}>
+              {t("profile.create_new")}
+            </button>
             <button className="btn light" onClick={() => setShowAllCourses(prev => !prev)}>
-              {showAllCourses ? "Show less" : "Show all"}
+              {showAllCourses ? t("profile.show_less") : t("profile.show_all")}
             </button>
           </div>
         </div>

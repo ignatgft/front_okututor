@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Link as ScrollLink, scroller } from "react-scroll";
 import { useTranslation } from "react-i18next";
 import "../styles/Navbar.css";
@@ -25,7 +25,7 @@ const Navbar = ({ onLogin, onSignup }) => {
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
   const handleScrollLink = (section) => {
     if (location.pathname !== "/") {
@@ -40,7 +40,6 @@ const Navbar = ({ onLogin, onSignup }) => {
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
-    setDropdownOpen(false);
   };
 
   return (
@@ -50,8 +49,13 @@ const Navbar = ({ onLogin, onSignup }) => {
           <img src={logo} className="logo-svg" alt="Logo" />
           <h1>OKUTUTOR</h1>
         </div>
-        <div className={`navbar-toggle ${isOpen ? "active" : ""}`} onClick={toggleMenu}>
-          <span className="bar"></span><span className="bar"></span><span className="bar"></span>
+        <div
+          className={`navbar-toggle ${isOpen ? "active" : ""}`}
+          onClick={toggleMenu}
+        >
+          <span className="bar"></span>
+          <span className="bar"></span>
+          <span className="bar"></span>
         </div>
       </div>
 
@@ -72,37 +76,35 @@ const Navbar = ({ onLogin, onSignup }) => {
                 {t("navbar.auditorium")}
               </button>
 
-              <div className="user-profile" onClick={toggleDropdown}>
+              <div
+                className="user-profile profile-dropdown-trigger"
+                onClick={toggleDropdown}
+                role="button"
+                tabIndex={0}
+              >
                 <img
                   src={user.photoURL || "https://via.placeholder.com/40"}
                   alt="User Avatar"
                   className="user-avatar"
                 />
+
                 {dropdownOpen && (
                   <div className="dropdown-menu">
                     <button className="profile-btn" onClick={handleProfileClick}>
                       {t("navbar.profile")}
                     </button>
+
                     <div className="language-options">
                       <span>{t("navbar.language")}:</span>
-                      <button
-                        className={`lang-btn ${i18n.language === "en" ? "active" : ""}`}
-                        onClick={() => handleLanguageChange("en")}
-                      >
-                        EN
-                      </button>
-                      <button
-                        className={`lang-btn ${i18n.language === "ru" ? "active" : ""}`}
-                        onClick={() => handleLanguageChange("ru")}
-                      >
-                        RU
-                      </button>
-                      <button
-                        className={`lang-btn ${i18n.language === "kg" ? "active" : ""}`}
-                        onClick={() => handleLanguageChange("kg")}
-                      >
-                        KG
-                      </button>
+                      {["en", "ru", "kg"].map((langCode) => (
+                        <button
+                          key={langCode}
+                          className={`lang-btn ${i18n.language === langCode ? "active" : ""}`}
+                          onClick={() => handleLanguageChange(langCode)}
+                        >
+                          {langCode.toUpperCase()}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}

@@ -229,7 +229,15 @@
   "edit_profile": "Edit Profile",
   "logout": "Logout",
   "title": "My Profile",
-  "edit": "Edit Profile"
+  "edit": "Edit Profile",
+  "premium_inactive": "Premium is inactive",
+"activate": "Activate",
+"on_the_web": "On the Web",
+"my_courses": "My Courses",
+"create_new": "Create new",
+"show_all": "Show all",
+"show_less": "Show less"
+
 },
   "auditorium": {
     "title": "Zoom Auditorium",
