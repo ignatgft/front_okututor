@@ -37,10 +37,10 @@ const CardCourse = ({ course, userData }) => {
         <span className="tag">{course.group_size === "individual" ? "Private" : "Group"}</span>
         {course.group_size === "individual" && <span className="tag">Private</span>}
       </div>
-
+      <hr className="card-divider" />
       <div className="card-footer">
         <span className="location">{userData?.location || "Bishkek, Kyrgyzstan"}</span>
-        <span className="price">{course.price_per_hour ? `${course.price_per_hour}som/hour` : "7$/hour"}</span>
+        <span className="pricee">{course.price_per_hour ? `${course.price_per_hour}som/hour` : "7$/hour"}</span>
       </div>
     </div>
   );
