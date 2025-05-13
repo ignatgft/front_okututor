@@ -1,0 +1,251 @@
+{
+  "navbar": {
+    "home": "Home",
+    "category": "Category",
+    "find_tutor": "Find Tutor",
+    "for_tutors": "For Tutors",
+    "about_us": "About Us",
+    "auditorium": "Auditorium",
+    "my_profile": "My Profile",
+    "profile": "My Profile",
+    "language": "Language",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "home": {
+    "headline": "Studying Online is now much easier.",
+    "subtext": "Okututor is an interesting platform that will teach you in a more interactive way",
+    "find_tutor": "Find your tutor",
+    "start": "Start",
+    "select_category": "Select the Category of Your Choice"
+  },
+  "buttons": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "back_home": "⬅ Back to Home"
+  },
+  "categories": {
+    "subtitle": "Tutors by Categories",
+    "title": "Select the Category of Your Choice",
+    "show_more": "show more",
+    "ort": {
+        "title": "Preparation for ORT",
+        "description": "Math, Literature, History & more"
+    },
+    "english": {
+        "title": "English language",
+        "description": "Grammar, Speaking, Reading & more"
+    },
+    "math": {
+        "title": "Mathematics",
+        "description": "Math logic, Math Discrete & more"
+    },
+    "it": {
+        "title": "IT",
+        "description": "Python, JavaScript & more"
+    },
+    "russian": {
+        "title": "Russian language",
+        "description": "Grammar, Speaking, Reading & more"
+    },
+    "sales": {
+        "title": "Sales & Marketing",
+        "description": "Mark. analysis, Brand management & more"
+    },
+    "design": {
+        "title": "Graphics & Design",
+        "description": "Figma, Adobe Illustrator, Photoshop & more"
+    },
+    "music": {
+        "title": "Music",
+        "description": "Singing, Guitar, Piano & more"
+    }
+   },
+   "footer": {
+  "learning_and_teaching": "Learning &\nTeaching",
+  "subscribe": "Subscribe to get our\nNewsletter"
+},
+"tutors": {
+  "subtitle": "How to become a Tutor",
+  "title": "Empower learners worldwide and build your career teaching.",
+  "create_button": "Create your Course",
+  "step1": {
+    "title": "Sign up",
+    "description": "to create your tutor resume"
+  },
+  "step2": {
+    "title": "Create your Course",
+    "description": "to start teaching & earning"
+  },
+  "step3": {
+    "title": "Start earning",
+    "description": "by teaching and developing your successful careers"
+  }
+},
+"hero": {
+  "title": "Studying Online is\nnow much easier.",
+  "subtitle": "Okututor is an interesting platform that will\nteach you in more interactive way",
+  "find_text": "Find your tutor",
+  "start_btn": "Start"
+},
+"how": {
+  "subtitle": "How it works",
+  "title": "Finding Your Success by Tutors. A Step-by-Step Process",
+  "steps": {
+    "step1": {
+      "title": "Create an Account",
+      "description": "Go to the website's homepage and click on the 'Sign up' or 'Log in' button."
+    },
+    "step2": {
+      "title": "Search Desired Tutor",
+      "description": "Start browsing through tutor ads carefully and choose by filters."
+    },
+    "step3": {
+      "title": "Start Learning Fast",
+      "description": "Set your weekly course plan and get ready to achieve your goals!"
+    }
+  }
+},
+"pop": {
+  "subtitle": "Tutor is here",
+  "title": "Most popular Tutors in our platform",
+  "show_more": "Show more"
+},
+"course": {
+  "page_title": "Create your Success & Start Earning",
+  "form_title": "Create your Course!",
+  "form_section": "Course Information",
+  "name": "Name*",
+  "days_label": "Days of week*",
+  "specific_days": "Specific Days*",
+  "group_label": "Group size*",
+  "location_label": "Place for course*",
+  "description_label": "Description*",
+  "experience_label": "Experience (years)*",
+  "price_label": "Price per hour (som)*",
+  "cancel": "Cancel",
+  "create": "Create",
+  "placeholders": {
+    "name": "English language",
+    "days": "Choose when you can teach",
+    "group": "Choose the type of course",
+    "location": "Choose the format of your course",
+    "description": "Write something about the course"
+  },
+  "description": {
+    "name": "Write down your course name",
+    "days": "Choose when you can teach",
+    "specific_days": "Choose specific days you can teach",
+    "group": "Choose the type of course",
+    "location": "Choose the format of your course",
+    "description": "Brief description for your course",
+    "experience": "Write down your experience in years",
+    "price": "How much will your course cost per hour"
+  },
+  "days": {
+    "weekdays": "Weekdays",
+    "weekends": "Weekends",
+    "specific": "Specific Days"
+  },
+  "group": {
+    "individual": "Individual",
+    "group": "Group"
+  },
+  "location": {
+    "offline": "Offline",
+    "online": "Online"
+  },
+  "errors": {
+    "experience": "Experience must be a non-negative number",
+    "price": "Price per hour must be a non-negative number",
+    "default": "Failed to create course",
+    "network": "Error creating course: "
+  },
+  "success": "Course created successfully!"
+},
+"days": {
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday"
+},
+"CourseView":{
+  "courseDetails": "Course Details",
+  "courseNotFound": "Course not found",
+  "pleaseLogin": "Please log in to view course details.",
+  "price": "{{price}}",
+  "bio": "Bio",
+  "notProvided": "Not provided",
+  "online": "Online",
+  "offline": "Offline",
+  "weekdays": "Weekdays",
+  "weekends": "Weekends",
+  "specificDays": "Specific Days",
+  "individual": "Individual",
+  "group": "Group",
+  "private": "Private",
+  "days": "Days",
+  "groupSize": "Group Size",
+  "locationType": "Location Type",
+  "experienceYears": "Experience (years)",
+  "editCourse": "Edit Course",
+  "deleteCourse": "Delete Course",
+  "save": "Save",
+  "cancel": "Cancel",
+  "reviews": "Reviews",
+  "noReviews": "No reviews yet.",
+  "showAllReviews": "SHOW ALL REVIEWS",
+  "showLessReviews": "Show less reviews",
+  "leaveReview": "Leave a Review",
+  "rating": "Rating (1-5)",
+  "comment": "Comment",
+  "submitReview": "Submit Review",
+  "courseUpdated": "Course updated successfully",
+  "courseDeleted": "Course deleted successfully",
+  "reviewSubmitted": "Review submitted successfully",
+  "errorLoadingCourse": "Failed to load course data.",
+  "errorUpdatingCourse": "Failed to update course.",
+  "errorDeletingCourse": "Failed to delete course",
+  "errorSubmittingReview": "Failed to submit review"
+},
+"profile": {
+  "my_profile": "My Profile",
+  "personal_info": "Personal Information",
+  "full_name": "Full name",
+  "email": "Email address",
+  "phone": "Phone",
+  "location": "Location",
+  "bio": "Bio",
+  "not_provided": "Not provided",
+  "enter_full_name": "Enter full name",
+  "enter_phone": "Enter phone number",
+  "write_bio": "Write something about you",
+  "choose_location": "Choose location",
+  "update": "Update",
+  "cancel": "Cancel",
+  "edit_profile": "Edit Profile",
+  "logout": "Logout",
+  "title": "My Profile",
+  "edit": "Edit Profile"
+},
+  "auditorium": {
+    "title": "Zoom Auditorium",
+    "create_title": "Create Zoom Meeting",
+    "creating": "Creating...",
+    "create_btn": "Create Meeting",
+    "link_label": "Join Link:",
+    "join_title": "Join a Meeting",
+    "join_input_placeholder": "Paste Zoom link...",
+    "join_btn": "Join",
+    "error": "Failed to create a Zoom meeting."
+  }
+
+
+
+
+
+}
+

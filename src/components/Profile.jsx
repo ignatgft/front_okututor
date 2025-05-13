@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebaseConfig";
 import { updateProfile, deleteUser, signOut } from "firebase/auth";
+import { useTranslation } from "react-i18next";
 import "../styles/Profile.css";
 
 const Profile = () => {
+  const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,8 +23,14 @@ const Profile = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  // Список местоположений для выпадающего списка
-  const locations = ["Choose location", "New York", "London", "Tokyo", "Moscow", "Sydney"];
+  const locations = [
+    t("profile.choose_location"),
+    "New York",
+    "London",
+    "Tokyo",
+    "Moscow",
+    "Sydney",
+  ];
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -31,53 +39,43 @@ const Profile = () => {
       return;
     }
 
-    // Устанавливаем базовые данные пользователя из Firebase
     const initialData = {
-      full_name: user.displayName || "No Name",
-      email: user.email || "No Email",
+      full_name: user.displayName || t("profile.not_provided"),
+      email: user.email || t("profile.not_provided"),
       photoURL: user.photoURL || "https://via.placeholder.com/150",
       phone: "",
-      location: "Choose location",
+      location: t("profile.choose_location"),
       bio: "",
       telegram: "",
       instagram: "",
       whatsapp: "",
     };
+
     setUserData(initialData);
     setFormData(initialData);
 
-    // Запрашиваем дополнительные данные пользователя с бэкенда
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`);
         const result = await response.json();
-        if (result.error) {
-          setError(result.error);
-        } else {
+        if (!result.error) {
           const updatedData = { ...initialData, ...result };
           setUserData(updatedData);
           setFormData(updatedData);
         }
-      } catch (err) {
+      } catch {
         setError("Failed to fetch user data");
       }
     };
 
     fetchUserData();
-  }, [navigate]);
+  }, [navigate, t]);
 
-  // Обработчик изменения полей формы
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Редактирование профиля
   const handleEditProfile = async () => {
     if (!isEditing) {
       setIsEditing(true);
@@ -87,36 +85,36 @@ const Profile = () => {
     }
 
     try {
-      // Обновляем данные в Firebase
       await updateProfile(auth.currentUser, {
         displayName: formData.full_name,
-        photoURL: userData.photoURL, // Фото пока не редактируем через форму
+        photoURL: userData.photoURL,
       });
 
-      // Обновляем данные в Firestore через бэкенд
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
-        method: "PUT", // Предполагаем, что у вас есть эндпоинт для обновления данных
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const result = await response.json();
-      if (result.error) {
-        setError(result.error);
-      } else {
+      if (!result.error) {
         setUserData(formData);
         setSuccess("Profile updated successfully");
+      } else {
+        setError(result.error);
       }
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       setError("Failed to update profile");
       setIsEditing(false);
     }
   };
 
-  // Отмена редактирования
   const handleCancelEdit = () => {
     setFormData(userData);
     setIsEditing(false);
@@ -124,99 +122,40 @@ const Profile = () => {
     setSuccess("");
   };
 
-  // Выход из аккаунта
   const handleLogout = async () => {
     try {
       await signOut(auth);
       navigate("/");
-    } catch (error) {
+    } catch {
       setError("Failed to log out");
     }
   };
 
-  if (!userData) {
-    return <div>Loading...</div>;
-  }
+  if (!userData) return <div>Loading...</div>;
 
   return (
     <div className="profile-page">
-      <h1>My Profile</h1>
+      <h1>{t("profile.my_profile")}</h1>
       <div className="profile-container">
-        {/* Левая часть: аватар, статус, соцсети */}
         <div className="profile-sidebar">
           <div className="profile-avatar-section">
             <img src={userData.photoURL} alt="User Avatar" className="profile-avatar" />
             <h2>{userData.full_name}</h2>
           </div>
-
-          {/* <div className="premium-section">
-            <p>Premium is inactive</p>
-            <button className="btn activate-btn">Activate</button>
-          </div> */}
-
-          {/* <div className="social-links"> */}
-            {/* <h3>On the Web</h3>
-            <div className="social-item">
-              <span>Telegram</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="telegram"
-                  value={formData.telegram}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.telegram || "#"}>{userData.telegram || "Link"}</a>
-              )}
-            </div> */}
-            {/* <div className="social-item">
-              <span>Instagram</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="instagram"
-                  value={formData.instagram}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.instagram || "#"}>{userData.instagram || "Link"}</a>
-              )}
-            </div> */}
-            {/* <div className="social-item">
-              <span>WhatsApp</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={handleInputChange}
-                  placeholder="Link"
-                  className="social-input"
-                />
-              ) : (
-                <a href={userData.whatsapp || "#"}>{userData.whatsapp || "Link"}</a>
-              )}
-            </div> */}
-          {/* </div> */}
         </div>
 
-        {/* Правая часть: информация о пользователе */}
         <div className="profile-info">
-          <h2>Personal Information</h2>
+          <h2>{t("profile.personal_info")}</h2>
 
           <div className="info-field">
-            <label>Full name</label>
+            <label>{t("profile.full_name")}</label>
             {isEditing ? (
               <input
                 type="text"
                 name="full_name"
                 value={formData.full_name}
                 onChange={handleInputChange}
-                placeholder="Enter full name"
+                placeholder={t("profile.enter_full_name")}
               />
             ) : (
               <p>{userData.full_name}</p>
@@ -224,27 +163,27 @@ const Profile = () => {
           </div>
 
           <div className="info-field">
-            <label>Email address</label>
-            <p>{userData.email}</p> {/* Email не редактируется */}
+            <label>{t("profile.email")}</label>
+            <p>{userData.email}</p>
           </div>
 
           <div className="info-field">
-            <label>Phone</label>
+            <label>{t("profile.phone")}</label>
             {isEditing ? (
               <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                placeholder="Enter phone number"
+                placeholder={t("profile.enter_phone")}
               />
             ) : (
-              <p>{userData.phone || "Not provided"}</p>
+              <p>{userData.phone || t("profile.not_provided")}</p>
             )}
           </div>
 
           <div className="info-field">
-            <label>Location</label>
+            <label>{t("profile.location")}</label>
             {isEditing ? (
               <select name="location" value={formData.location} onChange={handleInputChange}>
                 {locations.map((loc) => (
@@ -259,16 +198,16 @@ const Profile = () => {
           </div>
 
           <div className="info-field">
-            <label>Bio</label>
+            <label>{t("profile.bio")}</label>
             {isEditing ? (
               <textarea
                 name="bio"
                 value={formData.bio}
                 onChange={handleInputChange}
-                placeholder="Write something about you"
+                placeholder={t("profile.write_bio")}
               />
             ) : (
-              <p>{userData.bio || "Not provided"}</p>
+              <p>{userData.bio || t("profile.not_provided")}</p>
             )}
           </div>
 
@@ -276,19 +215,19 @@ const Profile = () => {
             {isEditing ? (
               <>
                 <button className="btn update-btn" onClick={handleEditProfile}>
-                  Update
+                  {t("profile.update")}
                 </button>
                 <button className="btn cancel-btn" onClick={handleCancelEdit}>
-                  Cancel
+                  {t("profile.cancel")}
                 </button>
               </>
             ) : (
               <>
                 <button className="btn edit-btn" onClick={handleEditProfile}>
-                  Edit Profile
+                  {t("profile.edit_profile")}
                 </button>
                 <button className="btn logout-btn" onClick={handleLogout}>
-                  Logout
+                  {t("profile.logout")}
                 </button>
               </>
             )}

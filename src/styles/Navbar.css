@@ -1,238 +1,237 @@
 /* Основные стили для Navbar */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 50px;
-    background-color: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
- 
-  .inter{
-    font-family: "Inter";
-    font-optical-sizing: auto;
-    font-weight: 450;
-    font-style: normal;
-  }
-
-  /* Логотип */
-  
-  .navbar-logo {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-  .logo-text{
-    display: flex;
-  }
-  /* Добавляем стили для логотипа */
-  .logo-svg {
-    margin-right: 7px;
-  }
-  
-  .navbar-logo h1 {
-    margin-bottom: 7px;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  /* Контейнер для ссылок и кнопок */
-  .navbar-menu {
-    display: flex;
-    width: 82%;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  /* Ссылки */
-  .navbar-links {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .navbar-links li {
-    margin: 0 15px;
-  }
-  
-  .navbar-links a {
-    text-decoration: none;
-    color: black;
-    font-size: 16px;
-    font-weight: 500;
-  }
-  
-  .navbar-links a:hover {
-    color: #426E5B;
-  }
-  
-  /* Кнопки */
-  .navbar-buttons {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .btn {
-    padding: 8px 45.5px;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 580;
-    cursor: pointer;
-    width: 100%; /* Для мобильной версии кнопки будут на всю ширину */
-    text-align: center;
-  }
-  
-  .login-btn {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    background-color: #f0f0f0;
-    border: none;
-    color: #426E5B;
-  }
-  
-  .login-btn:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .signup-btn {
-    background-color: #426E5B;
-    border: none;
-    color: #fff;
-  }
-  
-  .signup-btn:hover {
-    background-color: #1b5e20;
-  }
-  
-  /* Бургер-меню (скрыто на десктопе) */
-  .navbar-toggle {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-  }
-  
-  .bar {
-    width: 25px;
-    height: 3px;
-    background-color: #333;
-    margin: 2px 0;
-    transition: 0.3s;
-  }
-  
-  /* Анимация бургер-меню */
-  .navbar-toggle.active .bar:nth-child(2) {
-    opacity: 0;
-  }
-  
-  .navbar-toggle.active .bar:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-  }
-  
-  .navbar-toggle.active .bar:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-  }
-  
-  /* Медиа-запросы для мобильной версии */
-  @media (max-width: 768px) {
-    /* Делаем Navbar вертикальным */
-    .navbar {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 20px;
-      padding: 10px 20px;
-    }
-
-    .navbar-logo h1 {
-        margin-top: 24px;
-        margin-bottom: none;
-        font-size: 16px;
-        font-weight: bold;
-    }
-
-    /* Показываем бургер-меню */
-    .navbar-toggle {
-      display: flex;
-    }
-  
-    /* Скрываем меню по умолчанию */
-    .navbar-menu {
-      display: none;
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    /* Показываем меню, если оно активно */
-    .navbar-menu.active {
-      display: flex;
-    }
-  
-    /* Ссылки в колонку */
-    .navbar-links {
-      flex-direction: column;
-      width: 100%;
-      margin-bottom: 16px;
-      text-align: left;
-    }
-  
-    .navbar-links li {
-      margin: 10px 0;
-    }
-  
-    /* Кнопки в колонку */
-    .navbar-buttons {
-      flex-direction: column;
-      width: 100%;
-      gap: 10px;
-    }
-  }
-  
-  /* Для десктопа */
-  @media (min-width: 769px) {
-    .navbar {
-      flex-direction: row;
-    }
-  
-    .navbar-logo {
-      width: auto;
-    }
-  
-    .navbar-menu {
-      display: flex !important; /* Всегда видно на десктопе */
-    }
-  
-    .navbar-links {
-      flex-direction: row;
-    }
-  
-    .navbar-buttons {
-      flex-direction: row;
-    }
-  
-    .btn {
-      width: auto; /* Кнопки не растягиваются на десктопе */
-    }
-
-  }
-  /* Стили для блока с аватаром и кнопкой выхода */
-.user-profile {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px; /* Расстояние между аватаром и кнопкой */
+  padding: 12px 50px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-/* Стили для аватара */
+.inter {
+  font-family: "Inter";
+  font-optical-sizing: auto;
+  font-weight: 450;
+  font-style: normal;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.logo-text {
+  display: flex;
+}
+
+.logo-svg {
+  margin-right: 7px;
+}
+
+.navbar-logo h1 {
+  margin-bottom: 7px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-menu {
+  display: flex;
+  width: 82%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  margin: 0 15px;
+  transition: transform 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.navbar-links li:hover {
+  transform: scale(1.05);
+  color: #3c9a63;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.navbar-links a:hover {
+  color: #3c9a63;
+}
+
+.navbar-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.btn {
+  padding: 8px 45.5px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 580;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.login-btn {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border: none;
+  color: #426E5B;
+}
+
+.login-btn:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.signup-btn {
+  background-color: #426E5B;
+  border: none;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.signup-btn:hover {
+  background-color: #1b5e20;
+  transform: scale(1.05);
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: #333;
+  margin: 2px 0;
+  transition: 0.3s;
+}
+
+.navbar-toggle.active .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-toggle.active .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.navbar-toggle.active .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px 20px;
+  }
+
+  .navbar-logo h1 {
+    margin-top: 24px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar-menu.active {
+    display: flex;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: left;
+  }
+
+  .navbar-links li {
+    margin: 10px 0;
+  }
+
+  .navbar-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 769px) {
+  .navbar {
+    flex-direction: row;
+  }
+
+  .navbar-logo {
+    width: auto;
+  }
+
+  .navbar-menu {
+    display: flex !important;
+  }
+
+  .navbar-links {
+    flex-direction: row;
+  }
+
+  .navbar-buttons {
+    flex-direction: row;
+  }
+
+  .btn {
+    width: auto;
+  }
+}
+
+.user-profile {
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  padding: 4px;
+  box-shadow: 0 0 0 transparent;
+}
+
 .user-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%; /* Круглый аватар */
+  border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #3c9a63;
+  transition: all 0.3s ease;
 }
 
-/* Стили для кнопки Log out */
+
 .logout-btn {
   background-color: transparent;
   border: 1px solid #ccc;
@@ -248,7 +247,6 @@
   background-color: #f0f0f0;
 }
 
-/* Стили для аудитории */
 .auditorium-btn {
   background-color: #4f46e5;
   color: #fff;
@@ -264,3 +262,93 @@
 .auditorium-btn:hover {
   background-color: #3730a3;
 }
+
+.auditorium-btn-animated {
+  display: flex;
+  align-items: center;
+  background-color: #3c9a63;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(60, 154, 99, 0.4);
+  text-decoration: none;
+}
+
+.auditorium-btn-animated:hover {
+  background-color: #2f7c4f;
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(47, 124, 79, 0.6);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 70px;
+  right: 50px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  gap: 10px;
+  font-family: "Inter";
+}
+
+.lang-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.language-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.lang-btn {
+  background-color: #888; /* серый фон для НЕактивных */
+  color: white;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 0.3s ease;
+}
+
+.lang-btn:hover {
+  opacity: 0.85;
+}
+
+.lang-btn.active {
+  background-color: #3c9a63; /* зелёный фон для активного */
+  color: white;
+}
+
+.profile-btn {
+  background: #3c9a63;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.profile-btn:hover {
+  background-color: #2f7c4f;
+  transform: scale(1.03);
+}
+
+

@@ -1,26 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../../styles/HomeSectionCSS/HeroSection.css';
-import heroSection from '../../assets/Navbar/heroSection.svg'
-
+import heroSection from '../../assets/Navbar/heroSection.svg';
 
 const HeroSection = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="hero-section">
       <div className="hero-content poppins-bold">
         {/* Текстовая часть */}
         <h1 className="hero-title">
-          Studying Online is <br/>now much easier.
+          {t("hero.title")}
         </h1>
         <p className="hero-subtitle poppins-regular">
-          Okututor is an interesting platform that will <br /> teach you in more interactive way
+          {t("hero.subtitle")}
         </p>
 
         {/* Блок с текстом и кнопкой */}
         <div className="hero-buttons inter">
-          <div className="find-tutor-text">Find your tutor</div>
+          <div className="find-tutor-text">{t("hero.find_text")}</div>
           <Link to="/start" className="btn start-btn">
-            Start
+            {t("hero.start_btn")}
           </Link>
         </div>
       </div>

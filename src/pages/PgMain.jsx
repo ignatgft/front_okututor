@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { scroller } from "react-scroll";
+import { useTranslation } from "react-i18next";
+
 import Navbar from "../components/Navbar";
 import HeroSection from "../components/HomeSection/HeroSection";
 import Category from "../components/HomeSection/Category";
@@ -16,6 +17,7 @@ function PgMain() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const openRegisterFromAuth = () => {
     setIsAuthOpen(false);
@@ -58,7 +60,6 @@ function PgMain() {
       <HowItWorks />
 
       <section id="for-tutors">
-        {/* Передаем onLogin в ForTutors */}
         <ForTutors onLogin={() => setIsAuthOpen(true)} />
       </section>
 
@@ -66,7 +67,6 @@ function PgMain() {
         <Footer />
       </section>
 
-      {/* Секция для модального окна авторизации */}
       <section id="auth" className="inter">
         <Auth
           isOpen={isAuthOpen}
@@ -75,7 +75,6 @@ function PgMain() {
         />
       </section>
 
-      {/* Секция для модального окна регистрации */}
       <section id="register" className="inter">
         <Register
           isOpen={isRegisterOpen}
