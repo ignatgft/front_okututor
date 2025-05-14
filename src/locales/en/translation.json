@@ -249,6 +249,45 @@
     "join_input_placeholder": "Paste Zoom link...",
     "join_btn": "Join",
     "error": "Failed to create a Zoom meeting."
+  },
+  "search": {
+    "title": "Studying Online is now much easier!",
+    "placeholder": "Find your tutor",
+    "button": "Search",
+    "filter_by": "Filter by",
+    "price_max": "Price (max)",
+    "days": "Days",
+    "weekdays": "Weekdays",
+    "weekends": "Weekends",
+    "specific": "Specific days",
+    "group_size": "Group Size",
+    "individual": "Individual",
+    "group": "Group",
+    "location_type": "Place for course",
+    "online": "Online",
+    "offline": "Offline",
+    "all_tutor_list": "All Tutor list",
+    "no_courses": "No courses found.",
+    "error_loading_courses": "Error loading courses"
+  },
+   "course": {
+    "som_per_hour": "som/hour",
+    "location": "Location",
+    "group": "Group",
+    "online": "Online",
+    "offline": "Offline",
+    "individual": "Individual",
+    "group_size": "Group",
+    "tutor": "Tutor",
+    "email": "Email",
+    "edit": "Edit",
+    "delete": "Delete",
+    "reviews": "Reviews",
+    "no_reviews": "No reviews yet.",
+    "leave_review": "Leave a review",
+    "rating_placeholder": "Rating (1-5)",
+    "comment_placeholder": "Your comment",
+    "submit_review": "Submit Review"
   }
 
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import CardCourse from "../../components/CardCourse";
 import "../../styles/SearchCss/SearchBar.css";
 import searchIcon from '../../assets/SearchPg/search-icon.svg';
 
 const SearchBar = () => {
+  const { t } = useTranslation();
+
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,7 +14,8 @@ const SearchBar = () => {
   const [filters, setFilters] = useState({
     days: [],
     group_size: [],
-    location_type: []
+    location_type: [],
+    price_max: "",
   });
 
   useEffect(() => {
@@ -22,7 +26,7 @@ const SearchBar = () => {
         if (!Array.isArray(coursesData)) throw new Error("Invalid course format");
         setCourses(coursesData);
 
-        const userIds = [...new Set(coursesData.map(course => course.teacher_id))];
+        const userIds = [...new Set(coursesData.map(course => course.teacher_id).filter(Boolean))];
         const usersData = {};
         for (const userId of userIds) {
           const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`);
@@ -31,7 +35,7 @@ const SearchBar = () => {
         }
         setUsers(usersData);
       } catch (err) {
-        setError("Error loading courses: " + err.message);
+        setError(t("search.error_loading_courses") + ": " + err.message);
       }
     };
 
@@ -50,28 +54,24 @@ const SearchBar = () => {
     });
   };
 
-  const matchesFilters = (course) => {
-    const { days, group_size, location_type } = filters;
-    return (
-      (days.length === 0 || days.includes(course.days)) &&
-      (group_size.length === 0 || group_size.includes(course.group_size)) &&
-      (location_type.length === 0 || location_type.includes(course.location_type))
-    );
-  };
-
-  const filteredCourses = courses.filter(course => {
+  const filteredCourses = courses.filter((course) => {
     const user = users[course.teacher_id];
-    const query = searchQuery.toLowerCase();
-    return (
-      matchesFilters(course) &&
-      (course.title?.toLowerCase().includes(query) ||
-       user?.full_name?.toLowerCase().includes(query))
+    const queryMatch = (
+      course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const daysMatch = filters.days.length === 0 || filters.days.includes(course.days);
+    const locationMatch = filters.location_type.length === 0 || filters.location_type.includes(course.location_type);
+    const groupSizeMatch = filters.group_size.length === 0 || filters.group_size.includes(course.group_size);
+    const priceMatch = !filters.price_max || course.price_per_hour <= parseFloat(filters.price_max);
+
+    return queryMatch && daysMatch && locationMatch && groupSizeMatch && priceMatch;
   });
 
   return (
     <div className="search-page">
-      <h1>Studying Online is now much easier!</h1>
+      <h1>{t("search.title")}</h1>
       <div className="search-layout">
         <div className="search-main">
           <div className="search-wrapper">
@@ -79,34 +79,69 @@ const SearchBar = () => {
               <img src={searchIcon} alt="search icon" className="search-icon" />
               <input
                 type="text"
-                placeholder="Find your tutor"
+                placeholder={t("search.placeholder")}
                 className="search-input"
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
             </div>
-            <button className="search-btn">Search</button>
+            <button className="search-btn">{t("search.button")}</button>
           </div>
           <div className="search-content">
             <aside className="filter-panel">
-              <h4>Filter by Days</h4>
+              <h3>{t("search.filter_by")}</h3>
+
+              <h4>{t("search.price_max")}</h4>
+              <input
+                type="number"
+                placeholder="e.g. 500"
+                value={filters.price_max}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    price_max: e.target.value,
+                  }))
+                }
+                className="price-input"
+              />
+
+              <h4>{t("search.days")}</h4>
               {["weekdays", "weekends", "specific"].map(opt => (
-                <label key={opt}><input type="checkbox" onChange={() => handleCheckboxChange("days", opt)} /> {opt}</label>
+                <label key={opt}>
+                  <input
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange("days", opt)}
+                  />{" "}
+                  {t(`search.${opt}`)}
+                </label>
               ))}
-    
-              <h4>Group Size</h4>
+
+              <h4>{t("search.group_size")}</h4>
               {["individual", "group"].map(opt => (
-                <label key={opt}><input type="checkbox" onChange={() => handleCheckboxChange("group_size", opt)} /> {opt}</label>
+                <label key={opt}>
+                  <input
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange("group_size", opt)}
+                  />{" "}
+                  {t(`search.${opt}`)}
+                </label>
               ))}
-    
-              <h4>Location</h4>
+
+              <h4>{t("search.location_type")}</h4>
               {["online", "offline"].map(opt => (
-                <label key={opt}><input type="checkbox" onChange={() => handleCheckboxChange("location_type", opt)} /> {opt}</label>
+                <label key={opt}>
+                  <input
+                    type="checkbox"
+                    onChange={() => handleCheckboxChange("location_type", opt)}
+                  />{" "}
+                  {t(`search.${opt}`)}
+                </label>
               ))}
             </aside>
+
             <div className="card-courses-content">
-              <h3>All Tutor list</h3>
-              {filteredCourses.length === 0 && !error && <p>No courses found.</p>}
+              <h3>{t("search.all_tutor_list")}</h3>
+              {filteredCourses.length === 0 && !error && <p>{t("search.no_courses")}</p>}
               <div className="courses-search-grid">
                 {filteredCourses.map(course => (
                   <CardCourse key={course.id} course={course} userData={users[course.teacher_id]} />

@@ -1,648 +1,122 @@
-.course-view-page {
-  font-family: "Inter", sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.course-detail-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', sans-serif;
+  color: #333;
 }
 
 .course-header {
-  width: 100%;
-  font-size: 32px;
-  color: #fff;
-  margin: 0px;
   background: linear-gradient(90deg, #3eb489, #356d5a);
-  padding: 40px 20px;
+  color: white;
+  padding: 30px 20px;
+  border-radius: 8px 8px 0 0;
 }
 
 .course-header h1 {
-  font-size: 30px;
-  color: #fff;
   margin: 0;
+  font-size: 32px;
 }
 
-.course-container {
+.course-meta {
+  margin: 20px 0;
+  line-height: 1.6;
+}
+
+.tutor-info {
+  margin: 30px 0 10px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.owner-actions {
   display: flex;
-  min-width: 1200px;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 25px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  gap: 10px;
   margin-bottom: 30px;
 }
 
-.course-sidebar {
-  width: 30%;
-  padding-right: 20px;
+.btn-edit,
+.btn-delete {
+  padding: 10px 20px;
+  border: none;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.teacher-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.btn-edit {
+  background-color: #3498db;
+  color: white;
 }
 
-.teacher-photo {
-  width: 120px;
-  height: 120px;
-  border-radius: 8px;
-  object-fit: cover;
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+
+.review-form h4 {
   margin-bottom: 15px;
-  border: 2px solid #3eb489;
-}
-
-.teacher-info h3 {
   font-size: 20px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
+  color: #355b38;
 }
 
-.teacher-info p {
-  font-size: 14px;
-  color: #666;
-  margin: 5px 0;
-  line-height: 1.5;
-}
-
-.course-info {
-  width: 70%;
-  padding-left: 30px;
-  border-left: 1px solid #e0e0e0;
-}
-
-.course-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.course-header h2 {
-  font-size: 22px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: 500;
-  color: #007bff;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 25px;
-}
-
-.tag {
-  background-color: #e6f4ea;
-  color: #28a745;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.bio h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-  text-transform: capitalize;
-}
-
-.bio p {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.additional-info {
-  margin-top: 25px;
-}
-
-.info-field {
-  margin-bottom: 20px;
-}
-
-.info-field label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  display: block;
-  margin-bottom: 8px;
-  text-transform: capitalize;
-}
-
-.info-field p {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
-
-.edit-input,
-.edit-textarea {
+.review-form input[type="number"],
+.review-form textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
-  background-color: #fff;
-  transition: border-color 0.2s;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+  font-family: "Inter", sans-serif;
 }
 
-.edit-input:focus,
-.edit-textarea:focus {
-  border-color: #007bff;
+.review-form input[type="number"]:focus,
+.review-form textarea:focus {
+  border-color: #3eb489;
   outline: none;
 }
 
-.price-input {
-  width: auto;
-  min-width: 120px;
-}
-
-.edit-textarea {
-  height: 120px;
+.review-form textarea {
   resize: vertical;
+  min-height: 100px;
 }
 
-.specific-days {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.specific-day-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: #666;
-}
-
-.edit-actions {
-  margin-top: 30px;
-  display: flex;
-  gap: 12px;
-}
-
-.btn {
+.review-form button {
+  background-color: #3eb489;
+  color: #fff;
   padding: 10px 20px;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn.edit-btn {
-  background-color: #3eb489;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.save-btn,
-.submit-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-.save-btn:hover,
-.submit-btn:hover {
-  background-color: #218838;
-}
-
-.cancel-btn {
-  background-color: #6c757d;
-  color: white;
-}
-
-.cancel-btn:hover {
-  background-color: #5a6268;
-}
-
-.btn.edit-btn:hover {
-  background-color: #329b76;
-}
-
-.delete-btn {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #e63939;
-}
-
-.reviews-section {
-  margin-top: 40px;
-}
-
-.reviews-section h3 {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-  text-transform: capitalize;
-}
-
-.reviews-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.review {
-  display: flex;
-  gap: 12px;
-  background-color: #f9f9f9;
-  padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.reviewer-photo {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.review-content {
-  flex: 1;
-}
-
-.review-content p {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.5;
-  margin: 0 0 8px;
-}
-
-.review-date {
-  font-size: 12px;
-  color: #999;
-  display: block;
-}
-
-.show-reviews-btn {
-  display: block;
-  margin: 25px auto 0;
-  padding: 10px 25px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.25s ease;
 }
 
-.show-reviews-btn:hover {
-  background-color: #0056b3;
+.review-form button:hover {
+  background-color: #356d5a;
 }
 
-.review-form {
-  margin-top: 40px;
-  min-width: 500px;
-}
-
-.review-form h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 20px;
-  text-transform: capitalize;
-}
-
-/* Адаптивные стили для мобильных устройств */
-@media (max-width: 768px) {
-  .course-view-page {
-    padding: 20px 15px;
-  }
-
-  .course-header {
-    padding: 20px 15px;
-    font-size: 24px;
-  }
-
-  .course-header h1 {
-    font-size: 24px;
-  }
-
-  .course-container {
-    flex-direction: column;
-    min-width: 100%;
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-
-  .course-sidebar {
-    width: 100%;
-    padding-right: 0;
-    margin-bottom: 20px;
-  }
-
-  .teacher-info {
-    align-items: center;
-    text-align: center;
-  }
-
-  .teacher-photo {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 10px;
-  }
-
-  .teacher-info h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-
-  .teacher-info p {
-    font-size: 13px;
-  }
-
-  .course-info {
-    width: 100%;
-    padding-left: 0;
-    border-left: none;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 20px;
-  }
-
-  .course-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .course-header h2 {
-    font-size: 20px;
-  }
-
-  .price {
-    font-size: 16px;
-  }
-
-  .tags {
-    gap: 6px;
-    margin-bottom: 15px;
-  }
-
-  .tag {
-    padding: 5px 10px;
-    font-size: 11px;
-  }
-
-  .bio h4 {
-    font-size: 15px;
-    margin-bottom: 8px;
-  }
-
-  .bio p {
-    font-size: 13px;
-    line-height: 1.5;
-  }
-
-  .additional-info {
-    margin-top: 15px;
-  }
-
-  .info-field {
-    margin-bottom: 15px;
-  }
-
-  .info-field label {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .info-field p {
-    font-size: 13px;
-  }
-
-  .edit-input,
-  .edit-textarea {
-    padding: 8px;
-    font-size: 13px;
-  }
-
-  .price-input {
-    min-width: 100px;
-  }
-
-  .edit-textarea {
-    height: 100px;
-  }
-
-  .specific-days {
-    gap: 10px;
-  }
-
-  .specific-day-label {
-    font-size: 13px;
-    gap: 5px;
-  }
-
-  .edit-actions {
-    margin-top: 20px;
-    flex-direction: row;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    padding: 8px 16px;
-    font-size: 13px;
-  }
-
-  .reviews-section {
-    margin-top: 30px;
-  }
-
-  .reviews-section h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-
-  .reviews-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .review {
-    padding: 12px;
-    gap: 10px;
-  }
-
-  .reviewer-photo {
-    width: 35px;
-    height: 35px;
-  }
-
-  .review-content p {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .review-date {
-    font-size: 11px;
-  }
-
-  .show-reviews-btn {
-    margin: 20px auto 0;
-    padding: 8px 20px;
-    font-size: 13px;
-  }
-
+/* Optional mobile optimization */
+@media (max-width: 600px) {
   .review-form {
-    margin-top: 30px;
-    min-width: 100%;
+    padding: 16px;
   }
 
-  .review-form h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-}
-
-.go-profile-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #4caf50;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background 0.3s ease;
-}
-
-.go-profile-button:hover {
-  background-color: #388e3c;
-}
-
-
-@media (max-width: 480px) {
-  .course-view-page {
-    padding: 15px 10px;
-  }
-
-  .course-header {
-    padding: 15px 10px;
-    font-size: 20px;
-  }
-
-  .course-header h1 {
-    font-size: 20px;
-  }
-
-  .course-container {
-    padding: 10px;
-  }
-
-  .teacher-photo {
-    width: 90px;
-    height: 90px;
-  }
-
-  .teacher-info h3 {
-    font-size: 16px;
-  }
-
-  .teacher-info p {
-    font-size: 12px;
-  }
-
-  .course-info {
-    padding-top: 15px;
-  }
-
-  .course-header h2 {
+  .review-form h4 {
     font-size: 18px;
   }
 
-  .price {
-    font-size: 14px;
+  .review-form button {
+    width: 100%;
+    margin-top: 8px;
   }
-
-  .tag {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .bio h4 {
-    font-size: 14px;
-  }
-
-  .bio p {
-    font-size: 12px;
-  }
-
-  .info-field label,
-  .info-field p,
-  .edit-input,
-  .edit-textarea,
-  .specific-day-label {
-    font-size: 12px;
-  }
-
-  .edit-input,
-  .edit-textarea {
-    padding: 6px;
-  }
-
-  .edit-textarea {
-    height: 80px;
-  }
-
-  .btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .reviews-section h3,
-  .review-form h3 {
-    font-size: 14px;
-  }
-
-  .review {
-    padding: 10px;
-  }
-
-  .reviewer-photo {
-    width: 30px;
-    height: 30px;
-  }
-
-  .review-content p {
-    font-size: 12px;
-  }
-
-  .review-date {
-    font-size: 10px;
-  }
-
-  .show-reviews-btn {
-    padding: 6px 15px;
-    font-size: 12px;
-  }
-
 }

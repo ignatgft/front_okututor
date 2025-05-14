@@ -6,16 +6,12 @@ const CardCourse = ({ course }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
 
-  const handleCardClick = () => {
-    navigate("/course/${course.id}");
-  };
-
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!course.user_id) return;
+    if (!course.teacher_id) return;
 
+    const fetchUserData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${course.user_id}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${course.teacher_id}`);
         if (!response.ok) throw new Error("User fetch failed");
         const data = await response.json();
         setUserData(data);
@@ -25,15 +21,22 @@ const CardCourse = ({ course }) => {
     };
 
     fetchUserData();
-  }, [course.user_id]);
+  }, [course.teacher_id]);
+
+  const handleCardClick = () => {
+    navigate(`/course/${course.id}`);
+  };
 
   return (
     <div className="card-course" onClick={handleCardClick}>
       <div className="card-header">
         <img
-          src={userData?.avatar || "https://via.placeholder.com/40"}
-
-          alt="Tutor Avatar"
+          src={
+            userData?.avatar ||
+            userData?.photoURL ||
+            "https://via.placeholder.com/150"
+          }
+          alt="User Avatar"
           className="course-avatar"
         />
         <div className="course-title-block">

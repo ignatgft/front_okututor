@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, storage } from "../firebaseConfig";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CardCourse from "../components/CardCourse";
 import { updateProfile, signOut } from "firebase/auth";
 import { useTranslation } from "react-i18next";
@@ -26,8 +26,6 @@ const Profile = () => {
     avatar: "",
   });
   const [errors, setErrors] = useState({ telegram: "", instagram: "", whatsapp: "" });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [uploading, setUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const navigate = useNavigate();

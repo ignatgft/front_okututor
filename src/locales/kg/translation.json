@@ -238,7 +238,47 @@
 "show_all": "Баарын көрсөтүү",
 "show_less": "Жашыруу"
 
-}
+}, 
+"search": {
+    "title": "Онлайн окуу эми оңой!",
+    "placeholder": "Мугалимди издеңиз",
+    "button": "Издөө",
+    "filter_by": "Фильтрлө",
+    "price_max": "Макс. баа",
+    "days": "Күндөр",
+    "weekdays": "Иш күндөрү",
+    "weekends": "Дем алыш",
+    "specific": "Айрым күндөр",
+    "group_size": "Сабак форматы",
+    "individual": "Жеке сабак",
+    "group": "Топтук сабак",
+    "location_type": "Сабак өтүү түрү",
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "all_tutor_list": "Мугалимдердин тизмеси",
+    "no_courses": "Курстар табылган жок",
+    "error_loading_courses": "Курстарды жүктөөдө ката чыкты"
+  },
+  "course": {
+    "som_per_hour": "сом/саат",
+    "location": "Жайгашкан жери",
+    "group": "Топ",
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "individual": "Жекече",
+    "group_size": "Топтук",
+    "tutor": "Мугалим",
+    "email": "Email дарек",
+    "edit": "Түзөтүү",
+    "delete": "Өчүрүү",
+    "reviews": "Сын-пикирлер",
+    "no_reviews": "Азырынча сын-пикирлер жок.",
+    "leave_review": "Сын-пикир калтыруу",
+    "rating_placeholder": "Баалоо (1-5)",
+    "comment_placeholder": "Сиздин пикириңиз",
+    "submit_review": "Жөнөтүү"
+  }
+
 
 
 

@@ -238,9 +238,46 @@
 "show_all": "Показать все",
 "show_less": "Скрыть"
 
-}
-
-
-
+},
+  "search": {
+    "title": "Учиться онлайн стало проще!",
+    "placeholder": "Найдите вашего репетитора",
+    "button": "Поиск",
+    "filter_by": "Фильтрация",
+    "price_max": "Цена (макс)",
+    "days": "Дни",
+    "weekdays": "Будни",
+    "weekends": "Выходные",
+    "specific": "Конкретные дни",
+    "group_size": "Тип занятия",
+    "individual": "Индивидуальное",
+    "group": "Групповое",
+    "location_type": "Формат",
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "all_tutor_list": "Список репетиторов",
+    "no_courses": "Курсы не найдены",
+    "error_loading_courses": "Ошибка при загрузке курсов"
+  },
+   "course": {
+    "som_per_hour": "сом/час",
+    "location": "Локация",
+    "group": "Группа",
+    "online": "Онлайн",
+    "offline": "Оффлайн",
+    "individual": "Индивидуально",
+    "group_size": "Группа",
+    "tutor": "Преподаватель",
+    "email": "Эл. почта",
+    "edit": "Редактировать",
+    "delete": "Удалить",
+    "reviews": "Отзывы",
+    "no_reviews": "Отзывов пока нет.",
+    "leave_review": "Оставить отзыв",
+    "rating_placeholder": "Оценка (1-5)",
+    "comment_placeholder": "Ваш комментарий",
+    "submit_review": "Отправить отзыв"
+  }
+  
 
 }

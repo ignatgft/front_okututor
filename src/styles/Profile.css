@@ -22,8 +22,7 @@
   display: flex;
   gap: 30px;
 }
-  align-items: stretch;
-}
+
 .profile-sidebar {
   flex: 1;
   display: flex;
