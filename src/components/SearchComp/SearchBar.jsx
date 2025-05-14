@@ -1,15 +1,59 @@
+// frontend/src/components/SearchComp/SearchBar.jsx
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CardCourse from "../../components/CardCourse";
 import "../../styles/SearchCss/SearchBar.css";
 import searchIcon from '../../assets/SearchPg/search-icon.svg';
 
+const getSearchAliases = (query) => {
+  const lowered = query.trim().toLowerCase();
+
+  const aliasMap = {
+    "english language": ["english language", "английский язык", "англис тили"],
+    "английский язык": ["english language", "английский язык", "англис тили"],
+    "англис тили": ["english language", "английский язык", "англис тили"],
+
+    "mathematics": ["mathematics", "математика", "математика сабагы"],
+    "математика": ["mathematics", "математика", "математика сабагы"],
+    "математика сабагы": ["mathematics", "математика", "математика сабагы"],
+
+    "russian language": ["russian language", "русский язык", "орус тили"],
+    "русский язык": ["russian language", "русский язык", "орус тили"],
+    "орус тили": ["russian language", "русский язык", "орус тили"],
+
+    "design": ["design", "дизайн"],
+    "дизайн": ["design", "дизайн"],
+
+    "it": ["it", "программирование", "it адистиги"],
+    "программирование": ["it", "программирование", "it адистиги"],
+    "it адистиги": ["it", "программирование", "it адистиги"],
+
+    "sales": ["sales", "продажи", "сатуу"],
+    "продажи": ["sales", "продажи", "сатуу"],
+    "сатуу": ["sales", "продажи", "сатуу"],
+
+    "music": ["music", "музыка", "ырдоо"],
+    "музыка": ["music", "музыка", "ырдоо"],
+    "ырдоо": ["music", "музыка", "ырдоо"],
+
+    "ORT": ["ORT", "Подготовка к ОРТ", "ЖРТга даярдануу"],
+    "Подготовка к ОРТ": ["ORT", "общереспубликанское тестирование", "ЖРТга даярдануу"],
+    "жалпы республикалык тестирлөө": ["ORT", "Подготовка к ОРТ", "ЖРТга даярдануу"],
+  };
+
+  return aliasMap[lowered] || [lowered];
+};
+
 const SearchBar = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const qParam = queryParams.get("q") || "";
 
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState({});
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(qParam);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState({
     days: [],
@@ -17,6 +61,10 @@ const SearchBar = () => {
     location_type: [],
     price_max: "",
   });
+
+  useEffect(() => {
+    setSearchQuery(qParam);
+  }, [qParam]);
 
   useEffect(() => {
     const fetchCoursesAndUsers = async () => {
@@ -56,9 +104,11 @@ const SearchBar = () => {
 
   const filteredCourses = courses.filter((course) => {
     const user = users[course.teacher_id];
-    const queryMatch = (
-      course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    const aliases = getSearchAliases(searchQuery);
+
+    const queryMatch = aliases.some(alias =>
+      course.title?.toLowerCase().includes(alias) ||
+      user?.full_name?.toLowerCase().includes(alias)
     );
 
     const daysMatch = filters.days.length === 0 || filters.days.includes(course.days);
@@ -87,6 +137,7 @@ const SearchBar = () => {
             </div>
             <button className="search-btn">{t("search.button")}</button>
           </div>
+
           <div className="search-content">
             <aside className="filter-panel">
               <h3>{t("search.filter_by")}</h3>

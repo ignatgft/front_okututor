@@ -1,3 +1,4 @@
+// frontend/src/components/HomeSection/Category.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -20,49 +21,41 @@ const Category = () => {
       title: t('categories.ort.title'),
       description: t('categories.ort.description'),
       icon: ortIcon,
-      link: '/category/ort',
     },
     {
       title: t('categories.english.title'),
       description: t('categories.english.description'),
       icon: englishIcon,
-      link: '/category/english',
     },
     {
       title: t('categories.math.title'),
       description: t('categories.math.description'),
       icon: mathIcon,
-      link: '/category/math',
     },
     {
       title: t('categories.it.title'),
       description: t('categories.it.description'),
       icon: itIcon,
-      link: '/category/it',
     },
     {
       title: t('categories.russian.title'),
       description: t('categories.russian.description'),
       icon: russianIcon,
-      link: '/category/russian',
     },
     {
       title: t('categories.sales.title'),
       description: t('categories.sales.description'),
       icon: salesIcon,
-      link: '/category/sales',
     },
     {
       title: t('categories.design.title'),
       description: t('categories.design.description'),
       icon: designIcon,
-      link: '/category/design',
     },
     {
       title: t('categories.music.title'),
       description: t('categories.music.description'),
       icon: musicIcon,
-      link: '/category/music',
     },
   ];
 
@@ -74,7 +67,11 @@ const Category = () => {
       </div>
       <div className="category-grid">
         {categories.map((category, index) => (
-          <Link to={category.link} key={index} className="category-card">
+          <Link
+            to={`/find-tutors?q=${encodeURIComponent(category.title)}`}
+            key={index}
+            className="category-card"
+          >
             <div className="category-icon">
               <img src={category.icon} alt={`${category.title} icon`} />
             </div>
