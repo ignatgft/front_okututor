@@ -5,9 +5,14 @@ import "../styles/CardCourse.css";
 const CardCourse = ({ course }) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!course.teacher_id) return;
+    if (!course.teacher_id) {
+      setIsLoading(false);
+      return;
+    }
 
     const fetchUserData = async () => {
       try {
@@ -15,29 +20,48 @@ const CardCourse = ({ course }) => {
         if (!response.ok) throw new Error("User fetch failed");
         const data = await response.json();
         setUserData(data);
+        // Устанавливаем начальный URL аватарки
+        setAvatarUrl(data?.avatar || data?.photoURL || getDefaultAvatar(data?.full_name));
       } catch (error) {
         console.error("Error loading user data:", error);
+        setUserData({ full_name: "Unknown Instructor", location: "Unknown" });
+        setAvatarUrl(getDefaultAvatar("Unknown Instructor"));
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUserData();
   }, [course.teacher_id]);
 
+  // Функция для генерации заглушки на основе имени
+  const getDefaultAvatar = (name) => {
+    if (!name) return "https://via.placeholder.com/150";
+    const encodedName = encodeURIComponent(name);
+    return `https://ui-avatars.com/api/?name=${encodedName}&background=0D8ABC&color=fff&size=150`;
+  };
+
+  // Обработчик ошибки загрузки изображения
+  const handleImageError = () => {
+    setAvatarUrl(getDefaultAvatar(userData?.full_name || "Unknown Instructor"));
+  };
+
   const handleCardClick = () => {
     navigate(`/course/${course.id}`);
   };
+
+  if (isLoading) {
+    return <div className="card-course loading">Loading...</div>;
+  }
 
   return (
     <div className="card-course" onClick={handleCardClick}>
       <div className="card-header">
         <img
-          src={
-            userData?.avatar ||
-            userData?.photoURL ||
-            "https://via.placeholder.com/150"
-          }
+          src={avatarUrl}
           alt="User Avatar"
-          className="course-avatar"
+          className="course-avatarr"
+          onError={handleImageError} // Обработчик ошибки загрузки
         />
         <div className="course-title-block">
           <h3 className="course-title">{course.title || "Course Title"}</h3>

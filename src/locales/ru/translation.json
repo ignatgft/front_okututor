@@ -277,7 +277,11 @@
     "leave_review": "Оставить отзыв",
     "rating_placeholder": "Оценка (1-5)",
     "comment_placeholder": "Ваш комментарий",
-    "submit_review": "Отправить отзыв"
+    "submit_review": "Отправить отзыв",
+    "phone": "тел. номер",
+    "telegram": "телеграм",
+    "instagram": "инстаграм",
+    "whatsapp": "whatsapp"
   }
   
 

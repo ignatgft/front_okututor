@@ -104,6 +104,36 @@
 .review-form button:hover {
   background-color: #356d5a;
 }
+.tutor-avatar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.course-avatar {
+  width: 100px; /* Настройте размер под дизайн */
+  height: 100px;
+  border-radius: 10%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+.course-detail-container p {
+  margin: 5px 0;
+}
+.loading {
+  color: #666;
+  text-align: center;
+}
+.star-rating {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.star-rating svg:hover {
+  transform: scale(1.2);
+  transition: transform 0.2s;
+}
 
 /* Optional mobile optimization */
 @media (max-width: 600px) {

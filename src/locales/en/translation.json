@@ -288,7 +288,11 @@
     "leave_review": "Leave a review",
     "rating_placeholder": "Rating (1-5)",
     "comment_placeholder": "Your comment",
-    "submit_review": "Submit Review"
+    "submit_review": "Submit Review",
+    "phone": "phone number",
+    "telegram": "telegram",
+    "instagram": "instagram",
+    "whatsapp": "whatsapp"
   }
 
 

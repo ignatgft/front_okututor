@@ -277,7 +277,11 @@
     "leave_review": "Сын-пикир калтыруу",
     "rating_placeholder": "Баалоо (1-5)",
     "comment_placeholder": "Сиздин пикириңиз",
-    "submit_review": "Жөнөтүү"
+    "submit_review": "Жөнөтүү",
+    "phone": "тел. номуру",
+    "telegram": "телеграм",
+    "instagram": "инстаграм",
+    "whatsapp": "whatsapp"
   }
 
 
