@@ -28,10 +28,12 @@ const Profile = () => {
   const [errors, setErrors] = useState({ telegram: "", instagram: "", whatsapp: "" });
   const [uploading, setUploading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
+  const [error, setError] = useState(""); // Добавляем состояние для ошибок
+  const [success, setSuccess] = useState(""); // Добавляем состояние для успеха
   const navigate = useNavigate();
 
   const displayedCourses = showAllCourses ? courses : courses.slice(0, 2);
-  const locations = [t("profile.choose_location"), "New York", "London", "Tokyo", "Moscow", "Sydney"];
+  const locations = [t("profile.choose_location"), "Нарын", "Иссык-Кол", "Ош", "Талас", "Чуй", "Джалал-Абад", "Баткен"];
 
   const urlRegex = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?|localhost)([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/;
 
@@ -117,45 +119,6 @@ const Profile = () => {
     }
   };
 
-  const handleAvatarUpload = async (file) => {
-  try {
-    console.log("Selected file:", file);
-    setUploading(true);
-
-    const uid = auth.currentUser.uid;
-    const fileRef = ref(storage, `avatars/${uid}/${file.name}`);
-    
-    console.log("Uploading avatar...");
-    await uploadBytes(fileRef, file);
-    console.log("Uploaded.");
-
-    const url = await getDownloadURL(fileRef);
-    console.log("Download URL:", url);
-
-    await updateProfile(auth.currentUser, { photoURL: url });
-
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${uid}/profile`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ avatar: url }),
-    });
-
-    const result = await res.json();
-    console.log("Profile updated in backend:", result);
-
-    setUserData((prev) => ({ ...prev, avatar: url, photoURL: url }));
-    setFormData((prev) => ({ ...prev, avatar: url, photoURL: url }));
-    setAvatarPreview(url);
-    setSuccess("Avatar uploaded successfully!");
-  } catch (err) {
-    console.error("Upload failed:", err);
-    setError("Failed to upload avatar.");
-  } finally {
-    setUploading(false);
-  }
-};
-
-
   const handleEditProfile = async () => {
     if (!isEditing) {
       setIsEditing(true);
@@ -183,7 +146,7 @@ const Profile = () => {
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${await auth.currentUser.getIdToken(true)}` }, // Добавлен Authorization
         body: JSON.stringify(formData),
       });
 
@@ -193,9 +156,10 @@ const Profile = () => {
         setUserData(formData);
         setSuccess("Profile updated successfully");
       }
-      setIsEditing(false);
-    } catch {
+    } catch (err) {
+      console.error("Error updating profile:", err);
       setError("Failed to update profile");
+    } finally {
       setIsEditing(false);
     }
   };
@@ -212,7 +176,8 @@ const Profile = () => {
     try {
       await signOut(auth);
       navigate("/");
-    } catch {
+    } catch (err) {
+      console.error("Error logging out:", err);
       setError("Failed to log out");
     }
   };
@@ -237,16 +202,10 @@ const Profile = () => {
               className="profile-avatar"
             />
             <h2>{userData.full_name}</h2>
-            {isEditing && (
-              <div>
-                <input type="file" accept="image/png, image/jpeg" onChange={(e) => handleAvatarUpload(e.target.files[0])} />
-                {uploading && <p>Uploading...</p>}
-              </div>
-            )}
           </div>
 
           <div className="social-links">
-            <h3>On the Web</h3>
+            <h3>{t("profile.on_the_web")}</h3>
             {["telegram", "instagram", "whatsapp"].map((name) => (
               <div key={name} className="social-item">
                 <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
@@ -263,7 +222,7 @@ const Profile = () => {
                     {errors[name] && <p className="error-message">{errors[name]}</p>}
                   </>
                 ) : (
-                  userData[name] && <a href={userData[name]}>Link</a>
+                  userData[name] && <a href={userData[name]}>{userData[name]}</a>
                 )}
               </div>
             ))}
@@ -342,7 +301,7 @@ const Profile = () => {
 
       {hasCourses && (
         <div className="courses-section">
-          <h2>My Courses</h2>
+          <h2>{t("profile.my_courses")}</h2>
           <div className="courses-grid">
             {displayedCourses.map((course) => (
               <CardCourse key={course.id} course={course} userData={userData} />
@@ -350,9 +309,9 @@ const Profile = () => {
           </div>
 
           <div className="courses-actions">
-            <button className="btn green" onClick={handleCreateCourseClick}>Create new</button>
-            <button className="btn light" onClick={() => setShowAllCourses(prev => !prev)}>
-              {showAllCourses ? "Show less" : "Show all"}
+            <button className="btn green" onClick={handleCreateCourseClick}>{t("profile.create_new")}</button>
+            <button className="btn light" onClick={() => setShowAllCourses((prev) => !prev)}>
+              {showAllCourses ? t("profile.show_less") : t("profile.show_all")}
             </button>
           </div>
         </div>

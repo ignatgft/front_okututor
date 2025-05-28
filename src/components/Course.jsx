@@ -27,21 +27,29 @@ const Course = () => {
   }, [navigate]);
 
   const daysOptions = [
-    { value: "weekdays", label: t("course.days.weekdays") },
-    { value: "weekends", label: t("course.days.weekends") },
-    { value: "specific", label: t("course.days.specific") },
+    { value: "weekdays", label: t("cr_course.days.weekdays") },
+    { value: "weekends", label: t("cr_course.days.weekends") },
+    { value: "specific", label: t("cr_course.days.specific") },
   ];
+
   const specificDaysOptions = [
-    t("days.monday"), t("days.tuesday"), t("days.wednesday"),
-    t("days.thursday"), t("days.friday"), t("days.saturday"), t("days.sunday")
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+    t("days.sunday"),
   ];
+
   const groupSizeOptions = [
-    { value: "individual", label: t("course.group.individual") },
-    { value: "group", label: t("course.group.group") },
+    { value: "individual", label: t("cr_course.group.individual") },
+    { value: "group", label: t("cr_course.group.group") },
   ];
+
   const locationTypeOptions = [
-    { value: "offline", label: t("course.location.offline") },
-    { value: "online", label: t("course.location.online") },
+    { value: "offline", label: t("cr_course.location.offline") },
+    { value: "online", label: t("cr_course.location.online") },
   ];
 
   const handleInputChange = (e) => {
@@ -70,11 +78,11 @@ const Course = () => {
     setSuccess("");
 
     if (formData.experience < 0) {
-      setError(t("course.errors.experience"));
+      setError(t("cr_course.errors.experience"));
       return;
     }
     if (formData.price_per_hour < 0) {
-      setError(t("course.errors.price"));
+      setError(t("cr_course.errors.price"));
       return;
     }
 
@@ -100,13 +108,13 @@ const Course = () => {
 
       const result = await response.json();
       if (response.ok) {
-        setSuccess(t("course.success"));
+        setSuccess(t("cr_course.success"));
         navigate(`/course/${result.course_id}`);
       } else {
-        setError(result.error || t("course.errors.default"));
+        setError(result.error || t("cr_course.errors.default"));
       }
     } catch (err) {
-      setError(t("course.errors.network") + err.message);
+      setError(t("cr_course.errors.network") + err.message);
     }
   };
 
@@ -115,43 +123,43 @@ const Course = () => {
   return (
     <div className="course-page">
       <div className="course-header">
-        <h1>{t("course.page_title")}</h1>
+        <h1>{t("cr_course.page_title")}</h1>
       </div>
       <div className="course-form-container">
-        <h2>{t("course.form_title")}</h2>
+        <h2>{t("cr_course.form_title")}</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-section">
-            <h3>{t("course.form_section")}</h3>
+            <h3>{t("cr_course.form_section")}</h3>
             {error && <p className="error-message">{error}</p>}
             {success && <p className="success-message">{success}</p>}
 
             <div className="form-field">
-              <label>{t("course.name")}</label>
+              <label>{t("cr_course.name")}</label>
               <input
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder={t("course.placeholders.name")}
+                placeholder={t("cr_course.placeholders.name")}
                 required
               />
-              <p className="field-description">{t("course.description.name")}</p>
+              <p className="field-description">{t("cr_course.description.name")}</p>
             </div>
 
             <div className="form-field">
-              <label>{t("course.days_label")}</label>
+              <label>{t("cr_course.days_label")}</label>
               <select name="days" value={formData.days} onChange={handleInputChange} required>
-                <option value="" disabled>{t("course.placeholders.days")}</option>
+                <option value="" disabled>{t("cr_course.placeholders.days")}</option>
                 {daysOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-              <p className="field-description">{t("course.description.days")}</p>
+              <p className="field-description">{t("cr_course.description.days")}</p>
             </div>
 
             {formData.days === "specific" && (
               <div className="form-field specific-days-field">
-                <label>{t("course.specific_days")}</label>
+                <label>{t("cr_course.specific_days")}</label>
                 <div className="multi-select">
                   {specificDaysOptions.map((day, idx) => {
                     const val = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][idx];
@@ -168,46 +176,46 @@ const Course = () => {
                     );
                   })}
                 </div>
-                <p className="field-description">{t("course.description.specific_days")}</p>
+                <p className="field-description">{t("cr_course.description.specific_days")}</p>
               </div>
             )}
 
             <div className="form-field">
-              <label>{t("course.group_label")}</label>
+              <label>{t("cr_course.group_label")}</label>
               <select name="group_size" value={formData.group_size} onChange={handleInputChange} required>
-                <option value="" disabled>{t("course.placeholders.group")}</option>
+                <option value="" disabled>{t("cr_course.placeholders.group")}</option>
                 {groupSizeOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-              <p className="field-description">{t("course.description.group")}</p>
+              <p className="field-description">{t("cr_course.description.group")}</p>
             </div>
 
             <div className="form-field">
-              <label>{t("course.location_label")}</label>
+              <label>{t("cr_course.location_label")}</label>
               <select name="location_type" value={formData.location_type} onChange={handleInputChange} required>
-                <option value="" disabled>{t("course.placeholders.location")}</option>
+                <option value="" disabled>{t("cr_course.placeholders.location")}</option>
                 {locationTypeOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
-              <p className="field-description">{t("course.description.location")}</p>
+              <p className="field-description">{t("cr_course.description.location")}</p>
             </div>
 
             <div className="form-field">
-              <label>{t("course.description_label")}</label>
+              <label>{t("cr_course.description_label")}</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                placeholder={t("course.placeholders.description")}
+                placeholder={t("cr_course.placeholders.description")}
                 required
               />
-              <p className="field-description">{t("course.description.description")}</p>
+              <p className="field-description">{t("cr_course.description.description")}</p>
             </div>
 
             <div className="form-field">
-              <label>{t("course.experience_label")}</label>
+              <label>{t("cr_course.experience_label")}</label>
               <input
                 type="number"
                 name="experience"
@@ -216,11 +224,11 @@ const Course = () => {
                 min="0"
                 required
               />
-              <p className="field-description">{t("course.description.experience")}</p>
+              <p className="field-description">{t("cr_course.description.experience")}</p>
             </div>
 
             <div className="form-field">
-              <label>{t("course.price_label")}</label>
+              <label>{t("cr_course.price_label")}</label>
               <input
                 type="number"
                 name="price_per_hour"
@@ -230,15 +238,15 @@ const Course = () => {
                 step="0.01"
                 required
               />
-              <p className="field-description">{t("course.description.price")}</p>
+              <p className="field-description">{t("cr_course.description.price")}</p>
             </div>
 
             <div className="form-actions">
               <button type="button" className="cancel-btn" onClick={handleCancel}>
-                {t("course.cancel")}
+                {t("cr_course.cancel")}
               </button>
               <button type="submit" className="create-btn">
-                {t("course.create")}
+                {t("cr_course.create")}
               </button>
             </div>
           </div>

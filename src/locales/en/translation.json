@@ -111,36 +111,34 @@
   "title": "Most popular Tutors in our platform",
   "show_more": "Show more"
 },
-"course": {
-  "page_title": "Create your Success & Start Earning",
-  "form_title": "Create your Course!",
-  "form_section": "Course Information",
-  "name": "Name*",
-  "days_label": "Days of week*",
-  "specific_days": "Specific Days*",
-  "group_label": "Group size*",
-  "location_label": "Place for course*",
-  "description_label": "Description*",
-  "experience_label": "Experience (years)*",
-  "price_label": "Price per hour (som)*",
-  "cancel": "Cancel",
-  "create": "Create",
+"cr_course": {
+  "page_title": "Create Course",
+  "form_title": "Course Information",
+  "form_section": "Details",
+  "name": "Course Name",
+  "days_label": "Days",
+  "group_label": "Group Size",
+  "location_label": "Location Type",
+  "description_label": "Description",
+  "experience_label": "Experience (in years)",
+  "price_label": "Price per Hour",
+  "specific_days": "Specific Days",
   "placeholders": {
-    "name": "English language",
-    "days": "Choose when you can teach",
-    "group": "Choose the type of course",
-    "location": "Choose the format of your course",
-    "description": "Write something about the course"
+    "name": "Enter course name",
+    "days": "Select days",
+    "group": "Select group size",
+    "location": "Select location",
+    "description": "Enter course description"
   },
   "description": {
-    "name": "Write down your course name",
-    "days": "Choose when you can teach",
-    "specific_days": "Choose specific days you can teach",
-    "group": "Choose the type of course",
-    "location": "Choose the format of your course",
-    "description": "Brief description for your course",
-    "experience": "Write down your experience in years",
-    "price": "How much will your course cost per hour"
+    "name": "Name of the course that students will see.",
+    "days": "Choose when the course will be held.",
+    "specific_days": "Choose exact weekdays.",
+    "group": "Specify if the course is for individuals or groups.",
+    "location": "Choose where the course will take place.",
+    "description": "Brief description of the course.",
+    "experience": "How many years of experience you have?",
+    "price": "Set your rate per hour."
   },
   "days": {
     "weekdays": "Weekdays",
@@ -152,16 +150,18 @@
     "group": "Group"
   },
   "location": {
-    "offline": "Offline",
-    "online": "Online"
+    "online": "Online",
+    "offline": "Offline"
   },
+  "success": "Course created successfully!",
+  "cancel": "Cancel",
+  "create": "Create",
   "errors": {
-    "experience": "Experience must be a non-negative number",
-    "price": "Price per hour must be a non-negative number",
-    "default": "Failed to create course",
-    "network": "Error creating course: "
-  },
-  "success": "Course created successfully!"
+    "experience": "Experience cannot be negative.",
+    "price": "Price must be non-negative.",
+    "default": "Something went wrong.",
+    "network": "Network error: "
+  }
 },
 "days": {
   "monday": "Monday",
@@ -172,7 +172,7 @@
   "saturday": "Saturday",
   "sunday": "Sunday"
 },
-"CourseView":{
+  "CourseView":{
   "courseDetails": "Course Details",
   "courseNotFound": "Course not found",
   "pleaseLogin": "Please log in to view course details.",
@@ -248,7 +248,8 @@
     "join_title": "Join a Meeting",
     "join_input_placeholder": "Paste Zoom link...",
     "join_btn": "Join",
-    "error": "Failed to create a Zoom meeting."
+    "error": "Failed to create a Zoom meeting.",
+    "copy_success": "copy success"
   },
   "search": {
     "title": "Studying Online is now much easier!",

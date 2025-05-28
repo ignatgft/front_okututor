@@ -73,3 +73,40 @@
   box-shadow: 0 6px 16px rgba(47, 124, 79, 0.5);
 }
 
+/* Стили для контейнера ссылки и кнопки копирования */
+.link-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.copy-btn {
+  background-color: #355B38;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.copy-btn:hover {
+  background-color: #2f7c4f;
+}
+
+/* Стили для сообщения о копировании */
+.copy-message {
+  color: #3c9a63;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Стили для сообщения об отсутствии курсов или необходимости логина */
+.no-courses-message {
+  text-align: center;
+  color: #1c4532;
+  font-size: 1rem;
+  margin: 0;
+}

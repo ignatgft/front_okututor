@@ -11,7 +11,7 @@ import { FaVideo } from "react-icons/fa";
 
 const Navbar = ({ onLogin, onSignup }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false); // Для выпадающего меню языков
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,7 +25,7 @@ const Navbar = ({ onLogin, onSignup }) => {
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+  const toggleLanguageDropdown = () => setLanguageOpen((prev) => !prev);
 
   const handleScrollLink = (section) => {
     if (location.pathname !== "/") {
@@ -35,11 +35,16 @@ const Navbar = ({ onLogin, onSignup }) => {
     }
   };
 
+  const handleFindTutorClick = () => {
+    navigate("/find-tutors");
+  };
+
   const handleProfileClick = () => navigate("/profile");
   const handleAuditoriumClick = () => navigate("/auditorium");
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
+    setLanguageOpen(false); // Закрываем выпадающее меню после выбора языка
   };
 
   return (
@@ -63,12 +68,29 @@ const Navbar = ({ onLogin, onSignup }) => {
         <ul className="navbar-links">
           <li onClick={() => handleScrollLink("hero")}>{t("navbar.home")}</li>
           <li onClick={() => handleScrollLink("category")}>{t("navbar.category")}</li>
-          <li onClick={() => handleScrollLink("findTutor")}>{t("navbar.find_tutor")}</li>
+          <li onClick={handleFindTutorClick}>{t("navbar.find_tutor")}</li>
           <li onClick={() => handleScrollLink("for-tutors")}>{t("navbar.for_tutors")}</li>
           <li onClick={() => handleScrollLink("about-us")}>{t("navbar.about_us")}</li>
         </ul>
 
         <div className="navbar-buttons">
+          <div className="language-selector" onClick={toggleLanguageDropdown}>
+            <span className="language-current">{i18n.language.toUpperCase()}</span>
+            {languageOpen && (
+              <div className="language-dropdown">
+                {["en", "ru", "kg"].map((langCode) => (
+                  <button
+                    key={langCode}
+                    className={`lang-btn ${i18n.language === langCode ? "active" : ""}`}
+                    onClick={() => handleLanguageChange(langCode)}
+                  >
+                    {langCode.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {user ? (
             <>
               <button className="auditorium-btn-animated" onClick={handleAuditoriumClick}>
@@ -77,8 +99,8 @@ const Navbar = ({ onLogin, onSignup }) => {
               </button>
 
               <div
-                className="user-profile profile-dropdown-trigger"
-                onClick={toggleDropdown}
+                className="user-profile"
+                onClick={handleProfileClick}
                 role="button"
                 tabIndex={0}
               >
@@ -87,27 +109,6 @@ const Navbar = ({ onLogin, onSignup }) => {
                   alt="User Avatar"
                   className="user-avatar"
                 />
-
-                {dropdownOpen && (
-                  <div className="dropdown-menu">
-                    <button className="profile-btn" onClick={handleProfileClick}>
-                      {t("navbar.profile")}
-                    </button>
-
-                    <div className="language-options">
-                      <span>{t("navbar.language")}:</span>
-                      {["en", "ru", "kg"].map((langCode) => (
-                        <button
-                          key={langCode}
-                          className={`lang-btn ${i18n.language === langCode ? "active" : ""}`}
-                          onClick={() => handleLanguageChange(langCode)}
-                        >
-                          {langCode.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </>
           ) : (
