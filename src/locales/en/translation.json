@@ -109,7 +109,8 @@
 "pop": {
   "subtitle": "Tutor is here",
   "title": "Most popular Tutors in our platform",
-  "show_more": "Show more"
+  "show_more": "Show more",
+  "loading": "loading"
 },
 "cr_course": {
   "page_title": "Create Course",

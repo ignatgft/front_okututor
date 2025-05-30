@@ -36,7 +36,11 @@ const Navbar = ({ onLogin, onSignup }) => {
   };
 
   const handleFindTutorClick = () => {
-    navigate("/find-tutors");
+    if (auth.currentUser) {
+      navigate("/find-tutors");
+    } else {
+      if (onLogin) onLogin();
+    }
   };
 
   const handleProfileClick = () => navigate("/profile");

@@ -46,11 +46,11 @@ function PgMain() {
       />
 
       <section id="hero">
-        <HeroSection />
+        <HeroSection onLogin={() => setIsAuthOpen(true)}/>
       </section>
 
       <section id="category">
-        <Category />
+        <Category onLogin={() => setIsAuthOpen(true)}/>
       </section>
 
       <section id="find-tutor">

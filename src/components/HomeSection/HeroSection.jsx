@@ -3,11 +3,20 @@ import {useNavigate} from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../../styles/HomeSectionCSS/HeroSection.css';
 import heroSection from '../../assets/Navbar/heroSection.svg';
+import { auth } from "../../firebaseConfig";
 
-const HeroSection = () => {
+const HeroSection = ({onLogin}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const handleSubmitStart = () => navigate("/find-tutors")
+  
+  const handleSubmitStart = () => {
+    if (auth.currentUser) {
+      navigate("/find-tutors");
+    } else {
+      if (onLogin) onLogin();
+    }
+  };
+
   return (
     <section className="hero-section">
       <div className="hero-content poppins-bold">

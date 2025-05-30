@@ -1,6 +1,5 @@
-// frontend/src/components/HomeSection/Category.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../../styles/HomeSectionCSS/Category.css';
 
@@ -13,8 +12,11 @@ import salesIcon from '../../assets/CategorySection/sales-icon.svg';
 import designIcon from '../../assets/CategorySection/design-icon.svg';
 import musicIcon from '../../assets/CategorySection/music-icon.svg';
 
-const Category = () => {
+import { auth } from '../../firebaseConfig';
+
+const Category = ({ onLogin }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const categories = [
     {
@@ -59,6 +61,13 @@ const Category = () => {
     },
   ];
 
+  const handleCategoryClick = (e, title) => {
+    if (!auth.currentUser) {
+      e.preventDefault(); // блокируем переход по ссылке
+      if (onLogin) onLogin(`/find-tutors?q=${encodeURIComponent(title)}`);
+    }
+  };
+
   return (
     <section className="category-section inter" id="category">
       <div className="category-header">
@@ -71,6 +80,7 @@ const Category = () => {
             to={`/find-tutors?q=${encodeURIComponent(category.title)}`}
             key={index}
             className="category-card"
+            onClick={(e) => handleCategoryClick(e, category.title)}
           >
             <div className="category-icon">
               <img src={category.icon} alt={`${category.title} icon`} />
