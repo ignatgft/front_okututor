@@ -3,18 +3,18 @@ import {useNavigate} from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../../styles/HomeSectionCSS/HeroSection.css';
 import heroSection from '../../assets/Navbar/heroSection.svg';
-import { auth } from "../../firebaseConfig";
+import { getCurrentUser } from "../../api/auth";
 
 const HeroSection = ({onLogin}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   
   const handleSubmitStart = () => {
-    if (auth.currentUser) {
-      navigate("/find-tutors");
-    } else {
-      if (onLogin) onLogin();
-    }
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) navigate("/find-tutors");
+      else if (onLogin) onLogin();
+    })();
   };
 
   return (

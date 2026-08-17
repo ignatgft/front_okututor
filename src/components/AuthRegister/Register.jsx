@@ -5,8 +5,10 @@ import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import mankeyIcon from "../../assets/AuthRegister/mankey-icon.svg";
 import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
 import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
-import { auth } from "../../firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { buildApiUrl } from "../../api/config";
+import { endpoints } from "../../api/endpoints";
+import { apiFetch } from "../../api/http";
+import { setToken } from "../../api/auth";
 
 const Register = ({ isOpen, onClose, onOpenAuth }) => {
   const [formData, setFormData] = useState({
@@ -39,62 +41,27 @@ const Register = ({ isOpen, onClose, onOpenAuth }) => {
     }
 
     try {
-      // Регистрация пользователя в Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
-
-      // Обновляем displayName пользователя в Firebase
-      await updateProfile(user, {
-        displayName: formData.fullName,
-      });
-
-      // Отправляем данные на ваш сервер (без повторного создания пользователя)
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+      const { data: result } = await apiFetch(endpoints.auth.register, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+        body: {
           email: formData.email,
           password: formData.password,
-          repeat_password: formData.repeatPassword, // Добавляем repeat_password
+          repeat_password: formData.repeatPassword,
           full_name: formData.fullName,
-          user_id: user.uid, // Передаём user_id для сохранения в Firestore
-        }),
+        },
       });
-
-      const result = await response.json();
-
       if (result.error) {
         setError(result.error);
-        await user.delete(); // Удаляем пользователя из Firebase, если сервер вернул ошибку
         return;
       }
-
+      if (result.token) setToken(result.token);
       setSuccess("Registration successful! You are now logged in.");
-      console.log("Registered user:", user);
-
       setTimeout(() => {
         onClose();
-        setFormData({
-          fullName: "",
-          email: "",
-          password: "",
-          repeatPassword: "",
-        });
-      }, 2000);
+        setFormData({ fullName: "", email: "", password: "", repeatPassword: "" });
+      }, 500);
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        setError("Email already exists");
-      } else if (error.code === "auth/weak-password") {
-        setError("Password should be at least 6 characters");
-      } else {
-        setError(error.message);
-      }
+      setError(error.message || "Registration failed");
     }
   };
 
@@ -103,40 +70,9 @@ const handleGoogleSignUp = async () => {
   setError("");
   setSuccess("");
   try {
-    const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    const user = userCredential.user;
-
-    // Получаем свежий ID-токен
-    const idToken = await user.getIdToken(true);
-    const tokenResult = await user.getIdTokenResult();
-    console.log("Token expiration:", tokenResult.expirationTime); // Логируем время истечения
-
-    // Отправляем ID-токен на сервер
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/google-login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id_token: idToken }),
-    });
-
-    const result = await response.json();
-
-    if (result.error) {
-      setError(result.error);
-      await auth.signOut();
-      return;
-    }
-
-    setSuccess("Google sign-up successful! You are now logged in.");
-    console.log("Google sign-up user:", user);
-
-    setTimeout(() => {
-      onClose();
-    }, 2000);
+    window.open(buildApiUrl(endpoints.auth.google), "_blank", "width=600,height=700");
   } catch (error) {
-    setError(error.message);
+    setError(error.message || "Google signup failed");
   }
 };
 

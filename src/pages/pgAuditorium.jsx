@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../styles/PgAuditorium.css";
-import axios from "axios";
-import { auth } from "../firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { getCurrentUser, getToken } from "../api/auth";
+import { endpoints } from "../api/endpoints";
+import { apiClient } from "../api/http";
 import { FaCopy } from "react-icons/fa"; // Иконка копирования
 
 const PgAuditorium = () => {
@@ -19,24 +19,23 @@ const PgAuditorium = () => {
 
   // Проверяем авторизацию пользователя и наличие курсов
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    (async () => {
+      const currentUser = await getCurrentUser();
       setUser(currentUser);
       if (currentUser) {
         try {
-          // Запрашиваем курсы пользователя
-          const response = await axios.get(
-            `${import.meta.env.VITE_API_URL}/courses/${currentUser.uid}`
-          );
+          const token = getToken();
+          const response = await apiClient.get(endpoints.coursesByTeacher(currentUser.uid), {
+            headers: { Authorization: `Bearer ${token}` },
+          });
           const courses = response.data;
-          // Проверяем, есть ли у пользователя курсы (и нет ли ошибки в ответе)
           setHasCourses(Array.isArray(courses) && courses.length > 0 && !courses[0]?.error);
         } catch (error) {
           console.error("Ошибка при получении курсов:", error);
           setHasCourses(false);
         }
       }
-    });
-    return () => unsubscribe();
+    })();
   }, []);
 
   const createMeeting = async () => {
@@ -45,13 +44,11 @@ const PgAuditorium = () => {
       const now = new Date();
       const start_time = new Date(now.getTime() + 5 * 60000).toISOString();
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/create-meeting/`,
-        {
-          topic: "Okututor Meeting",
-          start_time,
-          duration: 30,
-        }
+      const token = getToken();
+      const response = await apiClient.post(
+        endpoints.createMeeting,
+        { topic: "Okututor Meeting", start_time, duration: 30 },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setMeetingUrl(response.data.join_url);

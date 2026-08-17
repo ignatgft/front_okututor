@@ -12,7 +12,7 @@ import salesIcon from '../../assets/CategorySection/sales-icon.svg';
 import designIcon from '../../assets/CategorySection/design-icon.svg';
 import musicIcon from '../../assets/CategorySection/music-icon.svg';
 
-import { auth } from '../../firebaseConfig';
+import { getCurrentUser } from '../../api/auth';
 
 const Category = ({ onLogin }) => {
   const { t } = useTranslation();
@@ -62,10 +62,13 @@ const Category = ({ onLogin }) => {
   ];
 
   const handleCategoryClick = (e, title) => {
-    if (!auth.currentUser) {
-      e.preventDefault(); // блокируем переход по ссылке
-      if (onLogin) onLogin(`/find-tutors?q=${encodeURIComponent(title)}`);
-    }
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) {
+        e.preventDefault(); // блокируем переход по ссылке
+        if (onLogin) onLogin(`/find-tutors?q=${encodeURIComponent(title)}`);
+      }
+    })();
   };
 
   return (

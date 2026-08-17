@@ -5,8 +5,7 @@ import { useTranslation } from "react-i18next";
 import "../styles/Navbar.css";
 import logo from "../assets/Navbar/logo.svg";
 import login from "../assets/Navbar/login.svg";
-import { auth } from "../firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { getCurrentUser, logoutClient } from "../api/auth";
 import { FaVideo } from "react-icons/fa";
 
 const Navbar = ({ onLogin, onSignup }) => {
@@ -18,10 +17,14 @@ const Navbar = ({ onLogin, onSignup }) => {
   const { t, i18n } = useTranslation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
+    let mounted = true;
+    (async () => {
+      const u = await getCurrentUser();
+      if (mounted) setUser(u);
+    })();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -36,7 +39,7 @@ const Navbar = ({ onLogin, onSignup }) => {
   };
 
   const handleFindTutorClick = () => {
-    if (auth.currentUser) {
+    if (user) {
       navigate("/find-tutors");
     } else {
       if (onLogin) onLogin();
@@ -45,6 +48,12 @@ const Navbar = ({ onLogin, onSignup }) => {
 
   const handleProfileClick = () => navigate("/profile");
   const handleAuditoriumClick = () => navigate("/auditorium");
+
+  const handleLogout = () => {
+    logoutClient();
+    setUser(null);
+    navigate("/");
+  };
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
@@ -114,6 +123,7 @@ const Navbar = ({ onLogin, onSignup }) => {
                   className="user-avatar"
                 />
               </div>
+              <button className="btn logout-small" onClick={handleLogout}>Logout</button>
             </>
           ) : (
             <>

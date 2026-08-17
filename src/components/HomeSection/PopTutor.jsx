@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import CardCourse from '../../components/CardCourse';
+import { endpoints } from "../../api/endpoints";
+import { apiFetch } from "../../api/http";
 import '../../styles/HomeSectionCSS/PopTutor.css';
 
 const PopTutor = () => {
@@ -18,16 +20,14 @@ const PopTutor = () => {
       setIsLoading(true);
       setError("");
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/courses`);
-        const data = await res.json();
+        const { data } = await apiFetch(endpoints.courses);
         if (!Array.isArray(data)) throw new Error("Invalid course format");
 
         // Загружаем преподавателей
         const userIds = [...new Set(data.map(c => c.teacher_id).filter(Boolean))];
         const userMap = {};
         for (const id of userIds) {
-          const resUser = await fetch(`${import.meta.env.VITE_API_URL}/user/${id}`);
-          const userData = await resUser.json();
+          const { response: resUser, data: userData } = await apiFetch(endpoints.userById(id));
           if (resUser.ok && !userData.error) userMap[id] = userData;
         }
 

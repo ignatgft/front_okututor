@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, storage } from "../firebaseConfig";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import CardCourse from "../components/CardCourse";
-import { updateProfile, signOut } from "firebase/auth";
+import { getCurrentUser, logoutClient } from "../api/auth";
+import { endpoints } from "../api/endpoints";
+import { apiFetch } from "../api/http";
 import { useTranslation } from "react-i18next";
 import "../styles/Profile.css";
 
@@ -48,50 +48,31 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user) {
-      navigate("/");
-      return;
-    }
-
-    const initialData = {
-      full_name: user.displayName || t("profile.not_provided"),
-      email: user.email || t("profile.not_provided"),
-      photoURL: user.photoURL || "https://via.placeholder.com/150",
-      phone: "",
-      location: t("profile.choose_location"),
-      bio: "",
-      telegram: "",
-      instagram: "",
-      whatsapp: "",
-      avatar: "",
-    };
-
-    setUserData(initialData);
-    setFormData(initialData);
-
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${user.uid}`);
-        const result = await response.json();
-        if (result.error) setError(result.error);
-        else {
-          const updatedData = { ...initialData, ...result };
-          setUserData(updatedData);
-          setFormData(updatedData);
-        }
-      } catch {
-        setError("Failed to fetch user data");
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) {
+        navigate("/");
+        return;
       }
-    };
+      const initialData = {
+        full_name: user.full_name || user.displayName || t("profile.not_provided"),
+        email: user.email || t("profile.not_provided"),
+        photoURL: user.avatar || user.photoURL || "https://via.placeholder.com/150",
+        phone: user.phone || "",
+        location: user.location || t("profile.choose_location"),
+        bio: user.bio || "",
+        telegram: user.telegram || "",
+        instagram: user.instagram || "",
+        whatsapp: user.whatsapp || "",
+        avatar: user.avatar || "",
+      };
+      setUserData(initialData);
+      setFormData(initialData);
 
-    const fetchUserCourses = async () => {
       try {
-        const idToken = await user.getIdToken(true);
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/courses/${user.uid}`, {
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+        const { data: courses } = await apiFetch(endpoints.coursesByTeacher(user.uid), {
+          auth: true,
         });
-        const courses = await response.json();
         if (Array.isArray(courses) && courses.length > 0) {
           setHasCourses(true);
           setCourses(courses);
@@ -99,14 +80,11 @@ const Profile = () => {
           setHasCourses(false);
           setCourses([]);
         }
-      } catch {
+      } catch (err) {
         setHasCourses(false);
         setCourses([]);
       }
-    };
-
-    fetchUserData();
-    fetchUserCourses();
+    })();
   }, [navigate, t]);
 
   const handleInputChange = (e) => {
@@ -139,18 +117,12 @@ const Profile = () => {
     }
 
     try {
-      await updateProfile(auth.currentUser, {
-        displayName: formData.full_name,
-        photoURL: formData.avatar || userData.photoURL,
-      });
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${auth.currentUser.uid}/profile`, {
+      const user = await getCurrentUser();
+      const { data: result } = await apiFetch(endpoints.userProfile(user.uid), {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${await auth.currentUser.getIdToken(true)}` }, // Добавлен Authorization
-        body: JSON.stringify(formData),
+        auth: true,
+        body: formData,
       });
-
-      const result = await response.json();
       if (result.error) setError(result.error);
       else {
         setUserData(formData);
@@ -174,7 +146,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      logoutClient();
       navigate("/");
     } catch (err) {
       console.error("Error logging out:", err);

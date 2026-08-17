@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { auth } from "../firebaseConfig";
+import { getCurrentUser } from "../api/auth";
+import { endpoints } from "../api/endpoints";
+import { apiFetch } from "../api/http";
 import "../styles/Course.css";
 
 const Course = () => {
@@ -21,9 +23,10 @@ const Course = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      navigate("/");
-    }
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) navigate("/");
+    })();
   }, [navigate]);
 
   const daysOptions = [
@@ -86,7 +89,8 @@ const Course = () => {
       return;
     }
 
-    const user_id = auth.currentUser.uid;
+    const user = await getCurrentUser();
+    const user_id = user?.uid;
     const dataToSend = {
       user_id,
       title: formData.title,
@@ -100,13 +104,11 @@ const Course = () => {
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/courses`, {
+      const { response, data: result } = await apiFetch(endpoints.courses, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
+        auth: true,
+        body: dataToSend,
       });
-
-      const result = await response.json();
       if (response.ok) {
         setSuccess(t("cr_course.success"));
         navigate(`/course/${result.course_id}`);

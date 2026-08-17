@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { endpoints } from "../api/endpoints";
+import { apiFetch } from "../api/http";
 import "../styles/CardCourse.css";
 
-const CardCourse = ({ course }) => {
+const CardCourse = ({ course, userData: initialUserData }) => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(initialUserData || null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const hasInitialUserData = initialUserData && Object.keys(initialUserData).length > 0;
+
+  useEffect(() => {
+    setUserData(initialUserData || null);
+  }, [initialUserData, course.teacher_id]);
 
   useEffect(() => {
     if (!course.teacher_id) {
@@ -14,11 +21,16 @@ const CardCourse = ({ course }) => {
       return;
     }
 
+    if (hasInitialUserData) {
+      setAvatarUrl(initialUserData?.avatar || initialUserData?.photoURL || getDefaultAvatar(initialUserData?.full_name));
+      setIsLoading(false);
+      return;
+    }
+
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/user/${course.teacher_id}`);
+        const { response, data } = await apiFetch(endpoints.userById(course.teacher_id));
         if (!response.ok) throw new Error("User fetch failed");
-        const data = await response.json();
         setUserData(data);
         // Устанавливаем начальный URL аватарки
         setAvatarUrl(data?.avatar || data?.photoURL || getDefaultAvatar(data?.full_name));
@@ -32,7 +44,7 @@ const CardCourse = ({ course }) => {
     };
 
     fetchUserData();
-  }, [course.teacher_id]);
+  }, [course.teacher_id, hasInitialUserData, initialUserData]);
 
   // Функция для генерации заглушки на основе имени
   const getDefaultAvatar = (name) => {
@@ -51,11 +63,26 @@ const CardCourse = ({ course }) => {
   };
 
   if (isLoading) {
-    return <div className="card-course loading">Loading...</div>;
+    return (
+      <div className="card-course card-skeleton">
+        <div className="skeleton skeleton-header" />
+        <div className="skeleton skeleton-line wide" />
+        <div className="skeleton skeleton-line medium" />
+        <div className="skeleton-tags">
+          <span className="skeleton skeleton-chip" />
+          <span className="skeleton skeleton-chip" />
+          <span className="skeleton skeleton-chip" />
+        </div>
+        <div className="skeleton-footer">
+          <span className="skeleton skeleton-line short" />
+          <span className="skeleton skeleton-line short" />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="card-course" onClick={handleCardClick}>
+    <div className="card-course dark-card dark-card-hover" onClick={handleCardClick}>
       <div className="card-header">
         <img
           src={avatarUrl}

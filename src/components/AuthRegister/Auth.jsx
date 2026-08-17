@@ -6,15 +6,10 @@ import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import handIcon from "../../assets/AuthRegister/hand-icon.svg";
 import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
 import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
-import { auth } from "../../firebaseConfig";
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
-} from "firebase/auth";
+import { buildApiUrl } from "../../api/config";
+import { endpoints } from "../../api/endpoints";
+import { apiFetch } from "../../api/http";
+import { setToken } from "../../api/auth";
 
 const Auth = ({ isOpen, onClose, onOpenRegister, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -43,53 +38,25 @@ const Auth = ({ isOpen, onClose, onOpenRegister, onSuccess }) => {
     setLoading(true);
 
     try {
-      await setPersistence(
-        auth,
-        formData.rememberMe ? browserLocalPersistence : browserSessionPersistence
-      );
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+      const { response, data: result } = await apiFetch(endpoints.auth.login, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: { email: formData.email, password: formData.password },
       });
-
-      const result = await response.json();
-
       if (result.error) {
         setError(result.error);
         setLoading(false);
         return;
       }
 
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      );
-      const user = userCredential.user;
-
+      // Expecting backend to return { token, user }
+      if (result.token) setToken(result.token);
       setSuccess("Login successful!");
-      console.log("Logged in user:", user);
-
       setTimeout(() => {
-        if (onSuccess) {
-          onSuccess(navigate); // Call onSuccess with navigate
-        } else {
-          onClose(); // Fallback to closing modal if no onSuccess
-        }
-        setFormData({
-          email: "",
-          password: "",
-          rememberMe: false,
-        });
+        if (onSuccess) onSuccess(navigate);
+        else onClose();
+        setFormData({ email: "", password: "", rememberMe: false });
         setLoading(false);
-      }, 2000);
+      }, 500);
     } catch (error) {
       setLoading(false);
       if (error.code === "auth/wrong-password") {
@@ -112,50 +79,11 @@ const Auth = ({ isOpen, onClose, onOpenRegister, onSuccess }) => {
     setLoading(true);
 
     try {
-      await setPersistence(
-        auth,
-        formData.rememberMe ? browserLocalPersistence : browserSessionPersistence
-      );
-
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const user = userCredential.user;
-
-      const idToken = await user.getIdToken(true);
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/google-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id_token: idToken }),
-      });
-
-      const result = await response.json();
-
-      if (result.error) {
-        setError(result.error);
-        await auth.signOut();
-        setLoading(false);
-        return;
-      }
-
-      setSuccess("Google login successful!");
-      console.log("Google login user:", user);
-
-      setTimeout(() => {
-        if (onSuccess) {
-          onSuccess(navigate); // Call onSuccess with navigate
-        } else {
-          onClose(); // Fallback to closing modal
-        }
-        setFormData({
-          email: "",
-          password: "",
-          rememberMe: false,
-        });
-        setLoading(false);
-      }, 2000);
+      // Redirect to backend Google OAuth endpoint
+      const popup = window.open(buildApiUrl(endpoints.auth.google), "_blank", "width=600,height=700");
+      if (!popup) throw new Error("Popup blocked");
+      // The backend should handle OAuth flow and set cookie or return token to client
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       setError(error.message);

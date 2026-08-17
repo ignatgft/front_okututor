@@ -12,7 +12,7 @@
   "dependencies": {
     "@zoomus/websdk": "^2.18.3",
     "axios": "^1.9.0",
-    "firebase": "^11.6.0",
+    
     "i18next": "^25.1.2",
     "i18next-browser-languagedetector": "^8.1.0",
     "jwt-decode": "^4.0.0",

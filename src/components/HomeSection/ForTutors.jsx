@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { auth } from "../../firebaseConfig";
+import { getCurrentUser } from "../../api/auth";
 import "../../styles/HomeSectionCSS/ForTutors.css";
 import tutorImage from "../../assets/ForTutors/tutor-img.svg";
 
@@ -29,11 +29,11 @@ const ForTutors = ({ onLogin }) => {
   ], [t]);
 
   const handleCreateCourseClick = () => {
-    if (auth.currentUser) {
-      navigate("/course");
-    } else {
-      if (onLogin) onLogin();
-    }
+    (async () => {
+      const user = await getCurrentUser();
+      if (user) navigate("/course");
+      else if (onLogin) onLogin();
+    })();
   };
 
   return (

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import CardCourse from "../../components/CardCourse";
+import { endpoints } from "../../api/endpoints";
+import { apiFetch } from "../../api/http";
 import "../../styles/SearchCss/SearchBar.css";
 import searchIcon from '../../assets/SearchPg/search-icon.svg';
 
@@ -69,17 +71,15 @@ const SearchBar = () => {
   useEffect(() => {
     const fetchCoursesAndUsers = async () => {
       try {
-        const coursesResponse = await fetch(`${import.meta.env.VITE_API_URL}/courses`);
-        const coursesData = await coursesResponse.json();
+        const { data: coursesData } = await apiFetch(endpoints.courses);
         if (!Array.isArray(coursesData)) throw new Error("Invalid course format");
         setCourses(coursesData);
 
         const userIds = [...new Set(coursesData.map(course => course.teacher_id).filter(Boolean))];
         const usersData = {};
         for (const userId of userIds) {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/user/${userId}`);
-          const data = await res.json();
-          if (res.ok && !data.error) usersData[userId] = data;
+          const { response, data } = await apiFetch(endpoints.userById(userId));
+          if (response.ok && !data.error) usersData[userId] = data;
         }
         setUsers(usersData);
       } catch (err) {

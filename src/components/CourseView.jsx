@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConfig";
+import { getCurrentUser } from "../api/auth";
+import { endpoints } from "../api/endpoints";
+import { apiFetch } from "../api/http";
 import { useTranslation } from "react-i18next";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai"; // Импорт из набора ai
 import { FaStarHalfAlt } from "react-icons/fa"; // Импорт половинной звезды из набора fa
@@ -20,32 +22,29 @@ const CourseView = () => {
   const [success, setSuccess] = useState("");
   const [avatarUrl, setAvatarUrl] = useState(null); // Состояние для URL аватарки
   const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
-      setIsLoading(true);
+        setIsLoading(true);
       try {
-        const courseRes = await fetch(`${import.meta.env.VITE_API_URL}/courses`);
-        const allCourses = await courseRes.json();
+        const { data: allCourses } = await apiFetch(endpoints.courses);
         const selected = allCourses.find((c) => c.id === courseId);
         setCourse(selected);
 
         if (selected) {
-          const userRes = await fetch(`${import.meta.env.VITE_API_URL}/user/${selected.teacher_id}`);
-          const user = await userRes.json();
+          const { data: user } = await apiFetch(endpoints.userById(selected.teacher_id));
           setUserData(user);
           // Устанавливаем URL аватарки
           setAvatarUrl(user?.avatar || user?.photoURL || getDefaultAvatar(user?.full_name));
         }
 
-        const reviewRes = await fetch(`${import.meta.env.VITE_API_URL}/courses/${courseId}/reviews`);
-        const reviewData = await reviewRes.json();
+        const { data: reviewData } = await apiFetch(endpoints.courseReviews(courseId));
         setReviews(reviewData);
 
-        const currentUser = auth.currentUser;
-        if (currentUser && currentUser.uid === selected?.teacher_id) {
-          setIsOwner(true);
-        }
+        const cu = await getCurrentUser();
+        setCurrentUser(cu);
+        if (cu && cu.uid === selected?.teacher_id) setIsOwner(true);
       } catch (error) {
         console.error("Error loading course:", error);
         setError(t("course.fetch_error"));
@@ -59,8 +58,9 @@ const CourseView = () => {
 
   const handleDelete = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/courses/${courseId}`, {
+      await apiFetch(endpoints.courseById(courseId), {
         method: "DELETE",
+        auth: true,
       });
       navigate("/");
     } catch (err) {
@@ -88,23 +88,18 @@ const CourseView = () => {
     setError("");
     setSuccess("");
 
-    const currentUser = auth.currentUser;
+    const currentUser = await getCurrentUser();
     if (!currentUser) return setError(t("course.login_first"));
     if (currentUser.uid === course.teacher_id) return setError(t("course.cannot_review_own"));
 
     if (reviewForm.rating === 0) return setError(t("course.rating_required"));
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/courses/${courseId}/reviews`, {
+      const { response, data: result } = await apiFetch(endpoints.courseReviews(courseId), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_id: currentUser.uid,
-          rating: reviewForm.rating,
-          comment: reviewForm.comment,
-        }),
+        auth: true,
+        body: { student_id: currentUser.uid, rating: reviewForm.rating, comment: reviewForm.comment },
       });
-      const result = await response.json();
       if (response.ok) {
         setSuccess(t("course.review_submitted"));
         setReviewForm({ rating: 0, comment: "" });
@@ -252,7 +247,7 @@ const CourseView = () => {
           ))
         )}
 
-        {!isOwner && auth.currentUser && (
+        {!isOwner && currentUser && (
           <form onSubmit={handleReviewSubmit} className="review-form">
             <h4>{t("course.leave_review")}</h4>
             {renderStars(reviewForm.rating, true)}
