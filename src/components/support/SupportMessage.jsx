@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { MESSAGE_CLIENT_STATUS } from "../../constants/support";
+import AttachmentRenderer from "../attachments/AttachmentRenderer";
 
 export default function SupportMessage({ message, currentUserId }) {
   const { t } = useTranslation();
@@ -20,6 +21,17 @@ export default function SupportMessage({ message, currentUserId }) {
         </div>
       )}
       <div className="support-message-sender">{message.sender_name}</div>
+      {(message.attachment || (Array.isArray(message.attachments) && message.attachments.length > 0)) && (
+        <div className="support-message-attachments">
+          {message.attachment ? (
+            <AttachmentRenderer attachment={message.attachment} />
+          ) : (
+            message.attachments.map((a, ai) => (
+              <AttachmentRenderer key={a.id || ai} attachment={a} />
+            ))
+          )}
+        </div>
+      )}
       <div className="support-message-body">{message.body}</div>
       <div className="support-message-footer">
         <span className="support-message-time">

@@ -4,11 +4,18 @@ import { useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../components/pageTitleContext";
 import useAuthStore from "../store/authStore";
 import { loadUnifiedConversations, loadSupportThread, sendSupportMessage, messagesApi } from "../api/messages.api";
+import { supportApi } from "../api/support.api";
 import { CONVERSATION_TYPES } from "../constants/roles";
+import { STATUS_I18N, PRIORITY_I18N, CATEGORY_I18N, OPEN_STATUSES } from "../constants/support";
 import { Spinner, EmptyState, ErrorState, Badge } from "../components/ui/Primitives";
 import { useToast } from "../components/ui/Toast";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
+import NewTicketModal from "../components/messages/NewTicketModal";
+import AttachmentRenderer from "../components/attachments/AttachmentRenderer";
 import { isSameDay, isToday } from "../utils/date";
 import "../styles/Messages.css";
+
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 
 const POLL_INTERVAL = 5000;
 
@@ -51,21 +58,41 @@ function dayLabel(raw, locale = "ru", t) {
   return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(d);
 }
 
-function SupportThreadHeader({ conversation }) {
+function SupportThreadHeader({ conversation, onClose, onReopen, busy }) {
+  const { t } = useTranslation();
+  const isOpen = OPEN_STATUSES.includes(conversation.ticket_status);
+  const statusKey = STATUS_I18N[conversation.ticket_status] || null;
+  const priorityKey = PRIORITY_I18N[conversation.ticket_priority] || null;
+  const categoryKey = CATEGORY_I18N[conversation.ticket_category] || null;
+
   return (
     <div className="support-thread-header">
-      <span className="support-thread-subject">{conversation.counterpart_name}</span>
+      <div className="support-thread-title">
+        <div className="support-thread-subject">{conversation.counterpart_name || safeDisplayName(conversation.name, t)}</div>
+        {categoryKey && <span className="support-thread-category">{t(categoryKey)}</span>}
+      </div>
       <div className="support-thread-meta">
-        <Badge status={conversation.ticket_status === "RESOLVED" ? "completed" : conversation.ticket_status}>
-          {conversation.ticket_status}
+        <Badge status={isOpen ? "active" : "completed"}>
+          {statusKey ? t(statusKey) : conversation.ticket_status}
         </Badge>
-        {conversation.ticket_priority && (
+        {priorityKey && (
           <Badge status={conversation.ticket_priority === "HIGH" || conversation.ticket_priority === "URGENT" ? "cancelled" : "active"}>
-            {conversation.ticket_priority}
+            {t(priorityKey)}
           </Badge>
         )}
-        {conversation.ticket_category && (
-          <span className="support-thread-category">{conversation.ticket_category}</span>
+        {conversation.ticket_assigned_to && (
+          <span className="support-thread-assigned">
+            {t("support.assigned_to", "Agent")}: {conversation.ticket_assigned_to}
+          </span>
+        )}
+        {isOpen ? (
+          <button type="button" className="support-thread-action close" onClick={onClose} disabled={busy}>
+            {t("support.close_ticket", "Close ticket")}
+          </button>
+        ) : (
+          <button type="button" className="support-thread-action reopen" onClick={onReopen} disabled={busy}>
+            {t("support.reopen_ticket", "Reopen")}
+          </button>
         )}
       </div>
     </div>
@@ -160,14 +187,118 @@ export default function PgMessages() {
 
   const tempIdRef = useRef(0);
 
+  const [newTicketOpen, setNewTicketOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [pendingFile, setPendingFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const photoInputRef = useRef(null);
+
+  const updateActiveTicket = (patch) => {
+    setActiveConvo((prev) => {
+      const next = prev ? { ...prev, ...patch } : prev;
+      if (next) setConversations((list) => list.map((c) => (c.id === next.id ? next : c)));
+      return next;
+    });
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_ATTACHMENT_SIZE) {
+      toast.error(t("attachments.too_large", "File must be 10 MB or smaller"));
+      return;
+    }
+    const allowedTypes = [
+      "image/", "video/", "audio/",
+      "application/pdf", "application/zip", "application/x-zip-compressed",
+      "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "text/plain", "text/csv", "application/rtf",
+    ];
+    if (!allowedTypes.some((prefix) => file.type.startsWith(prefix)) && file.type !== "") {
+      toast.error(t("attachments.unsupported_type", "Unsupported file type"));
+      return;
+    }
+    if (pendingFile) {
+      if (pendingFile.objectUrl) URL.revokeObjectURL(pendingFile.objectUrl);
+    }
+    setPendingFile({ file, progress: 0, objectUrl: URL.createObjectURL(file) });
+  };
+
+  const clearPendingFile = useCallback(() => {
+    setPendingFile((pf) => {
+      if (pf?.objectUrl) URL.revokeObjectURL(pf.objectUrl);
+      return null;
+    });
+  }, []);
+
+  const closeTicket = async () => {
+    if (!activeConvo) return;
+    setBusy(true);
+    try {
+      const { response, data } = await supportApi.close(activeConvo.ticket_id);
+      if (response.ok) {
+        toast.success(t("support.ticket_closed", "Ticket closed"));
+        updateActiveTicket({ ticket_status: "CLOSED" });
+      } else {
+        toast.error(data?.message || t("support.action_failed", "Action failed"));
+      }
+    } catch {
+      toast.error(t("support.action_failed", "Action failed"));
+    } finally {
+      setBusy(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const reopenTicket = async () => {
+    if (!activeConvo) return;
+    setBusy(true);
+    try {
+      const { response, data } = await supportApi.reopen(activeConvo.ticket_id);
+      if (response.ok) {
+        toast.success(t("support.ticket_reopened", "Ticket reopened"));
+        updateActiveTicket({ ticket_status: "OPEN" });
+      } else {
+        toast.error(data?.message || t("support.action_failed", "Action failed"));
+      }
+    } catch {
+      toast.error(t("support.action_failed", "Action failed"));
+    } finally {
+      setBusy(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const handleTicketCreated = (ticket) => {
+    setNewTicketOpen(false);
+    loadConversations().then(() => setFilter(CONVERSATION_TYPES.SUPPORT));
+  };
+
   const handleSend = async (e) => {
     e.preventDefault();
     const body = draft.trim();
-    if (!body || !activeConvo) return;
+    if ((!body && !pendingFile) || !activeConvo) return;
+
+    const optimisticAttachment = pendingFile
+      ? {
+          id: `tmp-file-${tempIdRef.current}`,
+          name: pendingFile.file.name,
+          size: pendingFile.file.size,
+          mime_type: pendingFile.file.type,
+          kind: pendingFile.file.type?.startsWith("image/") ? "IMAGE" : "FILE",
+          url: pendingFile.objectUrl,
+          pending: true,
+        }
+      : null;
 
     const optimistic = {
       id: `tmp-${++tempIdRef.current}`,
       body,
+      attachment: optimisticAttachment,
       sender_id: user?.id,
       own: true,
       sending: true,
@@ -178,12 +309,25 @@ export default function PgMessages() {
     setDraft("");
     setSending(true);
     try {
+      let attachmentId = null;
+      if (pendingFile) {
+        const up = await messagesApi.uploadAttachment(pendingFile.file, (p) =>
+          setPendingFile((pf) => (pf ? { ...pf, progress: p } : pf))
+        );
+        if (!up.response.ok) throw new Error(up.data?.message || "upload failed");
+        attachmentId = up.data?.id || up.data?.attachment?.id || null;
+        clearPendingFile();
+      }
       if (activeConvo.type === CONVERSATION_TYPES.SUPPORT) {
-        await sendSupportMessage(activeConvo.ticket_id, body);
+        await sendSupportMessage(activeConvo.ticket_id, body, attachmentId);
         const msgs = await loadSupportThread(activeConvo.ticket_id);
         setMessages(msgs);
       } else {
-        await messagesApi.send({ conversation_id: activeConvo.id, body });
+        await messagesApi.send({
+          conversation_id: activeConvo.id,
+          body,
+          ...(attachmentId ? { attachment_id: attachmentId } : {}),
+        });
         const { response, data } = await messagesApi.conversation(activeConvo.id);
         if (response.ok) setMessages(Array.isArray(data) ? data : data.messages || []);
       }
@@ -194,18 +338,26 @@ export default function PgMessages() {
       toast.error(t("messages.send_failed", "Failed to send message"));
     } finally {
       setSending(false);
+      if (pendingFile) clearPendingFile();
     }
   };
 
   const retrySend = async (m) => {
     setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, sending: true, failed: false } : x)));
     try {
+      const attachmentId = m.attachment?.id && !String(m.attachment.id).startsWith("tmp-file")
+        ? m.attachment.id
+        : null;
       if (activeConvo.type === CONVERSATION_TYPES.SUPPORT) {
-        await sendSupportMessage(activeConvo.ticket_id, m.body);
+        await sendSupportMessage(activeConvo.ticket_id, m.body, attachmentId);
         const msgs = await loadSupportThread(activeConvo.ticket_id);
         setMessages(msgs);
       } else {
-        await messagesApi.send({ conversation_id: activeConvo.id, body: m.body });
+        await messagesApi.send({
+          conversation_id: activeConvo.id,
+          body: m.body,
+          ...(attachmentId ? { attachment_id: attachmentId } : {}),
+        });
         const { response, data } = await messagesApi.conversation(activeConvo.id);
         if (response.ok) setMessages(Array.isArray(data) ? data : data.messages || []);
       }
@@ -240,6 +392,13 @@ export default function PgMessages() {
               onClick={() => setFilter(CONVERSATION_TYPES.SUPPORT)}
             >
               {t("messages.support", "Support")}
+            </button>
+            <button
+              type="button"
+              className="messages-new-ticket"
+              onClick={() => setNewTicketOpen(true)}
+            >
+              + {t("messages.new_ticket", "New ticket")}
             </button>
           </div>
 
@@ -296,13 +455,18 @@ export default function PgMessages() {
           ) : (
             <>
               {activeConvo.type === CONVERSATION_TYPES.SUPPORT ? (
-                <SupportThreadHeader conversation={activeConvo} />
+                <SupportThreadHeader
+                  conversation={activeConvo}
+                  onClose={() => setConfirmAction("close")}
+                  onReopen={() => setConfirmAction("reopen")}
+                  busy={busy}
+                />
               ) : (
                 <div className="thread-header">
                   <span className="thread-counterpart">{safeDisplayName(activeConvo.counterpart_name || activeConvo.name || "", t)}</span>
                 </div>
               )}
-              <div className="thread-messages" ref={threadRef}>
+              <div className="thread-messages" ref={threadRef} role="log" aria-live="polite" aria-label={t("messages.chat_log", "Chat messages")}>
                 {threadLoading && messages.length === 0 ? (
                   <Spinner />
                 ) : messages.length === 0 ? (
@@ -322,6 +486,17 @@ export default function PgMessages() {
                         <div className={`message-bubble ${isOwn ? "own" : ""} ${m.failed ? "failed" : ""}`}>
                           {!isOwn && m.sender_name && (
                             <span className="message-sender">{safeDisplayName(m.sender_name, t)}</span>
+                          )}
+                          {(m.attachment || (Array.isArray(m.attachments) && m.attachments.length > 0)) && (
+                            <div className="message-attachments">
+                              {m.attachment ? (
+                                <AttachmentRenderer attachment={m.attachment} />
+                              ) : (
+                                m.attachments.map((a, ai) => (
+                                  <AttachmentRenderer key={a.id || ai} attachment={a} />
+                                ))
+                              )}
+                            </div>
                           )}
                           <p>{m.body || m.text}</p>
                           <div className="message-meta">
@@ -347,22 +522,111 @@ export default function PgMessages() {
                 )}
               </div>
               <form className="message-composer" onSubmit={handleSend}>
-                <input
-                  type="text"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.form.requestSubmit(); }}
-                  placeholder={t("messages.type_message", "Type a message...")}
-                  aria-label={t("messages.type_message", "Type a message...")}
-                  disabled={sending}
-                />
-                <button type="submit" className="btn-primary" disabled={sending || !draft.trim()}>
-                  {sending ? t("messages.sending", "Sending…") : t("messages.send", "Send")}
-                </button>
+                {pendingFile && (
+                  <div className="composer-attachment">
+                    {pendingFile.file.type?.startsWith("image/") && pendingFile.objectUrl ? (
+                      <img className="composer-attachment-thumb" src={pendingFile.objectUrl} alt={pendingFile.file.name} />
+                    ) : (
+                      <span className="composer-attachment-icon" aria-hidden="true">📄</span>
+                    )}
+                    <div className="composer-attachment-info">
+                      <span className="composer-attachment-name">{pendingFile.file.name}</span>
+                      {typeof pendingFile.progress === "number" && pendingFile.progress < 100 && sending && (
+                        <div className="composer-attachment-progress" role="progressbar" aria-valuenow={pendingFile.progress} aria-valuemin={0} aria-valuemax={100}>
+                          <i style={{ width: `${pendingFile.progress}%` }} />
+                          <span>{pendingFile.progress}%</span>
+                        </div>
+                      )}
+                      {sending && pendingFile.progress >= 100 && (
+                        <span className="composer-attachment-uploading">{t("attachments.uploading", "Uploading…")}</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="composer-attachment-remove"
+                      onClick={clearPendingFile}
+                      disabled={sending}
+                      aria-label={t("attachments.remove_file", "Remove file")}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                <div className="composer-row">
+                  <>
+                    <input
+                      ref={photoInputRef}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={handleFileSelect}
+                      data-testid="photo-input"
+                    />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      hidden
+                      onChange={handleFileSelect}
+                      data-testid="file-input"
+                    />
+                    <button
+                      type="button"
+                      className="composer-attach-btn"
+                      onClick={() => photoInputRef.current?.click()}
+                      disabled={sending || !!pendingFile}
+                      aria-label={t("attachments.attach_photo", "Attach photo")}
+                    >
+                      📷
+                    </button>
+                    <button
+                      type="button"
+                      className="composer-attach-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={sending || !!pendingFile}
+                      aria-label={t("attachments.attach_file", "Attach file")}
+                    >
+                      📎
+                    </button>
+                  </>
+                  <input
+                    type="text"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.form.requestSubmit(); }}
+                    placeholder={t("messages.type_message", "Type a message...")}
+                    aria-label={t("messages.type_message", "Type a message...")}
+                    disabled={sending}
+                  />
+                  <button type="submit" className="btn-primary" disabled={sending || (!draft.trim() && !pendingFile)}>
+                    {sending ? t("messages.sending", "Sending…") : t("messages.send", "Send")}
+                  </button>
+                </div>
               </form>
             </>
           )}
         </section>
+
+        {newTicketOpen && <NewTicketModal onClose={() => setNewTicketOpen(false)} onCreated={handleTicketCreated} />}
+
+        <ConfirmDialog
+          open={confirmAction === "close"}
+          title={t("support.close_confirm_title", "Close this ticket?")}
+          message={t("support.close_confirm_text", "This will mark the ticket as closed. You can reopen it later.")}
+          confirmLabel={t("support.close_ticket", "Close ticket")}
+          loading={busy}
+          onConfirm={closeTicket}
+          onCancel={() => setConfirmAction(null)}
+        />
+        <ConfirmDialog
+          open={confirmAction === "reopen"}
+          title={t("support.reopen_confirm_title", "Reopen this ticket?")}
+          message={t("support.reopen_confirm_text", "The ticket status will change back to open.")}
+          confirmLabel={t("support.reopen_ticket", "Reopen")}
+          tone="active"
+          loading={busy}
+          onConfirm={reopenTicket}
+          onCancel={() => setConfirmAction(null)}
+        />
       </div>
   );
 }

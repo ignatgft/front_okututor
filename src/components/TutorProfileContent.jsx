@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { apiClient } from "../api/http";
 import { endpoints } from "../api/endpoints";
 import { Spinner, Skeleton, EmptyState, ErrorState } from "./ui/Primitives";
+import { Avatar } from "./ui/Avatar";
 import { useToast } from "./ui/Toast";
 import "../styles/TutorProfile.css";
 
@@ -80,7 +81,12 @@ export default function TutorProfileContent() {
     <div className="tutor-profile-page">
       <div className="tutor-profile-container">
         <div className="tutor-card-full">
-          <img src={tutor.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.full_name)}&background=3563E9&color=fff`} alt={tutor.full_name} className="tutor-avatar" />
+          <Avatar
+            name={tutor.full_name}
+            src={tutor.avatar_url}
+            alt={tutor.full_name}
+            className="tutor-avatar"
+          />
           <div className="tutor-info-full">
             <h1>{tutor.full_name}</h1>
             {tutor.verification_status === "VERIFIED" && <span className="verified-badge">✓ {t("tutor_profile.verified", "Verified")}</span>}

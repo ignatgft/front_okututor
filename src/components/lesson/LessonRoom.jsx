@@ -5,6 +5,7 @@ import { Room, RoomEvent, Track } from "livekit-client";
 import { apiClient } from "../../api/http";
 import { endpoints } from "../../api/endpoints";
 import ConfirmModal from "../ui/ConfirmModal";
+import { resolveLessonJoinError } from "./lessonErrors";
 
 export default function LessonRoom({ bookingId }) {
   const navigate = useNavigate();
@@ -70,7 +71,20 @@ export default function LessonRoom({ bookingId }) {
     try {
       setConnectionState("connecting");
       const { response, data } = await apiClient.post(endpoints.meetings.token(bookingId));
-      if (!response.ok) throw new Error(data.message || t("lesson.token_error", "Failed to get meeting token"));
+      if (!response.ok) {
+        console.error(
+          `[lesson] meeting token request failed: status=${response.status} booking=${bookingId}`,
+          data ?? ""
+        );
+        throw { status: response.status };
+      }
+      if (!data || !data.token || !data.server_url) {
+        console.error(
+          `[lesson] meeting token response missing server_url/token: booking=${bookingId}`,
+          data ?? ""
+        );
+        throw { status: 0 };
+      }
 
       const lkRoom = new Room({
         adaptiveStream: true,
@@ -96,7 +110,8 @@ export default function LessonRoom({ bookingId }) {
         setError(t("lesson.camera_permission", "Camera permission required. Please allow camera access in browser settings."));
       }
     } catch (err) {
-      setError(err.message);
+      console.error("[lesson] unable to join the lesson room", err?.message || err);
+      setError(resolveLessonJoinError(err, t));
       setConnectionState("lost");
     }
   };

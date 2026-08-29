@@ -9,6 +9,7 @@ import { useToast } from "./ui/Toast";
 import { Spinner, Skeleton, EmptyState, ErrorState } from "../components/ui/Primitives";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import { tutorsApi } from "../api/tutors.api";
+import AvatarUploader from "./avatar/AvatarUploader";
 import { isStudent } from "../constants/roles";
 import { TUTOR_STATUS } from "../constants/enums";
 import { COURSE_SUBJECTS as SUBJECTS, TUTOR_LANGUAGES as LANGUAGES } from "../constants/course";
@@ -310,6 +311,18 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarSaved = (url) => {
+    const updated = { ...user, avatar: url };
+    setUser(updated);
+    setFormData((prev) => ({ ...prev, avatar: url }));
+  };
+
+  const handleAvatarRemoved = () => {
+    const updated = { ...user, avatar: "" };
+    setUser(updated);
+    setFormData((prev) => ({ ...prev, avatar: "" }));
+  };
+
   if (!user) return null;
 
   const renderCoursesSection = () => {
@@ -530,15 +543,11 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-sidebar">
           <div className="profile-avatar-section">
-            <img
-              src={
-                formData.avatar ||
-                user.avatar ||
-                user.photoURL ||
-                "https://via.placeholder.com/150"
-              }
-                alt={t("profile.avatar_alt", "User Avatar")}
-              className="profile-avatar"
+            <AvatarUploader
+              src={formData.avatar || user.avatar || user.photoURL || ""}
+              name={user.full_name || user.email}
+              onSaved={handleAvatarSaved}
+              onRemoved={handleAvatarRemoved}
             />
             <h2>{user.full_name}</h2>
             {user.role && (

@@ -77,6 +77,8 @@
     "one_time_code": "One-time code",
     "dismiss": "Dismiss",
     "back_to_list": "Back to list",
+    "close_modal": "Close",
+    "close_lightbox": "Close preview",
     "breadcrumb": "Breadcrumb"
   },
   "buttons": {
@@ -153,7 +155,19 @@
     "sending": "Sending…",
     "retry": "Retry",
     "read": "Read",
-    "unknown": "Unknown user"
+    "unknown": "Unknown user",
+    "new_ticket": "New ticket",
+    "chat_log": "Chat messages"
+  },
+  "attachments": {
+    "attach_file": "Attach file",
+    "attach_photo": "Attach photo",
+    "remove_file": "Remove file",
+    "too_large": "File must be 10 MB or smaller",
+    "unsupported_type": "Unsupported file type",
+    "uploading": "Uploading…",
+    "download": "Download",
+    "open_image": "Open image {{name}}"
   },
   "schedule": {
     "view_day": "Day",
@@ -458,6 +472,19 @@
     "link_placeholder": "Link",
     "education_placeholder": "e.g. BSc Computer Science",
     "avatar_alt": "User avatar",
+    "change_avatar": "Change photo",
+    "set_avatar": "Add photo",
+    "remove_avatar": "Remove",
+    "avatar_too_large": "Photo must be 10 MB or smaller",
+    "avatar_type_error": "Please choose an image file",
+    "avatar_saved": "Photo updated",
+    "avatar_save_failed": "Failed to update photo",
+    "avatar_removed": "Photo removed",
+    "avatar_remove_failed": "Failed to remove photo",
+    "crop_avatar": "Crop photo",
+    "crop_apply": "Save photo",
+    "crop_zoom": "Zoom",
+    "crop_drag_hint": "Drag to position the photo",
     "become_tutor": "Become a Tutor",
     "application_pending": "Application under review",
     "application_rejected": "Application rejected",
@@ -560,6 +587,13 @@
     "mic_permission": "Microphone permission required. Please allow microphone access in browser settings.",
     "camera_permission": "Camera permission required. Please allow camera access in browser settings.",
     "screen_permission": "Screen sharing was cancelled or is not available.",
+    "errors": {
+      "session_expired": "Your session has expired. Please sign in again.",
+      "forbidden": "You do not have access to this lesson.",
+      "not_found": "Lesson not found. It may have been cancelled.",
+      "conflict": "Failed to connect to the lesson. Please try opening it again.",
+      "connect": "Failed to connect to the lesson. Please try opening it again."
+    },
     "error": "Failed to join lesson"
   },
   "review": {
@@ -962,6 +996,13 @@
     "reopen": "Reopen",
     "close_confirm_title": "Close ticket?",
     "close_confirm_message": "Are you sure you want to close this ticket? You can reopen it later if needed.",
+    "close_confirm_text": "This will mark the ticket as closed. You can reopen it later.",
+    "reopen_confirm_title": "Reopen this ticket?",
+    "reopen_confirm_text": "The ticket status will change back to open.",
+    "reopen_ticket": "Reopen",
+    "action_failed": "Action failed",
+    "category_title": "Category",
+    "priority_title": "Priority",
     "ticket_closed_banner": "This ticket is closed",
     "chat": "Chat",
     "type_message": "Type your message...",

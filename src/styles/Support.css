@@ -225,6 +225,7 @@
   font-size: var(--font-size-base);
   font-family: inherit;
   transition: border-color 0.15s ease;
+  min-height: var(--touch-target, 44px);
 }
 
 .support-form-input:focus,
@@ -309,7 +310,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-height: 360px;
+  max-height: calc(100dvh - 280px);
+  min-height: 200px;
   overflow-y: auto;
   padding: var(--space-3);
   background: var(--color-bg-light);
@@ -317,6 +319,7 @@
   border-radius: var(--radius-lg);
   margin-bottom: var(--space-3);
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .support-message {
@@ -514,5 +517,35 @@
 
   .support-form-actions {
     flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .support-chat-container {
+    max-height: calc(100dvh - 240px);
+    border-radius: var(--radius-md);
+  }
+
+  .support-message {
+    max-width: 85%;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .support-message-input {
+    padding: var(--space-2);
+  }
+
+  .support-message-textarea {
+    min-height: var(--touch-target, 44px);
+    font-size: 16px;
+  }
+
+  .support-ticket-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .support-ticket-subject {
+    font-size: var(--font-size-lg);
   }
 }

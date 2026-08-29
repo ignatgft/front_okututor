@@ -83,6 +83,7 @@ export const endpoints = {
     conversations: "/api/v1/messages/conversations",
     conversation: (id) => `/api/v1/messages/conversations/${id}`,
     send: "/api/v1/messages",
+    attachments: "/api/v1/messages/attachments",
   },
   meetings: {
     token: (bookingId) => `/api/v1/bookings/${bookingId}/meeting/token`,

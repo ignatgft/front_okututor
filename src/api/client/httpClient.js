@@ -48,10 +48,12 @@ export async function sendRequest(method, path, body = null, auth = true, _retry
   const combinedSignal = signal ? createAnySignal(timeoutSignal, signal) : timeoutSignal;
   const options = {
     method,
-    headers: buildAuthHeaders(auth),
+    headers: buildAuthHeaders(auth, body),
     signal: combinedSignal,
   };
-  if (body) options.body = JSON.stringify(body);
+  if (body) {
+    options.body = body instanceof FormData ? body : JSON.stringify(body);
+  }
 
   let response;
   try {

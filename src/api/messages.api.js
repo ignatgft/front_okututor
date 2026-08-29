@@ -1,11 +1,14 @@
 import { endpoints } from "./endpoints";
 import { apiClient } from "./http";
+import { uploadFile } from "./client/upload";
 import { CONVERSATION_TYPES } from "../constants/roles";
 
 export const messagesApi = {
   conversations: () => apiClient.get(endpoints.messages.conversations),
   conversation: (id) => apiClient.get(endpoints.messages.conversation(id)),
   send: (payload) => apiClient.post(endpoints.messages.send, payload),
+  uploadAttachment: (file, onProgress) =>
+    uploadFile({ endpoint: endpoints.messages.attachments, file, onProgress }),
 };
 
 export const notificationsApi = {
@@ -62,8 +65,10 @@ export async function loadSupportThread(ticketId) {
   return Array.isArray(data) ? data : data.messages || [];
 }
 
-export async function sendSupportMessage(ticketId, body) {
-  const { response, data } = await apiClient.post(endpoints.support.send(ticketId), { body });
+export async function sendSupportMessage(ticketId, body, attachmentId = null) {
+  const payload = { body };
+  if (attachmentId) payload.attachment_id = attachmentId;
+  const { response, data } = await apiClient.post(endpoints.support.send(ticketId), payload);
   if (!response.ok) throw new Error(data.message || "Failed to send");
   return data;
 }
