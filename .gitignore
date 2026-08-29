@@ -25,3 +25,7 @@ __pycache__/
 *.njsproj
 *.sln
 *.sw?
+
+# Figma debug dumps
+figma_*.json
+figma_tree.txt

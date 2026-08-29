@@ -1,148 +1,124 @@
-/* Основные стили для секции категорий */
+/* Category Section — Mobile-first
+   base:     mobile — 2-col grid
+   ≥640px:   tablet — 3-col grid
+   ≥1024px:  desktop — 4-col grid
+*/
 .category-section {
-    padding: 30px 100px;
-    background-color: #f9f9f9;
-    text-align: center;
+  padding: var(--space-10) 0;
+  max-width: var(--container-max, 1440px);
+  margin: 0 auto;
+  padding-inline: var(--page-padding, 16px);
+}
+
+.category-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.category-subtitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-title {
+  font-size: var(--font-size-3xl-fluid);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-top: var(--space-2);
+  margin-bottom: 0;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-4) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.category-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.category-icon {
+  width: 54px;
+  height: 54px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+
+.category-icon img {
+  width: 28px;
+  height: 28px;
+}
+
+.category-card-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+  overflow-wrap: anywhere;
+}
+
+.category-card-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin-bottom: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.category-card-link {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+/* ≥640px — tablet: 3-col */
+@media (min-width: 640px) {
+  .category-section {
+    padding: var(--space-14) 0;
   }
 
-  .inter {
-    font-family: "Inter";
-    font-optical-sizing: auto;
-    font-weight: 450;
-    font-style: normal;
-  }
-  /* Заголовок и подзаголовок */
-  .category-header {
-    margin-bottom: 40px;
-  }
-  
-  .category-subtitle {
-    display: inline-block;
-    font-size: 14px;
-    color: #61B082;
-    background-color: rgba(97, 176, 130, 0.1);
-    padding: 5px 15px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-  }
-  
-  .category-title {
-    font-size: 32px;
-    font-weight: bold;
-    color: #1A1A1A;
-  }
-  
-  /* Сетка карточек */
   .category-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
   }
-  
-  /* Карточка категории */
+
   .category-card {
-    background-color: #fff;
-    border-radius: 15px;
-    padding: 20px;
-    text-align: left;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: var(--space-5) var(--space-4);
   }
-  
-  .category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  }
-  
-  .category-icon {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 15px;
-  }
-  
-  .category-icon img {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .category-card-title {
-    font-size: 20px;
-    font-weight: 550;
-    color: #1A1A1A;
-    margin-bottom: 10px;
-  }
-  
-  .category-card-description {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 15px;
-  }
-  
-  .category-card-link {
-    font-size: 14px;
-    color: #426E5B;
-    text-decoration: none;
-  }
-  
-  .category-card-link:hover {
-    text-decoration: underline;
-  }
-  
+}
 
-
-
-
-  /* Адаптивность для мобильных устройств */
-  @media (max-width: 768px) {
-    .category-section {
-      padding: 30px 20px;
-    }
-    .category-subtitle {
-      margin-bottom: 0px;
-    } 
-  
-    .category-title {
-      margin: 10px 0 0 0;
-    } 
-    .category-title {
-      font-size: 24px;
-    }
-  
-    .category-grid {
-      grid-template-columns: repeat(2, 1fr); /* 2 карточки в ряд */
-      gap: 15px;
-    }
-  
-    .category-card {
-      padding: 15px;
-    }
-  
-    .category-icon {
-      width: 60px;
-      height: 60px;
-      margin-bottom: 10px;
-    }
-  
-    .category-card-title {
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-  
-    .category-card-description {
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-  
-    .category-card-link {
-      font-size: 12px;
-    }
+/* ≥1024px — desktop: 4-col */
+@media (min-width: 1024px) {
+  .category-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
   }
-  
-  @media (max-width: 480px) {
-    .category-grid {
-      grid-template-columns: 1fr; /* 1 карточка в ряд */
-      gap: 10px;
-    }
+
+  .category-card {
+    padding: var(--space-6) var(--space-4);
   }
+}

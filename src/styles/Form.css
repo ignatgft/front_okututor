@@ -1,0 +1,43 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-4);
+}
+
+.field label {
+  margin-bottom: var(--space-1);
+}
+
+.field input,
+.field textarea,
+.field select {
+  min-height: var(--touch-target);
+}
+
+.field-invalid input,
+.field-invalid textarea,
+.field-invalid select {
+  border-color: var(--color-danger);
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+  margin-bottom: 0;
+}
+
+.field-hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: var(--space-1);
+  margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 16px;
+  }
+}

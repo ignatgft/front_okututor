@@ -1,98 +1,73 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { endpoints } from "../api/endpoints";
-import { apiFetch } from "../api/http";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
+import { FaStarHalfAlt } from "react-icons/fa";
 import "../styles/CardCourse.css";
 
-const CardCourse = ({ course, userData: initialUserData }) => {
+const getDefaultAvatar = (name) => {
+  if (!name) return "https://via.placeholder.com/150";
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=150`;
+};
+
+const CardCourse = ({ course }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState(initialUserData || null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const hasInitialUserData = initialUserData && Object.keys(initialUserData).length > 0;
+  const teacherName = course.teacher_name || course.teacherName || "";
+  const teacherAvatar = course.teacher_avatar || course.teacherAvatar || "";
+  const price = course.price_per_hour || course.price || null;
 
-  useEffect(() => {
-    setUserData(initialUserData || null);
-  }, [initialUserData, course.teacher_id]);
+  const [avatarUrl, setAvatarUrl] = useState(
+    teacherAvatar || getDefaultAvatar(teacherName)
+  );
 
-  useEffect(() => {
-    if (!course.teacher_id) {
-      setIsLoading(false);
-      return;
-    }
+  const handleCardClick = () => navigate(`/course/${course.id}`);
 
-    if (hasInitialUserData) {
-      setAvatarUrl(initialUserData?.avatar || initialUserData?.photoURL || getDefaultAvatar(initialUserData?.full_name));
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchUserData = async () => {
-      try {
-        const { response, data } = await apiFetch(endpoints.userById(course.teacher_id));
-        if (!response.ok) throw new Error("User fetch failed");
-        setUserData(data);
-        // Устанавливаем начальный URL аватарки
-        setAvatarUrl(data?.avatar || data?.photoURL || getDefaultAvatar(data?.full_name));
-      } catch (error) {
-        console.error("Error loading user data:", error);
-        setUserData({ full_name: "Unknown Instructor", location: "Unknown" });
-        setAvatarUrl(getDefaultAvatar("Unknown Instructor"));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [course.teacher_id, hasInitialUserData, initialUserData]);
-
-  // Функция для генерации заглушки на основе имени
-  const getDefaultAvatar = (name) => {
-    if (!name) return "https://via.placeholder.com/150";
-    const encodedName = encodeURIComponent(name);
-    return `https://ui-avatars.com/api/?name=${encodedName}&background=0D8ABC&color=fff&size=150`;
-  };
-
-  // Обработчик ошибки загрузки изображения
   const handleImageError = () => {
-    setAvatarUrl(getDefaultAvatar(userData?.full_name || "Unknown Instructor"));
+    setAvatarUrl(getDefaultAvatar(teacherName || "Instructor"));
   };
 
-  const handleCardClick = () => {
-    navigate(`/course/${course.id}`);
+  const renderSmallStars = (rating) => {
+    if (!rating) return null;
+    const r = Number(rating);
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= Math.floor(r)) {
+        stars.push(<AiFillStar key={i} color="#ffd700" size={12} aria-hidden="true" />);
+      } else if (i - 0.5 <= r) {
+        stars.push(<FaStarHalfAlt key={i} color="#ffd700" size={12} aria-hidden="true" />);
+      } else {
+        stars.push(<AiOutlineStar key={i} color="#ffd700" size={12} aria-hidden="true" />);
+      }
+    }
+    return <div className="card-star-rating" aria-hidden="true">{stars}</div>;
   };
-
-  if (isLoading) {
-    return (
-      <div className="card-course card-skeleton">
-        <div className="skeleton skeleton-header" />
-        <div className="skeleton skeleton-line wide" />
-        <div className="skeleton skeleton-line medium" />
-        <div className="skeleton-tags">
-          <span className="skeleton skeleton-chip" />
-          <span className="skeleton skeleton-chip" />
-          <span className="skeleton skeleton-chip" />
-        </div>
-        <div className="skeleton-footer">
-          <span className="skeleton skeleton-line short" />
-          <span className="skeleton skeleton-line short" />
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="card-course dark-card dark-card-hover" onClick={handleCardClick}>
+    <div
+      className="card-course"
+      onClick={handleCardClick}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleCardClick(); } }}
+      role="link"
+      tabIndex={0}
+    >
       <div className="card-header">
         <img
           src={avatarUrl}
-          alt="User Avatar"
-          className="course-avatarr"
-          onError={handleImageError} // Обработчик ошибки загрузки
+          alt={teacherName}
+          className="course-avatar"
+          onError={handleImageError}
+          loading="lazy"
         />
         <div className="course-title-block">
-          <h3 className="course-title">{course.title || "Course Title"}</h3>
-          <p className="course-instructor">{userData?.full_name || "Instructor Name"}</p>
+          <h3 className="course-title">{course.title || t("course.title_placeholder", "Course")}</h3>
+          <Link
+            to={`/tutor/${course.teacher_id}`}
+            className="course-instructor"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {teacherName || t("course.instructor_placeholder", "Instructor")}
+          </Link>
         </div>
       </div>
 
@@ -100,20 +75,39 @@ const CardCourse = ({ course, userData: initialUserData }) => {
         <p>
           {course.description
             ? `${course.description.slice(0, 100)}${course.description.length > 100 ? "..." : ""}`
-            : "No course description available."}
+            : t("course.no_description", "No description")}
         </p>
       </div>
 
       <div className="card-tags">
-        <span className="tag">{course.location_type || "ONLINE"}</span>
-        <span className="tag">{course.days || "WEEKDAYS"}</span>
-        <span className="tag">{course.group_size === "individual" ? "PRIVATE" : "GROUP"}</span>
+        {course.location_type && (
+          <span className="tag">{t(`course.location_type.${course.location_type}`, course.location_type)}</span>
+        )}
+        {Array.isArray(course.days) && course.days.length > 0 && (
+          <span className="tag">{course.days.map((d) => t(`course.day.${d}`, d)).join(", ")}</span>
+        )}
+        {typeof course.days === "string" && (
+          <span className="tag">{course.days}</span>
+        )}
+        {course.group_size && (
+          <span className="tag">{t(`course.group_type.${course.group_size}`, course.group_size)}</span>
+        )}
+        {course.subject && (
+          <span className="tag tag-subject">{t(`course.subject.${course.subject}`, course.subject)}</span>
+        )}
       </div>
 
       <div className="card-footer">
-        <span className="card-location">{userData?.location || "Location"}</span>
+        <span className="card-rating">
+          {renderSmallStars(course.average_rating || course.rating)}
+          {(course.average_rating || course.rating)
+            ? <span className="rating-value">{Number(course.average_rating || course.rating).toFixed(1)}</span>
+            : null}
+        </span>
         <span className="card-price">
-          {course.price_per_hour ? `${course.price_per_hour} som/hour` : "Price not set"}
+          {price != null
+            ? `${price} ${t("course.som_per_hour")}`
+            : t("common.price_not_set", "Price not set")}
         </span>
       </div>
     </div>

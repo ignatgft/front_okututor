@@ -10,16 +10,25 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    lng: "en", // <-- английский по умолчанию
     resources: {
       en: { translation: translationEN },
       ru: { translation: translationRU },
-      kg: { translation: translationKG }
+      ky: { translation: translationKG },
+      kg: { translation: translationKG },
     },
     fallbackLng: "en",
     interpolation: {
-      escapeValue: false
-    }
+      escapeValue: false,
+    },
+    detection: {
+      order: ["localStorage", "navigator", "htmlTag"],
+      lookupLocalStorage: "i18nextLng",
+      caches: ["localStorage"],
+    },
   });
+
+i18n.on("languageChanged", (lng) => {
+  document.documentElement.setAttribute("lang", lng);
+});
 
 export default i18n;

@@ -1,204 +1,130 @@
-// frontend/src/components/SearchComp/SearchBar.jsx
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import CardCourse from "../../components/CardCourse";
-import { endpoints } from "../../api/endpoints";
-import { apiFetch } from "../../api/http";
+import SearchInput from "./SearchInput";
+import SearchFilters from "./SearchFilters";
+import CourseResults from "./CourseResults";
+import { useCourseSearch } from "../../hooks/useCourseSearch";
 import "../../styles/SearchCss/SearchBar.css";
-import searchIcon from '../../assets/SearchPg/search-icon.svg';
-
-const getSearchAliases = (query) => {
-  const lowered = query.trim().toLowerCase();
-
-  const aliasMap = {
-    "english language": ["english language", "английский язык", "англис тили"],
-    "английский язык": ["english language", "английский язык", "англис тили"],
-    "англис тили": ["english language", "английский язык", "англис тили"],
-
-    "mathematics": ["mathematics", "математика", "математика сабагы"],
-    "математика": ["mathematics", "математика", "математика сабагы"],
-    "математика сабагы": ["mathematics", "математика", "математика сабагы"],
-
-    "russian language": ["russian language", "русский язык", "орус тили"],
-    "русский язык": ["russian language", "русский язык", "орус тили"],
-    "орус тили": ["russian language", "русский язык", "орус тили"],
-
-    "design": ["design", "дизайн"],
-    "дизайн": ["design", "дизайн"],
-
-    "it": ["it", "программирование", "it адистиги"],
-    "программирование": ["it", "программирование", "it адистиги"],
-    "it адистиги": ["it", "программирование", "it адистиги"],
-
-    "sales": ["sales", "продажи", "сатуу"],
-    "продажи": ["sales", "продажи", "сатуу"],
-    "сатуу": ["sales", "продажи", "сатуу"],
-
-    "music": ["music", "музыка", "ырдоо"],
-    "музыка": ["music", "музыка", "ырдоо"],
-    "ырдоо": ["music", "музыка", "ырдоо"],
-
-    "Preparation for ORT": ["Preparation for ORT", "Подготовка к ОРТ", "ЖРТга даярдануу"],
-    "Подготовка к ОРТ": ["Preparation for ORT", "общереспубликанское тестирование", "ЖРТга даярдануу"],
-    "жалпы республикалык тестирлөө": ["Preparation for ORT", "Подготовка к ОРТ", "ЖРТга даярдануу"],
-  };
-
-  return aliasMap[lowered] || [lowered];
-};
 
 const SearchBar = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const qParam = queryParams.get("q") || "";
+  const navigate = useNavigate();
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
-  const [courses, setCourses] = useState([]);
-  const [users, setUsers] = useState({});
-  const [searchQuery, setSearchQuery] = useState(qParam);
-  const [error, setError] = useState("");
-  const [filters, setFilters] = useState({
-    days: [],
-    group_size: [],
-    location_type: [],
-    price_max: "",
-  });
+  const {
+    courses, searchQuery, error, loading, totalPages, totalResults, filters,
+    suggestions, suggestionsOpen, handlers,
+  } = useCourseSearch();
 
-  useEffect(() => {
-    setSearchQuery(qParam);
-  }, [qParam]);
+  const handleSuggestionSelect = (suggestion) => {
+    handlers.closeSuggestions();
+    navigate(suggestion.type === "tutor" ? `/tutor/${suggestion.id}` : `/course/${suggestion.id}`);
+  };
 
-  useEffect(() => {
-    const fetchCoursesAndUsers = async () => {
-      try {
-        const { data: coursesData } = await apiFetch(endpoints.courses);
-        if (!Array.isArray(coursesData)) throw new Error("Invalid course format");
-        setCourses(coursesData);
+  const hasActiveFilters =
+    filters.subject ||
+    filters.location_type.length > 0 ||
+    filters.group_size.length > 0 ||
+    filters.days.length > 0 ||
+    filters.min_price ||
+    filters.max_price ||
+    filters.rating > 0;
 
-        const userIds = [...new Set(coursesData.map(course => course.teacher_id).filter(Boolean))];
-        const usersData = {};
-        for (const userId of userIds) {
-          const { response, data } = await apiFetch(endpoints.userById(userId));
-          if (response.ok && !data.error) usersData[userId] = data;
-        }
-        setUsers(usersData);
-      } catch (err) {
-        setError(t("search.error_loading_courses") + ": " + err.message);
-      }
-    };
-
-    fetchCoursesAndUsers();
-  }, []);
-
-  const handleSearchChange = (e) => setSearchQuery(e.target.value);
-
-  const handleCheckboxChange = (category, value) => {
-    setFilters(prev => {
-      const isChecked = prev[category].includes(value);
-      const updated = isChecked
-        ? prev[category].filter(v => v !== value)
-        : [...prev[category], value];
-      return { ...prev, [category]: updated };
+  const resetFilters = () => {
+    handlers.applyFilters({
+      subject: "",
+      location_type: [],
+      group_size: [],
+      days: [],
+      min_price: "",
+      max_price: "",
+      rating: 0,
+      sort: "recommended",
+      page: 0,
     });
   };
 
-  const filteredCourses = courses.filter((course) => {
-    const user = users[course.teacher_id];
-    const aliases = getSearchAliases(searchQuery);
-
-    const queryMatch = aliases.some(alias =>
-      course.title?.toLowerCase().includes(alias) ||
-      user?.full_name?.toLowerCase().includes(alias)
-    );
-
-    const daysMatch = filters.days.length === 0 || filters.days.includes(course.days);
-    const locationMatch = filters.location_type.length === 0 || filters.location_type.includes(course.location_type);
-    const groupSizeMatch = filters.group_size.length === 0 || filters.group_size.includes(course.group_size);
-    const priceMatch = !filters.price_max || course.price_per_hour <= parseFloat(filters.price_max);
-
-    return queryMatch && daysMatch && locationMatch && groupSizeMatch && priceMatch;
-  });
-
   return (
     <div className="search-page">
-      <h1>{t("search.title")}</h1>
       <div className="search-layout">
         <div className="search-main">
-          <div className="search-wrapper">
-            <div className="search-input-wrapper">
-              <img src={searchIcon} alt="search icon" className="search-icon" />
-              <input
-                type="text"
-                placeholder={t("search.placeholder")}
-                className="search-input"
-                value={searchQuery}
-                onChange={handleSearchChange}
+          <SearchInput
+            value={searchQuery}
+            onChange={handlers.handleSearchChange}
+            onSubmit={handlers.handleSearchSubmit}
+            suggestions={suggestions}
+            suggestionsOpen={suggestionsOpen}
+            onSuggestionSelect={handleSuggestionSelect}
+            onSuggestionsClose={handlers.closeSuggestions}
+          />
+
+          <button
+            type="button"
+            className="filters-toggle btn-secondary show-mobile"
+            aria-expanded={isFiltersOpen}
+            aria-controls="mobile-filter-panel"
+            onClick={() => setIsFiltersOpen((open) => !open)}
+          >
+            {t("search.filters", "Filters")}
+          </button>
+
+          <div className={`mobile-filters-overlay ${isFiltersOpen ? "open" : ""}`} hidden={!isFiltersOpen}>
+            <div
+              className="mobile-filters-backdrop"
+              onClick={() => setIsFiltersOpen(false)}
+              onKeyDown={(e) => { if (e.key === "Escape") setIsFiltersOpen(false); }}
+              role="button"
+              tabIndex={-1}
+              aria-hidden="true"
+            />
+            <aside id="mobile-filter-panel" className="filter-panel mobile-filter-panel" role="dialog" aria-label={t("search.filter_by")}>
+              <div className="mobile-filters-header">
+                <h3>{t("search.filter_by")}</h3>
+                <button
+                  type="button"
+                  className="btn-ghost"
+                  onClick={() => setIsFiltersOpen(false)}
+                  aria-label={t("common.close", "Close")}
+                >
+                  ✕
+                </button>
+              </div>
+              <SearchFilters
+                filters={filters}
+                onApply={handlers.applyFilters}
+                onCheckbox={handlers.handleCheckboxChange}
+                onRating={handlers.handleRatingChange}
               />
-            </div>
-            <button className="search-btn">{t("search.button")}</button>
+            </aside>
           </div>
 
           <div className="search-content">
-            <aside className="filter-panel">
-              <h3>{t("search.filter_by")}</h3>
-
-              <h4>{t("search.price_max")}</h4>
-              <input
-                type="number"
-                placeholder="e.g. 500"
-                value={filters.price_max}
-                onChange={(e) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    price_max: e.target.value,
-                  }))
-                }
-                className="price-input"
+            <aside className="filter-panel hide-mobile">
+              <SearchFilters
+                filters={filters}
+                onApply={handlers.applyFilters}
+                onCheckbox={handlers.handleCheckboxChange}
+                onRating={handlers.handleRatingChange}
               />
-
-              <h4>{t("search.days")}</h4>
-              {["weekdays", "weekends", "specific"].map(opt => (
-                <label key={opt}>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleCheckboxChange("days", opt)}
-                  />{" "}
-                  {t(`search.${opt}`)}
-                </label>
-              ))}
-
-              <h4>{t("search.group_size")}</h4>
-              {["individual", "group"].map(opt => (
-                <label key={opt}>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleCheckboxChange("group_size", opt)}
-                  />{" "}
-                  {t(`search.${opt}`)}
-                </label>
-              ))}
-
-              <h4>{t("search.location_type")}</h4>
-              {["online", "offline"].map(opt => (
-                <label key={opt}>
-                  <input
-                    type="checkbox"
-                    onChange={() => handleCheckboxChange("location_type", opt)}
-                  />{" "}
-                  {t(`search.${opt}`)}
-                </label>
-              ))}
+              {hasActiveFilters && (
+                <button type="button" className="reset-filters-btn" onClick={resetFilters}>
+                  {t("search.reset_all", "Reset all")}
+                </button>
+              )}
             </aside>
 
-            <div className="card-courses-content">
-              <h3>{t("search.all_tutor_list")}</h3>
-              {filteredCourses.length === 0 && !error && <p>{t("search.no_courses")}</p>}
-              <div className="courses-search-grid">
-                {filteredCourses.map(course => (
-                  <CardCourse key={course.id} course={course} userData={users[course.teacher_id]} />
-                ))}
-              </div>
-            </div>
+            <CourseResults
+              courses={courses}
+              loading={loading}
+              error={error}
+              totalPages={totalPages}
+              page={filters.page}
+              onPageChange={handlers.handlePageChange}
+              resultCount={totalResults}
+              hasActiveFilters={hasActiveFilters}
+              onResetFilters={resetFilters}
+            />
           </div>
         </div>
       </div>

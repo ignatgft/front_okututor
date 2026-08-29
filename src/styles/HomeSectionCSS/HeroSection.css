@@ -1,182 +1,163 @@
-/* Основные стили для hero section */
+/* Hero Section — Mobile-first
+   base:     mobile — column layout, full-width buttons
+   ≥640px:   tablet — row layout starts
+   ≥1024px:  desktop — full layout
+*/
 .hero-section {
-  display: flex;
-  justify-content: start;
-  gap: 20px;
-  background: linear-gradient(
-    to bottom right, /* Направление: от левого верхнего угла к правому нижнему */
-    #426E5B 0%, /* Тёмный цвет в левом верхнем углу */
-    #426E5B 0%, /* Тёмный цвет сохраняется до 40% */
-    #61B082 70%, /* Переход к светлому цвету */
-    #61B082 100% /* Светлый цвет в правом нижнем углу */
-  );
-  color: #fff;
-  padding: 0px 50px 0px 50px;
-  position: relative;
+  background: var(--color-surface);
+  padding: var(--space-10) 0 var(--space-8);
   overflow: hidden;
 }
 
-/* Шрифты */
-.inter {
-  font-family: "Inter";
-  font-optical-sizing: auto;
-  font-weight: 450;
-  font-style: normal;
+.hero-container {
+  max-width: var(--container-max, 1440px);
+  margin: 0 auto;
+  padding: 0 var(--page-padding, 16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-8);
 }
 
-.poppins-bold {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.poppins-regular {
-  font-family: "Poppins", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-/* Текстовая часть */
 .hero-content {
-  min-width: 50%;
+  max-width: 100%;
 }
 
 .hero-title {
-  font-size: 48px;
-  font-weight: bold;
-  margin: 88px 0 20px 0;
-  line-height: 1.2;
+  font-size: var(--font-size-hero-fluid);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.12;
+  color: var(--color-text);
+  margin-bottom: var(--space-5);
+  letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
-  line-height: 1.5;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-8);
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
-/* Блок с текстом и кнопкой */
 .hero-buttons {
   display: flex;
-  align-items: center;
-  gap: 50px;
-  background-color: #fff;
-  border-radius: 6px;
-  padding: 6px 20px;
-  width: fit-content;box-shadow: 0 4px 4px rgba(0, 0, 0, 0.16); /* Добавляем тень */
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.find-tutor-text {
-  font-size: 16px;
-  color: #426E5B;
-}
-
-.btn {
-  border-radius: 6px;
-  font-size: 16px;
-  text-decoration: none;
-  text-align: center;
-}
-
-.start-btn {
-  padding: 6px 30px;
-  background-color: #426E5B;
-  color: #fff;
+.hero-btn-primary {
+  padding: 12px 28px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  background: var(--color-primary);
   border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 48px;
+  width: 100%;
 }
 
-.start-btn:hover {
-  background-color: #1b5e20;
+.hero-btn-primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
-/* Изображение */
+.hero-btn-secondary {
+  padding: 12px 28px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  min-height: 48px;
+  width: 100%;
+}
+
+.hero-btn-secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
 .hero-image-container {
-  position: relative;
-  margin-top: 41px;
-  max-width: 36%;
-  z-index: 1; /* Устанавливаем z-index ниже, чем у волны */
+  max-height: 200px;
+  overflow: hidden;
 }
 
 .hero-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  position: relative; /* Смещаем изображение вниз, чтобы волна перекрывала его */
+  max-height: 200px;
+  width: auto;
+  object-fit: contain;
 }
 
-/* Волнистый фон внизу */
-.wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 82px; /* Увеличиваем высоту волны, чтобы она перекрывала изображение */
-  fill: #f9f9f9;
-  z-index: 2; /* Волна должна быть выше изображения, но ниже иконок */
-}
-
-
-
-
-
-
-
-/* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
+/* ≥640px — tablet: row layout */
+@media (min-width: 640px) {
   .hero-section {
-    display: flex;
-    align-items: center;
-    flex-direction: column; /* Вертикальное расположение */
-    padding: 0px 20px 0px 20px; /* Уменьшаем отступы */
-    background: linear-gradient(
-      to bottom, /* На мобильных градиент идёт сверху вниз */
-      #426E5B 0%, /* Тёмный цвет вверху */
-      #426E5B 0%, /* Тёмный цвет до 40% */
-      #61B082 70%, /* Переход к светлому цвету */
-      #61B082 100% /* Светлый цвет внизу, где девушка */
-    );
-    text-align: center; /* Центрируем текст */
+    padding: var(--space-12) 0 var(--space-10);
+  }
+
+  .hero-container {
+    flex-direction: row;
+    text-align: left;
+    gap: var(--space-10);
   }
 
   .hero-content {
-    min-width: 100%; /* Текстовая часть занимает всю ширину */
-  }
-
-  .hero-title {
-    font-size: 32px; /* Уменьшаем размер заголовка */
-    margin: 40px 0 15px 0; /* Уменьшаем отступы */
-    line-height: 1.3;
+    flex: 1;
+    max-width: 600px;
   }
 
   .hero-subtitle {
-    font-size: 16px; /* Уменьшаем размер подзаголовка */
-    margin-bottom: 20px; /* Уменьшаем отступ снизу */
+    max-width: 480px;
   }
 
   .hero-buttons {
-    flex-direction: column; /* Кнопки и текст в колонку */
-    gap: 10px; /* Уменьшаем расстояние между элементами */
-    padding: 10px; /* Уменьшаем внутренние отступы */
-    width: 60%; /* Растягиваем блок на всю ширину */
-    margin: 0 auto; /* Центрируем блок */
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.16); /* Тень остаётся на мобильных */
+    flex-direction: row;
+    gap: var(--space-4);
   }
 
-  .find-tutor-text {
-    font-size: 14px; /* Уменьшаем размер текста */
-  }
-
-  .start-btn {
-    padding: 8px 20px; /* Уменьшаем размер кнопки */
-    font-size: 14px; /* Уменьшаем шрифт кнопки */
-    width: 40%;
+  .hero-btn-primary,
+  .hero-btn-secondary {
+    width: auto;
   }
 
   .hero-image-container {
-    max-width: 80%; /* Увеличиваем ширину изображения */
-    margin-top: 20px; /* Добавляем отступ сверху */
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    max-height: none;
+    overflow: hidden;
   }
 
-  .wave {
-    height: 40px; /* Уменьшаем высоту волны для мобильных */
+  .hero-image {
+    max-height: none;
+    max-width: 100%;
+  }
+}
+
+/* ≥1024px — desktop: larger padding */
+@media (min-width: 1024px) {
+  .hero-section {
+    padding: var(--space-16) 0 var(--space-12);
+  }
+
+  .hero-container {
+    gap: var(--space-12);
+  }
+}
+
+/* Very small (<480px) — hide image */
+@media (max-width: 479px) {
+  .hero-image-container {
+    display: none;
   }
 }

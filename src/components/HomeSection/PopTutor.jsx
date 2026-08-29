@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import CardCourse from '../../components/CardCourse';
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import CardCourse from "../../components/CardCourse";
 import { endpoints } from "../../api/endpoints";
-import { apiFetch } from "../../api/http";
-import '../../styles/HomeSectionCSS/PopTutor.css';
+import { apiClient } from "../../api/http";
+import "../../styles/HomeSectionCSS/PopTutor.css";
 
 const PopTutor = () => {
   const { t } = useTranslation();
   const [courses, setCourses] = useState([]);
   const [users, setUsers] = useState({});
-  const [error, setError] = useState(""); // Состояние для ошибок
-  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let intervalId;
@@ -20,14 +19,13 @@ const PopTutor = () => {
       setIsLoading(true);
       setError("");
       try {
-        const { data } = await apiFetch(endpoints.courses);
+        const { data } = await apiClient.get(endpoints.courses.popular, false);
         if (!Array.isArray(data)) throw new Error("Invalid course format");
 
-        // Загружаем преподавателей
-        const userIds = [...new Set(data.map(c => c.teacher_id).filter(Boolean))];
+        const userIds = [...new Set(data.map((c) => c.teacher_id).filter(Boolean))];
         const userMap = {};
         for (const id of userIds) {
-          const { response: resUser, data: userData } = await apiFetch(endpoints.userById(id));
+          const { response: resUser, data: userData } = await apiClient.get(endpoints.users.byId(id), false);
           if (resUser.ok && !userData.error) userMap[id] = userData;
         }
 
@@ -41,17 +39,15 @@ const PopTutor = () => {
       }
     };
 
-    fetchCoursesAndUsers(); // Первая загрузка
+    fetchCoursesAndUsers();
 
-    // Периодическое обновление каждые 30 секунд
     intervalId = setInterval(fetchCoursesAndUsers, 30000);
 
-    // Очистка интервала при размонтировании
     return () => clearInterval(intervalId);
   }, [t]);
 
   const topCourses = [...courses]
-    .filter(c => typeof c.average_rating === "number" && !isNaN(c.average_rating))
+    .filter((c) => typeof c.average_rating === "number" && !isNaN(c.average_rating))
     .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 3);
 
@@ -70,8 +66,17 @@ const PopTutor = () => {
         <p>{t("pop.no_courses")}</p>
       ) : (
         <div className="category-grid">
-          {topCourses.map(course => (
-            <CardCourse key={course.id} course={course} userData={users[course.teacher_id] || {}} />
+          {topCourses.map((course) => (
+            <CardCourse
+              key={course.id}
+              course={{
+                ...course,
+                teacherName: users[course.teacher_id]
+                  ? `${users[course.teacher_id].first_name || ""} ${users[course.teacher_id].last_name || ""}`.trim()
+                  : "",
+                teacherAvatar: users[course.teacher_id]?.avatar || "",
+              }}
+            />
           ))}
         </div>
       )}

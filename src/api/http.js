@@ -1,44 +1,28 @@
-import axios from "axios";
-import { API_BASE_URL, buildApiUrl } from "./config";
-import { getToken } from "./token";
+import { sendRequest } from "./client/httpClient";
 
-export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-});
+export const apiClient = {
+  request(method, path, body = null, auth = true, _retry = false, signal = null) {
+    return sendRequest(method, path, body, auth, _retry, signal);
+  },
 
-apiClient.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers = config.headers || {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+  get(path, auth = true) {
+    return this.request("GET", path, null, auth);
+  },
 
-const readResponseBody = async (response) => {
-  const contentType = response.headers.get("content-type") || "";
-  if (contentType.includes("application/json")) {
-    return response.json();
-  }
-  return response.text();
+  post(path, body, auth = true) {
+    return this.request("POST", path, body, auth);
+  },
+
+  put(path, body, auth = true) {
+    return this.request("PUT", path, body, auth);
+  },
+
+  delete(path, auth = true) {
+    return this.request("DELETE", path, null, auth);
+  },
 };
 
-export const authHeaders = () => {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-export async function apiFetch(path, { method = "GET", body, headers = {}, auth = false } = {}) {
-  const response = await fetch(buildApiUrl(path), {
-    method,
-    headers: {
-      ...(auth ? authHeaders() : {}),
-      ...headers,
-      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
-
-  const data = await readResponseBody(response);
-  return { response, data };
+export async function apiFetch(path, opts = {}) {
+  const { method = "GET", body, auth = false } = opts;
+  return apiClient.request(method, path, body, auth);
 }

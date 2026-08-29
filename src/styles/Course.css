@@ -1,172 +1,104 @@
+/* Course create/edit — Figma clean form */
 .course-page {
-    font-family: "Inter", sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .course-header {
-    width: 100%;
-    font-size: 32px;
-    color: #fff;
-    text-align: center;
-    margin: 0px;
-    background: linear-gradient(90deg, #3eb489, #356d5a);
-    padding: 40px 20px;
-  }
-  
-  .course-header h1 {
-    font-size: 36px;
-    color: #fff;
-    margin: 0;
-  }
-  
+  max-width: 700px;
+}
+
+.course-form-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+}
+
+.course-form-container h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-6);
+}
+
+.form-section h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-5);
+}
+
+.course-page .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-5);
+}
+
+.course-page .form-field label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.field-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+  margin-top: 2px;
+}
+
+.multi-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.select-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+}
+
+.course-page .form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.course-page .form-actions button {
+  width: 100%;
+}
+
+.course-page .cancel-btn {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.course-page .create-btn {
+  background: var(--color-primary);
+  color: white;
+}
+
+@media (min-width: 768px) {
   .course-form-container {
-    min-width: 1200px;
-    background-color: #fff;
-    margin-top: 40px;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: var(--space-6);
   }
-  
-  .course-form-container h2 {
-    font-size: 28px;
-    color: #333;
-    margin-bottom: 20px;
+
+  .course-page .form-actions {
+    flex-direction: row;
   }
-  
-  .form-section h3 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 20px;
+
+  .course-page .form-actions button {
+    width: auto;
   }
-  
-  .form-field {
-    margin-bottom: 20px;
-  }
-  
-  .form-field label {
-    display: block;
-    font-size: 16px;
-    color: #555;
-    margin-bottom: 5px;
-  }
-  
-  .form-field input,
-  .form-field select,
-  .form-field textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    color: #333;
-  }
-  
-  .form-field textarea {
-    height: 100px;
-    resize: none;
-  }
-  
-  .field-description {
-    font-size: 14px;
-    color: #999;
-    margin-top: 5px;
-  }
-  
+
   .multi-select {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--space-2);
   }
-  
+
   .select-item {
-    display: flex;
-    align-items: center;
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    font-size: var(--font-size-sm);
+    padding: 6px 12px;
   }
-  
-  .select-item input {
-    margin-right: 5px;
-  }
-  
-  .form-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-  
-  .cancel-btn,
-  .create-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .cancel-btn {
-    background-color: #fff;
-    color: #e74c3c;
-    border: 1px solid #e74c3c;
-  }
-  
-  .cancel-btn:hover {
-    background-color: #e74c3c;
-    color: #fff;
-  }
-  
-  .create-btn {
-    background-color: #2ecc71;
-    color: #fff;
-  }
-  
-  .create-btn:hover {
-    background-color: #27ae60;
-  }
-  
-  .error-message {
-    color: #e74c3c;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .success-message {
-    color: #2ecc71;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  /* Адаптивность */
-  @media (max-width: 768px) {
-    .course-form-container {    
-      min-width: auto;
-      padding: 20px;
-    }
-  
-    .course-header h1,
-    .course-form-container h2 {
-      font-size: 24px;
-    }
-  
-    .form-field label,
-    .form-field input,
-    .form-field select,
-    .form-field textarea {
-      font-size: 14px;
-    }
-  
-    .form-actions {
-      flex-direction: column;
-    }
-  
-    .cancel-btn,
-    .create-btn {
-      width: 100%;
-      padding: 12px;
-    }
-  }
+}

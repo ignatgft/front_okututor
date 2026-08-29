@@ -1,187 +1,225 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { register as apiRegister, buildGoogleOAuthUrl } from "../../api/auth";
+import googleIcon from "../../assets/AuthRegister/google-icon.svg";
+import { ROLES, isTutorLike } from "../../constants/roles";
+import { useUIStore } from "../../store/uiStore";
+import useAuthStore from "../../store/authStore";
 import Modal from "./Modal";
 import "../../styles/AuthRegister/Register.css";
-import googleIcon from "../../assets/AuthRegister/google-icon.svg";
-import mankeyIcon from "../../assets/AuthRegister/mankey-icon.svg";
-import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
-import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
-import { buildApiUrl } from "../../api/config";
-import { endpoints } from "../../api/endpoints";
-import { apiFetch } from "../../api/http";
-import { setToken } from "../../api/auth";
 
-const Register = ({ isOpen, onClose, onOpenAuth }) => {
+export default function Register({ isOpen, onClose }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { setUser, init } = useAuthStore();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    repeatPassword: "",
+    repeatPassword: ""
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+  const [role, setRole] = useState(ROLES.STUDENT);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.fullName.trim()) {
+      errors.fullName = t("validation.required", "Required");
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = t("validation.required", "Required");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = t("validation.invalid_email", "Invalid email");
+    }
+
+    if (!formData.password) {
+      errors.password = t("validation.required", "Required");
+    } else if (formData.password.length < 8) {
+      errors.password = t("validation.password_min", "Minimum 8 characters");
+    }
+
+    if (formData.password !== formData.repeatPassword) {
+      errors.repeatPassword = t("validation.password_match", "Passwords do not match");
+    }
+
+    return errors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
-    if (formData.password !== formData.repeatPassword) {
-      setError("Passwords do not match!");
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
+    setLoading(true);
     try {
-      const { data: result } = await apiFetch(endpoints.auth.register, {
-        method: "POST",
-        body: {
-          email: formData.email,
-          password: formData.password,
-          repeat_password: formData.repeatPassword,
-          full_name: formData.fullName,
-        },
-      });
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      if (result.token) setToken(result.token);
-      setSuccess("Registration successful! You are now logged in.");
-      setTimeout(() => {
+      const result = await apiRegister(
+        formData.email,
+        formData.password,
+        formData.repeatPassword,
+        formData.fullName,
+        role
+      );
+      if (result.emailVerificationRequired) {
         onClose();
-        setFormData({ fullName: "", email: "", password: "", repeatPassword: "" });
-      }, 500);
-    } catch (error) {
-      setError(error.message || "Registration failed");
+        navigate("/verify-email", {
+          replace: true,
+          state: { email: result.email || formData.email }
+        });
+      } else {
+        setUser(result.user);
+        await init();
+        onClose();
+        navigate(isTutorLike(result.user?.role) ? "/tutor/dashboard" : "/student/dashboard", { replace: true });
+      }
+    } catch (err) {
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Register.jsx
-const handleGoogleSignUp = async () => {
-  setError("");
-  setSuccess("");
-  try {
-    window.open(buildApiUrl(endpoints.auth.google), "_blank", "width=600,height=700");
-  } catch (error) {
-    setError(error.message || "Google signup failed");
-  }
-};
+  const handleGoogleRegister = () => {
+    window.location.href = buildGoogleOAuthUrl(role);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="register-form">
-        <h2>
-          Sign up now{" "}
-          <span role="img" aria-label="key">
-            <img src={mankeyIcon} alt="Man key Icon" className="mankey-icon" />
-          </span>
-        </h2>
+      <div className="auth-form">
+        <h2>{t("navbar.signup") || "Sign Up"}</h2>
 
-        <button className="google-btn" onClick={handleGoogleSignUp}>
-          <img src={googleIcon} alt="Google Icon" className="google-icon" />
-        </button>
+        {error && <div className="auth-error">{error}</div>}
 
-        <div className="divider">
-          <span>OR</span>
+        <div className="role-selection">
+          <span className="role-selection-label">{t("register.join_as", "I want to join as")}</span>
+          <div className="role-options" role="radiogroup" aria-label={t("register.join_as", "I want to join as")}>
+            <button
+              type="button"
+              className={`role-option ${role === ROLES.STUDENT ? "active" : ""}`}
+              onClick={() => setRole(ROLES.STUDENT)}
+              aria-pressed={role === ROLES.STUDENT}
+            >
+              <span className="role-option-icon">🎓</span>
+              {t("register.student", "Student")}
+            </button>
+            <button
+              type="button"
+              className={`role-option ${role === ROLES.TUTOR ? "active" : ""}`}
+              onClick={() => setRole(ROLES.TUTOR)}
+              aria-pressed={role === ROLES.TUTOR}
+            >
+              <span className="role-option-icon">👨‍🏫</span>
+              {t("register.tutor", "Tutor")}
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="fullName">Full name</label>
+          <div className="form-field">
             <input
-              type="text"
-              id="fullName"
               name="fullName"
+              type="text"
+              placeholder={t("cr_course.full_name") || "Full Name"}
               value={formData.fullName}
               onChange={handleChange}
-              required
+              aria-invalid={!!fieldErrors.fullName}
+              aria-describedby={fieldErrors.fullName ? "fullName-error" : undefined}
             />
+            {fieldErrors.fullName && (
+              <span id="fullName-error" className="field-error">{fieldErrors.fullName}</span>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="email">E-mail address</label>
+          <div className="form-field">
             <input
-              type="email"
-              id="email"
               name="email"
+              type="email"
+              placeholder={t("common.email", "Email")}
               value={formData.email}
               onChange={handleChange}
-              required
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
             />
+            {fieldErrors.email && (
+              <span id="email-error" className="field-error">{fieldErrors.email}</span>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                <img
-                  src={showPassword ? hidePasswordIcon : showPasswordIcon}
-                  alt="Toggle Password Visibility"
-                />
-              </button>
-            </div>
+          <div className="form-field">
+            <input
+              name="password"
+              type="password"
+              placeholder={t("cr_course.password") || "Password"}
+              value={formData.password}
+              onChange={handleChange}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? "password-error" : undefined}
+            />
+            {fieldErrors.password && (
+              <span id="password-error" className="field-error">{fieldErrors.password}</span>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="repeatPassword">Repeat password</label>
-            <div className="password-input-wrapper">
-              <input
-                type={showRepeatPassword ? "text" : "password"}
-                id="repeatPassword"
-                name="repeatPassword"
-                value={formData.repeatPassword}
-                onChange={handleChange}
-                required
-              />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setShowRepeatPassword(!showRepeatPassword)}
-                aria-label={showRepeatPassword ? "Hide password" : "Show password"}
-              >
-                <img
-                  src={showRepeatPassword ? hidePasswordIcon : showPasswordIcon}
-                  alt="Toggle Password Visibility"
-                />
-              </button>
-            </div>
+          <div className="form-field">
+            <input
+              name="repeatPassword"
+              type="password"
+              placeholder={t("cr_course.repeat_password") || "Repeat Password"}
+              value={formData.repeatPassword}
+              onChange={handleChange}
+              aria-invalid={!!fieldErrors.repeatPassword}
+              aria-describedby={fieldErrors.repeatPassword ? "repeatPassword-error" : undefined}
+            />
+            {fieldErrors.repeatPassword && (
+              <span id="repeatPassword-error" className="field-error">{fieldErrors.repeatPassword}</span>
+            )}
           </div>
-          <button type="submit" className="submit-btn">
-            Sign up
+
+          <button type="submit" className="auth-submit" disabled={loading}>
+            {loading ? "..." : t("navbar.signup") || "Sign Up"}
           </button>
         </form>
 
-        <p className="login-link">
-          Already have an account?{" "}
-          <a href="#" onClick={onOpenAuth}>
-            Sign in
-          </a>
+        <div className="auth-divider"><span>{t("auth.or") || "OR"}</span></div>
+
+        <button
+          className="google-btn"
+          type="button"
+          onClick={handleGoogleRegister}
+          title={`${t("register.join_as", "I want to join as")}: ${isTutorLike(role) ? t("register.tutor", "Tutor") : t("register.student", "Student")}`}
+        >
+          <img src={googleIcon} alt="Google" width={20} />
+          {t("register.continue_google", "Continue with Google")}
+        </button>
+
+        <p className="auth-switch">
+          {t("auth.have_account") || "Already have an account?"}{" "}
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => { onClose(); useUIStore.getState().openAuth(); }}
+          >
+            {t("navbar.login") || "Login"}
+          </button>
         </p>
       </div>
     </Modal>
   );
-};
-
-export default Register;
+}

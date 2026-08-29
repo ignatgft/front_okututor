@@ -1,0 +1,182 @@
+/* ===== LoadingState ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-8);
+  text-align: center;
+}
+
+.loading-state-full {
+  min-height: 40vh;
+}
+
+.loading-state-inline {
+  padding: var(--space-4);
+  min-height: auto;
+}
+
+.loading-state .loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-primary-light);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: loading-spin 0.8s linear infinite;
+}
+
+@keyframes loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state-label {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.loading-state-hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ===== StatusBadge ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.status-badge-success {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+}
+
+.status-badge-warning {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 14%, transparent);
+}
+
+.status-badge-danger {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+.status-badge-info {
+  color: var(--color-info);
+  background: color-mix(in srgb, var(--color-info) 12%, transparent);
+}
+
+.status-badge-neutral {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+}
+
+/* ===== Avatar ===== */
+.avatar {
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  user-select: none;
+}
+
+/* ===== VerifiedBadge ===== */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-info);
+  vertical-align: middle;
+}
+
+/* ===== MetricCard ===== */
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--card-padding);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.metric-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  flex-shrink: 0;
+}
+
+.metric-card-tone-warning .metric-card-icon { background: color-mix(in srgb, var(--color-warning) 14%, transparent); color: var(--color-warning); }
+.metric-card-tone-success .metric-card-icon { background: color-mix(in srgb, var(--color-success) 14%, transparent); color: var(--color-success); }
+.metric-card-tone-danger .metric-card-icon { background: color-mix(in srgb, var(--color-danger) 12%, transparent); color: var(--color-danger); }
+
+.metric-card-value {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.metric-card-label {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.metric-card-hint {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ===== DateTimePicker ===== */
+.datetime-picker {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.datetime-picker input {
+  min-height: var(--touch-target);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+}
+
+.datetime-picker input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.datetime-picker-date { flex: 1 1 60%; }
+.datetime-picker-time { flex: 1 1 40%; }

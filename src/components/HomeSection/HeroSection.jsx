@@ -1,54 +1,46 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import '../../styles/HomeSectionCSS/HeroSection.css';
-import heroSection from '../../assets/Navbar/heroSection.svg';
-import { getCurrentUser } from "../../api/auth";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import useAuthStore from "../../store/authStore";
+import { useUIStore } from "../../store/uiStore";
+import "../../styles/HomeSectionCSS/HeroSection.css";
+import heroSection from "../../assets/Navbar/heroSection.webp";
 
-const HeroSection = ({onLogin}) => {
+const HeroSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  
+  const { isAuthenticated } = useAuthStore();
+  const { openAuth } = useUIStore();
+
   const handleSubmitStart = () => {
-    (async () => {
-      const user = await getCurrentUser();
-      if (user) navigate("/find-tutors");
-      else if (onLogin) onLogin();
-    })();
+    if (isAuthenticated) {
+      navigate("/find-tutors");
+    } else {
+      openAuth();
+    }
   };
 
   return (
     <section className="hero-section">
-      <div className="hero-content poppins-bold">
-        {/* Текстовая часть */}
-        <h1 className="hero-title">
-          {t("hero.title")}
-        </h1>
-        <p className="hero-subtitle poppins-regular">
-          {t("hero.subtitle")}
-        </p>
+      <div className="hero-container">
+        <div className="hero-content">
+          <h1 className="hero-title">{t("hero.title")}</h1>
+          <p className="hero-subtitle">{t("hero.subtitle")}</p>
 
-        {/* Блок с текстом и кнопкой */}
-        <div className="hero-buttons inter">
-          <div className="find-tutor-text">{t("hero.find_text")}</div>
-          <button className="btn start-btn" onClick={handleSubmitStart}>
-            {t("hero.start_btn")}
-          </button>
+          <div className="hero-buttons">
+            <button className="hero-btn-primary" onClick={handleSubmitStart}>
+              {t("hero.start_btn")}
+            </button>
+            <button className="hero-btn-secondary" onClick={() => navigate("/find-tutors")}>
+              {t("hero.find_text")}
+            </button>
+          </div>
+        </div>
+
+        <div className="hero-image-container">
+          <img src={heroSection} alt={t("hero.image_alt", "Student with books")} className="hero-image" fetchpriority="high" decoding="async" />
         </div>
       </div>
-
-      {/* Изображение с иконками */}
-      <div className="hero-image-container">
-        <img src={heroSection} alt="Student with books" className="hero-image" />
-      </div>
-      
-      {/* Волнистый фон внизу с помощью SVG */}
-      <svg className="wave" viewBox="0 0 1440 100" preserveAspectRatio="none">
-        <path
-          fill="#f9f9f9"
-          d="M0,0 Q720,200 1440,0 L1440,100 L0,100 Z"
-        />
-      </svg>
     </section>
   );
 };

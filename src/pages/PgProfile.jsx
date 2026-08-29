@@ -1,15 +1,17 @@
-import Navbar from "../components/Navbar"
-import Profile from "../components/Profile"
+import { useEffect } from "react";
+import Profile from "../components/Profile";
+import { usePageTitle } from "../components/pageTitleContext";
+import { useTranslation } from "react-i18next";
 
 function PgProfile() {
+  const { t } = useTranslation();
+  const setPageTitle = usePageTitle();
+  useEffect(() => { setPageTitle(t("profile.my_profile", "Мой профиль")); }, [setPageTitle, t]);
+  return (
+    <>
+      <Profile />
+    </>
+  );
+}
 
-    return (
-      <>
-        <Navbar/>
-        <Profile/>
-      </>
-    )
-  }
-  
-  export default PgProfile
-  
+export default PgProfile;

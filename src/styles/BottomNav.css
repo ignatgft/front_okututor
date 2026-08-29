@@ -1,0 +1,120 @@
+/* Bottom Navigation — Mobile-first
+   base:     hidden (desktop/tablet)
+   <768px:   visible (mobile only)
+*/
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  z-index: var(--z-header);
+  box-shadow: 0 -1px 3px rgba(16, 23, 39, 0.06);
+  padding-bottom: var(--safe-area-bottom);
+}
+
+.bottom-nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 auto;
+  height: var(--bottom-nav-height);
+  padding: 0 var(--space-2);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: var(--space-2) 0;
+  transition: color var(--transition-fast);
+  gap: var(--space-1);
+  border-radius: 0;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-item:active {
+  background: none;
+}
+
+.bottom-nav-item:hover {
+  transform: none;
+}
+
+.bottom-nav-item.active {
+  color: var(--color-primary);
+}
+
+.bottom-nav-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 32px;
+  border-radius: var(--radius-lg);
+}
+
+.bottom-nav-item.active .bottom-nav-indicator {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  z-index: -1;
+}
+
+.bottom-nav-icon {
+  font-size: 18px;
+  color: inherit;
+  position: relative;
+  z-index: 1;
+}
+
+.bottom-nav-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+  text-align: center;
+  color: inherit;
+}
+
+/* Mobile only — show BottomNav */
+@media (max-width: 767px) {
+  .bottom-nav {
+    display: block;
+  }
+}
+
+/* Very small screens (<380px) — iPhone SE */
+@media (max-width: 380px) {
+  .bottom-nav-label {
+    font-size: 10px;
+    letter-spacing: -0.2px;
+  }
+
+  .bottom-nav-icon {
+    font-size: 16px;
+  }
+
+  .bottom-nav-container {
+    padding: 0 var(--space-1);
+  }
+
+  .bottom-nav-item {
+    min-width: 56px;
+    padding: var(--space-1) 0;
+  }
+}

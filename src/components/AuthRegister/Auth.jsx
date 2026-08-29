@@ -1,180 +1,191 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { login as apiLogin, buildGoogleOAuthUrl } from "../../api/auth";
+import useAuthStore from "../../store/authStore";
+import { useUIStore } from "../../store/uiStore";
+import { isTutorLike } from "../../constants/roles";
+import googleIcon from "../../assets/AuthRegister/google-icon.svg";
 import Modal from "./Modal";
 import "../../styles/AuthRegister/Auth.css";
-import googleIcon from "../../assets/AuthRegister/google-icon.svg";
-import handIcon from "../../assets/AuthRegister/hand-icon.svg";
-import showPasswordIcon from "../../assets/AuthRegister/show-password-icon.svg";
-import hidePasswordIcon from "../../assets/AuthRegister/hide-password-icon.svg";
-import { buildApiUrl } from "../../api/config";
-import { endpoints } from "../../api/endpoints";
-import { apiFetch } from "../../api/http";
-import { setToken } from "../../api/auth";
 
-const Auth = ({ isOpen, onClose, onOpenRegister, onSuccess }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false,
-  });
+export default function Auth({ isOpen, onClose, onSuccess }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { setUser, init } = useAuthStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Add navigate hook
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const validateForm = () => {
+    const errors = {};
+
+    if (!email.trim()) {
+      errors.email = t("validation.required", "Required");
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = t("validation.invalid_email", "Invalid email");
+    }
+
+    if (!password) {
+      errors.password = t("validation.required", "Required");
+    }
+
+    return errors;
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (fieldErrors.email) {
+      setFieldErrors(prev => ({ ...prev, email: "" }));
+    }
+    if (emailNotVerified) setEmailNotVerified(false);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (fieldErrors.password) {
+      setFieldErrors(prev => ({ ...prev, password: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
-    setLoading(true);
+    setEmailNotVerified(false);
 
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setLoading(true);
     try {
-      const { response, data: result } = await apiFetch(endpoints.auth.login, {
-        method: "POST",
-        body: { email: formData.email, password: formData.password },
-      });
-      if (result.error) {
-        setError(result.error);
-        setLoading(false);
+      const result = await apiLogin(email, password);
+      if (result.emailNotVerified) {
+        setEmailNotVerified(true);
         return;
       }
-
-      // Expecting backend to return { token, user }
-      if (result.token) setToken(result.token);
-      setSuccess("Login successful!");
-      setTimeout(() => {
-        if (onSuccess) onSuccess(navigate);
-        else onClose();
-        setFormData({ email: "", password: "", rememberMe: false });
-        setLoading(false);
-      }, 500);
-    } catch (error) {
-      setLoading(false);
-      if (error.code === "auth/wrong-password") {
-        setError("Incorrect password");
-      } else if (error.code === "auth/user-not-found") {
-        setError("User not found");
-      } else if (error.code === "auth/too-many-requests") {
-        setError("Too many attempts, please try again later");
-      } else if (error.code === "auth/invalid-email") {
-        setError("Invalid email format");
+      setUser(result.user);
+      await init();
+      onClose();
+      if (isTutorLike(result.user?.role)) {
+        navigate("/tutor/dashboard", { replace: true });
       } else {
-        setError(error.message);
+        navigate("/student/dashboard", { replace: true });
       }
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      setError(err.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
+  const handleGoogleLogin = () => {
+    window.location.href = buildGoogleOAuthUrl();
+  };
 
-    try {
-      // Redirect to backend Google OAuth endpoint
-      const popup = window.open(buildApiUrl(endpoints.auth.google), "_blank", "width=600,height=700");
-      if (!popup) throw new Error("Popup blocked");
-      // The backend should handle OAuth flow and set cookie or return token to client
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
-    }
+  const handleGoToVerify = () => {
+    onClose();
+    navigate("/verify-email", {
+      replace: true,
+      state: { email }
+    });
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="auth-form">
-        <h2>
-          Welcome Back{" "}
-          <span role="img" aria-label="wave">
-            <img src={handIcon} alt="Hand Icon" className="hand-icon" />
-          </span>
-        </h2>
+        <h2>{t("navbar.login") || "Login"}</h2>
 
-        <button className="google-btn" onClick={handleGoogleLogin} disabled={loading}>
-          <img src={googleIcon} alt="Google Icon" className="google-icon" />
-        </button>
+        {error && <div className="auth-error">{error}</div>}
 
-        <div className="divider">
-          <span>OR</span>
-        </div>
+        {emailNotVerified && (
+          <div className="auth-email-not-verified" role="alert">
+            <p>{t("login.email_not_verified", "Email not yet verified. Check your inbox for a verification code.")}</p>
+            <button type="button" className="btn-primary" onClick={handleGoToVerify}>
+              {t("verify.confirm", "Verify email")}
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">E-mail address</label>
+          <div className="form-field">
             <input
               type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled={loading}
+              placeholder={t("cr_course.email") || "Email"}
+              value={email}
+              onChange={handleEmailChange}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
             />
+            {fieldErrors.email && (
+              <span id="email-error" className="field-error">{fieldErrors.email}</span>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-input-wrapper">
+          <div className="form-field">
+            <div className="password-field">
               <input
                 type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={loading}
+                placeholder={t("cr_course.password") || "Password"}
+                value={password}
+                onChange={handlePasswordChange}
+                aria-invalid={!!fieldErrors.password}
+                aria-describedby={fieldErrors.password ? "password-error" : undefined}
               />
               <button
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                disabled={loading}
               >
-                <img
-                  src={showPassword ? hidePasswordIcon : showPasswordIcon}
-                  alt="Toggle Password Visibility"
-                />
+                {showPassword ? "🙈" : "👁"}
               </button>
             </div>
+            {fieldErrors.password && (
+              <span id="password-error" className="field-error">{fieldErrors.password}</span>
+            )}
           </div>
 
-          <div className="form-options">
-            <label className="remember-me">
-              <input
-                type="checkbox"
-                name="rememberMe"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-                disabled={loading}
-              />
-              Remember me
-            </label>
-          </div>
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Logging in..." : "Log in"}
+          <button type="submit" className="auth-submit" disabled={loading}>
+            {loading ? "..." : t("navbar.login") || "Login"}
           </button>
         </form>
 
-        <p className="signup-link">
-          Don’t have an account?{" "}
-          <a href="#" onClick={onOpenRegister}>
-            Create account
-          </a>
+        <p className="auth-switch">
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => { onClose(); navigate("/forgot-password"); }}
+          >
+            {t("auth.forgot_password", "Forgot password?")}
+          </button>
+        </p>
+
+        <div className="auth-divider"><span>OR</span></div>
+
+        <button className="google-btn" onClick={handleGoogleLogin} type="button">
+          <img src={googleIcon} alt="Google" width={20} />
+          Google
+        </button>
+
+        <p className="auth-switch">
+          {t("auth.no_account") || "Don't have an account?"}{" "}
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => { onClose(); useUIStore.getState().openRegister(); }}
+          >
+            {t("navbar.signup") || "Sign Up"}
+          </button>
         </p>
       </div>
     </Modal>
   );
-};
-
-export default Auth;
+}

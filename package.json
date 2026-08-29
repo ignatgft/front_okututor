@@ -1,30 +1,32 @@
 {
-  "name": "frontend",
+  "name": "okututor-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@zoomus/websdk": "^2.18.3",
-    "axios": "^1.9.0",
-    
     "i18next": "^25.1.2",
     "i18next-browser-languagedetector": "^8.1.0",
-    "jwt-decode": "^4.0.0",
+    "livekit-client": "^2.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.5.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.3.0",
-    "react-scroll": "^1.9.3"
+    "react-scroll": "^1.9.3",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -32,6 +34,8 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
-    "vite": "^6.2.0"
+    "jsdom": "^30.0.1",
+    "vite": "^6.2.0",
+    "vitest": "^4.1.11"
   }
 }

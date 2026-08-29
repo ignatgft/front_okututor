@@ -1,15 +1,13 @@
-import Navbar from "../components/Navbar"
-import CourseView from "../components/CourseView"
+import CourseView from "../components/CourseView";
+import Navbar from "../components/Navbar";
 
 function PgCourseView() {
+  return (
+    <>
+      <Navbar />
+      <CourseView />
+    </>
+  );
+}
 
-    return (
-      <>
-        <Navbar/>
-        <CourseView/>
-      </>
-    )
-  }
-  
-  export default PgCourseView
-  
+export default PgCourseView;

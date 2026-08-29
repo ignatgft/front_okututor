@@ -1,152 +1,272 @@
+/* CourseView — Figma clean design */
 .course-detail-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
-  font-family: 'Inter', sans-serif;
-  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
 }
 
-.course-header {
-  background: linear-gradient(90deg, #3eb489, #356d5a);
-  color: white;
-  padding: 30px 20px;
-  border-radius: 8px 8px 0 0;
+@media (max-width: 480px) {
+  .course-detail-container {
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .course-header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .booking-form {
+    padding: var(--space-3);
+  }
+
+  .review-box {
+    padding: var(--space-3);
+  }
+
+  .review-form {
+    padding: var(--space-3);
+  }
 }
 
 .course-header h1 {
-  margin: 0;
-  font-size: 32px;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-6);
 }
 
 .course-meta {
-  margin: 20px 0;
-  line-height: 1.6;
-}
-
-.tutor-info {
-  margin: 30px 0 10px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
-
-.owner-actions {
   display: flex;
-  gap: 10px;
-  margin-bottom: 30px;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.btn-edit,
-.btn-delete {
-  padding: 10px 20px;
-  border: none;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
+.tutor-avatar .course-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
 }
 
-.btn-edit {
-  background-color: #3498db;
-  color: white;
-}
-
-.btn-delete {
-  background-color: #e74c3c;
-  color: white;
-}
-
-
-.review-form h4 {
-  margin-bottom: 15px;
-  font-size: 20px;
-  font-weight: 600;
-  color: #355b38;
-}
-
-.review-form input[type="number"],
-.review-form textarea {
-  width: 100%;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: border-color 0.3s ease;
-  font-family: "Inter", sans-serif;
-}
-
-.review-form input[type="number"]:focus,
-.review-form textarea:focus {
-  border-color: #3eb489;
-  outline: none;
-}
-
-.review-form textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.review-form button {
-  background-color: #3eb489;
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s ease;
-}
-
-.review-form button:hover {
-  background-color: #356d5a;
-}
-.tutor-avatar {
+.average-rating {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  gap: var(--space-2);
 }
-.course-avatar {
-  width: 100px; /* Настройте размер под дизайн */
-  height: 100px;
-  border-radius: 10%;
-  object-fit: cover;
-  margin-right: 15px;
-}
-.course-detail-container p {
-  margin: 5px 0;
-}
-.loading {
-  color: #666;
-  text-align: center;
-}
+
 .star-rating {
   display: flex;
   gap: 2px;
-  margin-bottom: 10px;
+}
+
+.star-rating.interactive .interactive-star {
   cursor: pointer;
 }
 
-.star-rating svg:hover {
-  transform: scale(1.2);
-  transition: transform 0.2s;
+.tutor-info {
+  padding: var(--space-4) 0;
 }
 
-/* Optional mobile optimization */
-@media (max-width: 600px) {
+.tutor-link {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* Booking */
+.booking-section {
+  margin-top: var(--space-5);
+}
+
+.book-lesson-btn {
+  background: var(--color-primary);
+  color: white;
+}
+
+.booking-form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.booking-form h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--space-4);
+}
+
+.form-field label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.form-actions button {
+  width: 100%;
+}
+
+.cancel-btn {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.create-btn {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Owner actions */
+.owner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+}
+
+.owner-actions button,
+.owner-actions a {
+  width: 100%;
+  text-align: center;
+}
+
+.btn-edit {
+  background: var(--color-primary);
+  color: white;
+  padding: 8px 18px;
+  border-radius: var(--radius-lg);
+}
+
+.btn-delete {
+  background: var(--color-danger);
+  color: white;
+  padding: 8px 18px;
+  border-radius: var(--radius-lg);
+}
+
+/* Reviews */
+.reviews-section {
+  margin-top: var(--space-8);
+}
+
+.reviews-section h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-5);
+}
+
+.review-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.review-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.review-author {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.review-box p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+}
+
+.review-form {
+  margin-top: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+}
+
+.review-form h4 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.review-form textarea {
+  width: 100%;
+  min-height: 80px;
+  margin-top: var(--space-3);
+}
+
+.review-form button {
+  margin-top: var(--space-3);
+  background: var(--color-primary);
+  color: white;
+  padding: 8px 18px;
+  border-radius: var(--radius-lg);
+}
+
+.enrollment-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .course-detail-container {
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .course-header h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .booking-form {
+    padding: var(--space-6);
+  }
+
+  .form-actions {
+    flex-direction: row;
+  }
+
+  .form-actions button {
+    width: auto;
+  }
+
+  .owner-actions {
+    flex-direction: row;
+    gap: var(--space-3);
+  }
+
+  .owner-actions button,
+  .owner-actions a {
+    width: auto;
+  }
+
   .review-form {
-    padding: 16px;
-  }
-
-  .review-form h4 {
-    font-size: 18px;
-  }
-
-  .review-form button {
-    width: 100%;
-    margin-top: 8px;
+    padding: var(--space-5);
   }
 }

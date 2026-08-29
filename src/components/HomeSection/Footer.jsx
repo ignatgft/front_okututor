@@ -14,7 +14,7 @@ const Footer = () => {
       <div className="footer-container">
         {/* Логотип и заголовок */}
         <div className="footer-logo">
-          <img src={logo} alt="Okututor Logo" className="logo-image" />
+          <img src={logo} alt={t("footer.logo_alt", "Okututor Logo")} className="logo-image" />
           <div className="footer-logo-text poppins-medium">
             <p>{t("footer.learning_and_teaching")}</p>
           </div>
@@ -50,7 +50,7 @@ const Footer = () => {
 
         {/* Копирайт */}
         <p className="copyright poppins-regular">
-          © 2025 Okututor Inc.
+          © 2026 Okututor Inc.
         </p>
       </div>
     </footer>

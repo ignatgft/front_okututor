@@ -1,0 +1,340 @@
+/* Dashboard — Mobile-first
+   base:     mobile — 1-col stats, stacked cards
+   ≥640px:   tablet — 2-col stats, courses 2-col
+   ≥1024px:  desktop — 3-col stats, courses 3-col
+*/
+.dashboard-greeting h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-5);
+}
+
+.upcoming-lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+
+.upcoming-lesson-label {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.upcoming-lesson-info h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.upcoming-lesson-info p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+.upcoming-lesson-info .booking-countdown {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin-top: var(--space-1);
+}
+
+.upcoming-lesson-card .btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.schedule-preview-row {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  cursor: pointer;
+  transition: box-shadow var(--transition-fast);
+}
+
+.schedule-preview-row:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-6);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 3px;
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
+.dashboard-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.dashboard-tabs .tab {
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  scroll-snap-align: start;
+  min-height: var(--touch-target);
+}
+
+.dashboard-tabs .tab:hover {
+  color: var(--color-text);
+  transform: none;
+}
+
+.dashboard-tabs .tab.active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Bookings list */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  transition: box-shadow var(--transition-fast);
+}
+
+.booking-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.booking-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-info h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.booking-info p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.booking-time {
+  font-size: var(--font-size-sm) !important;
+  color: var(--color-text-muted) !important;
+}
+
+.booking-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.booking-actions button {
+  flex: 1 1 calc(50% - var(--space-1));
+  min-width: 120px;
+}
+
+/* Stats grid — base=1-col */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stats-grid .stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+}
+
+.stats-grid .stat-card h3 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+.stats-grid .stat-card p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+/* Courses grid — base=1-col (search page grid lives in SearchBar.css) */
+.courses-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+.course-card-admin {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  transition: box-shadow var(--transition-fast);
+  min-width: 0;
+}
+
+.course-card-admin:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.course-card-admin h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.course-card-admin p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+  overflow-wrap: anywhere;
+}
+
+.course-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.btn-link {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+/* Pending section */
+.pending-section {
+  margin-top: var(--space-6);
+}
+
+.pending-section h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--color-text-muted);
+}
+
+/* ≥640px — tablet: 2-col stats + courses */
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .courses-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .booking-card {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+}
+
+/* ≥1024px — desktop: 3-col stats + courses */
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: var(--space-8);
+  }
+
+  .courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  }
+
+  .dashboard-greeting h2 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .stats-grid .stat-card {
+    padding: var(--space-6);
+  }
+
+  .stats-grid .stat-card h3 {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+/* ===== WIZARD ===== */
+.wizard-progress {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.wizard-step-dot {
+  width: 28px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+}
+
+.wizard-step-dot.done {
+  background: var(--color-primary);
+}
