@@ -29,3 +29,6 @@ __pycache__/
 # Figma debug dumps
 figma_*.json
 figma_tree.txt
+
+# Documentation is not tracked
+*.md
