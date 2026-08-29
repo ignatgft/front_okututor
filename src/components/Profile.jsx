@@ -368,7 +368,7 @@ const Profile = () => {
   const renderTutorApplication = () => {
     if (tutorAppError) {
       return (
-        <div className="courses-section">
+        <div className="courses-section app-form-wrapper">
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           <ErrorState message={tutorAppError} onRetry={loadTutorApplication} />
         </div>
@@ -377,7 +377,7 @@ const Profile = () => {
 
     if (tutorAppLoading) {
       return (
-        <div className="courses-section">
+        <div className="courses-section app-form-wrapper">
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           <Spinner label={t("common.loading", "Loading...")} />
         </div>
@@ -386,7 +386,7 @@ const Profile = () => {
 
     if (tutorApp?.status === TUTOR_STATUS.PENDING) {
       return (
-        <div className="courses-section">
+        <div className="courses-section app-form-wrapper">
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           <EmptyState
             icon="⏳"
@@ -405,7 +405,7 @@ const Profile = () => {
 
     if (tutorApp?.status === TUTOR_STATUS.REJECTED) {
       return (
-        <form className="courses-section" onSubmit={submitTutorApplication}>
+        <form className="courses-section app-form-wrapper" onSubmit={submitTutorApplication}>
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           {tutorApp.rejection_reason && (
             <p className="rejection-reason">
@@ -419,7 +419,7 @@ const Profile = () => {
 
     if (tutorApp?.status === TUTOR_STATUS.APPROVED) {
       return (
-        <div className="courses-section">
+        <div className="courses-section app-form-wrapper">
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           <EmptyState
             icon="🎉"
@@ -436,7 +436,7 @@ const Profile = () => {
 
     // NOT_REQUESTED or no application -> show form
     return (
-      <form className="courses-section" onSubmit={submitTutorApplication}>
+      <form className="courses-section app-form-wrapper" onSubmit={submitTutorApplication}>
         <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
         {renderAppForm()}
       </form>
@@ -648,13 +648,13 @@ const Profile = () => {
           <div className="profile-actions">
             {isEditing ? (
               <>
-                <button className="btn update-btn" onClick={handleEditProfile}>{t("profile.update")}</button>
-                <button className="btn cancel-btn" onClick={handleCancelEdit}>{t("profile.cancel")}</button>
+                <button className="btn btn-primary" onClick={handleEditProfile}>{t("profile.update")}</button>
+                <button className="btn btn-secondary" onClick={handleCancelEdit}>{t("profile.cancel")}</button>
               </>
             ) : (
               <>
-                <button className="btn edit-btn" onClick={handleEditProfile}>{t("profile.edit_profile")}</button>
-                <button className="btn logout-btn" onClick={() => setShowLogoutConfirm(true)}>{t("profile.logout")}</button>
+                <button className="btn btn-primary" onClick={handleEditProfile}>{t("profile.edit_profile")}</button>
+                <button className="btn btn-ghost" onClick={() => setShowLogoutConfirm(true)}>{t("profile.logout")}</button>
               </>
             )}
           </div>

@@ -158,3 +158,12 @@
     text-align: center;
   }
 }
+
+/* Ensure language / theme pills meet touch target */
+.theme-option,
+.language-selector-settings .lang-btn {
+  min-height: var(--touch-target, 44px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

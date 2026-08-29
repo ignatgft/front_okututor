@@ -70,6 +70,11 @@
   white-space: nowrap;
 }
 
+/* Add after .dashboard-header-mobile block */
+.dashboard-header-mobile {
+  padding-top: max(var(--space-3), env(safe-area-inset-top, 0px));
+}
+
 .sidebar-toggle {
   display: flex;
   flex-direction: column;
@@ -94,7 +99,12 @@
 
 /* Mobile bottom padding for BottomNav */
 .dashboard-content-area {
-  padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + var(--space-4));
+  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + var(--space-6));
+}
+
+/* Extra safety: any page that uses fixed bottom content */
+.has-bottom-nav {
+  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + var(--space-6));
 }
 
 /* ===== TABLET: ≥768px — Collapsed sidebar ===== */
@@ -109,7 +119,7 @@
 
   .dashboard-content-area {
     padding: var(--space-5);
-    padding-bottom: var(--space-5);
+    padding-bottom: var(--space-5); /* BottomNav hidden on ≥768px */
   }
 
   .page-header {

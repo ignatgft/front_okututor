@@ -89,14 +89,20 @@
 }
 
 .hero-image-container {
-  max-height: 200px;
+  width: 100%;
+  max-height: 220px;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
 .hero-image {
-  max-height: 200px;
-  width: auto;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
   object-fit: contain;
+  display: block;
+  margin-inline: auto;
 }
 
 /* ≥640px — tablet: row layout */
@@ -134,12 +140,14 @@
     flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
     max-height: none;
     overflow: hidden;
   }
 
   .hero-image {
-    max-height: none;
+    max-height: 460px;
+    width: auto;
     max-width: 100%;
   }
 }

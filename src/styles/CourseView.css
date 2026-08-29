@@ -270,3 +270,21 @@
     padding: var(--space-5);
   }
 }
+
+@media (max-width: 767px) {
+  .course-wizard,
+  .course-view,
+  .lesson-room {
+    padding: var(--space-3);
+  }
+  .wizard-steps {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .lesson-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+  }
+}

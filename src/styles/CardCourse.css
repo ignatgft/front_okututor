@@ -137,3 +137,15 @@
     -webkit-line-clamp: unset;
   }
 }
+
+@media (max-width: 767px) {
+  .card-course,
+  .course-card {
+    width: 100%;
+    max-width: 100%;
+  }
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}

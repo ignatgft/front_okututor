@@ -99,7 +99,7 @@
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-2) 0;
-  max-height: calc(100dvh - var(--header-height-tablet) - var(--bottom-nav-height) - var(--space-16));
+  max-height: calc(100dvh - var(--header-height-tablet, 56px) - var(--bottom-nav-height, 64px) - env(safe-area-inset-bottom, 0px) - 120px);
 }
 
 .message-bubble {
@@ -180,6 +180,11 @@
 .message-composer {
   display: flex;
   gap: var(--space-2);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  position: sticky;
+  bottom: 0;
+  background: var(--color-surface);
+  z-index: 5;
 }
 
 .message-composer input {

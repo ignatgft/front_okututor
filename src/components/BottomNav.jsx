@@ -23,6 +23,7 @@ const BottomNav = () => {
 
   const roleKey = isAdminRole ? "admin" : isTutorRole ? "tutor" : "student";
   const tabs = BOTTOMNAV_ITEMS[roleKey];
+  if (!tabs || tabs.length === 0) return null;
 
   const isActive = (path) => {
     if (path.includes("?")) {

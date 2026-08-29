@@ -235,3 +235,21 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+@media (max-width: 767px) {
+  .admin-stats,
+  .admin-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .admin-actions .btn {
+    width: 100%;
+  }
+}
