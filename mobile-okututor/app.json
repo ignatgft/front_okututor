@@ -4,18 +4,23 @@
     "slug": "mobile-okututor",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/okututor-icon-1024.png",
     "scheme": "mobileokututor",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": {
+        "light": "./assets/icons/okututor-icon-1024.png",
+        "dark": "./assets/icons/ios-icon-dark-1024.png",
+        "tinted": "./assets/icons/ios-icon-tinted-1024.png"
+      }
     },
     "android": {
+      "icon": "./assets/icons/android-legacy-icon.png",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/icons/android-foreground.png",
+        "backgroundImage": "./assets/icons/android-background.png",
+        "monochromeImage": "./assets/icons/android-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.ignatgift.mobileokututor"

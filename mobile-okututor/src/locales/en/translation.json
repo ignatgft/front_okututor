@@ -560,6 +560,13 @@
     "mic_permission": "Microphone permission required. Please allow microphone access in browser settings.",
     "camera_permission": "Camera permission required. Please allow camera access in browser settings.",
     "screen_permission": "Screen sharing was cancelled or is not available.",
+    "errors": {
+      "session_expired": "Your session has expired. Please sign in again.",
+      "forbidden": "You do not have access to this lesson.",
+      "not_found": "Lesson not found. It may have been cancelled.",
+      "conflict": "Failed to connect to the lesson. Please try opening it again.",
+      "connect": "Failed to connect to the lesson. Please try opening it again."
+    },
     "error": "Failed to join lesson"
   },
   "review": {

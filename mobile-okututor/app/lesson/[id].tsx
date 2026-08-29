@@ -51,16 +51,39 @@ export default function LessonScreen() {
 
   const getToken = async () => {
     setTokenLoading(true);
+    setError("");
     try {
       const { response, data } = await meetingsApi.token(id);
       if (response.ok) {
+        if (!data?.token) {
+          console.error(`[lesson] meeting token response missing token: booking=${id}`, data);
+          setError(t("lesson.errors.connect", "Could not connect to the lesson. Please try opening it again."));
+          return;
+        }
         setToken(data);
         showToast(t("lesson.connected", "Meeting token received"), "success");
       } else {
-        setError((data as { error?: string; message?: string }).error || (data as { message?: string }).message || t("lesson.token_error", "Failed to get meeting token"));
+        console.error(`[lesson] meeting token request failed: status=${response.status} booking=${id}`, data ?? "");
+        switch (Number(response.status)) {
+          case 401:
+            setError(t("lesson.errors.session_expired", "Your session has expired. Please sign in again."));
+            break;
+          case 403:
+            setError(t("lesson.errors.forbidden", "You do not have access to this lesson."));
+            break;
+          case 404:
+            setError(t("lesson.errors.not_found", "Lesson not found. It may have been cancelled."));
+            break;
+          case 409:
+            setError(t("lesson.errors.conflict", "Could not connect to the lesson. Please try opening it again."));
+            break;
+          default:
+            setError(t("lesson.errors.connect", "Could not connect to the lesson. Please try opening it again."));
+        }
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      console.error(`[lesson] meeting token request error: booking=${id}`, e);
+      setError(t("lesson.errors.connect", "Could not connect to the lesson. Please try opening it again."));
     } finally {
       setTokenLoading(false);
     }
