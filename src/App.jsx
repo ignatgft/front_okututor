@@ -51,10 +51,13 @@ const PgResetPassword = Lazy(() => import("./pages/PgResetPassword"));
 const PgStudentCourses = Lazy(() => import("./pages/PgStudentCourses"));
 const PgStudentTutors = Lazy(() => import("./pages/PgStudentTutors"));
 const PgStudentRequests = Lazy(() => import("./pages/PgStudentRequests"));
+const PgStudentRequestDetail = Lazy(() => import("./pages/PgStudentRequestDetail"));
 const PgStudentSearch = Lazy(() => import("./pages/PgStudentSearch"));
 const PgLessons = Lazy(() => import("./pages/PgLessons"));
 const PgBecomeTutor = Lazy(() => import("./pages/PgBecomeTutor"));
 const PgTutorApplication = Lazy(() => import("./pages/PgTutorApplication"));
+const PgTutorRequests = Lazy(() => import("./pages/PgTutorRequests"));
+const PgTutorRequestDetail = Lazy(() => import("./pages/PgTutorRequestDetail"));
 const PgAdminTutors = Lazy(() => import("./pages/PgAdminTutors"));
 const PgAdminCourses = Lazy(() => import("./pages/PgAdminCourses"));
 const PgAdminReviews = Lazy(() => import("./pages/PgAdminReviews"));
@@ -122,6 +125,7 @@ function App() {
                 <Route path="/student/courses" element={<PgStudentCourses />} />
                 <Route path="/student/tutors" element={<PgStudentTutors />} />
                 <Route path="/student/requests" element={<PgStudentRequests />} />
+                <Route path="/student/requests/:id" element={<PgStudentRequestDetail />} />
                 <Route path="/student/schedule" element={<PgSchedule />} />
                 <Route path="/student/lessons" element={<PgLessons />} />
                 <Route path="/student/messages" element={<PgMessages />} />
@@ -138,6 +142,8 @@ function App() {
                 <Route path="/tutor" element={<Navigate to="/tutor/dashboard" replace />} />
                 <Route path="/tutor/application" element={<PgTutorApplication />} />
                 <Route path="/tutor/dashboard" element={<PgTutorDashboard />} />
+                <Route path="/tutor/requests" element={<PgTutorRequests />} />
+                <Route path="/tutor/requests/:id" element={<PgTutorRequestDetail />} />
                 <Route path="/tutor/courses" element={<PgTutorCourses />} />
                 <Route path="/tutor/courses/new" element={<PgCourse />} />
                 <Route path="/tutor/courses/create" element={<PgCourse />} />

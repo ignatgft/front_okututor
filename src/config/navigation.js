@@ -1,10 +1,11 @@
-import { FaHome, FaBook, FaCalendar, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt, FaUsers, FaBell, FaLifeRing } from "react-icons/fa";
+import { FaHome, FaBook, FaCalendar, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt, FaUsers, FaBell, FaLifeRing, FaInbox } from "react-icons/fa";
 
 export const SIDEBAR_ITEMS = {
   student: [
     { id: "dashboard", labelKey: "navbar.dashboard", icon: FaHome, path: "/student/dashboard" },
     { id: "search", labelKey: "navbar.find_tutor", icon: FaBook, path: "/student/search" },
     { id: "my_courses", labelKey: "student_courses.title", icon: FaBook, path: "/student/courses" },
+    { id: "requests", labelKey: "navigation.requests", icon: FaInbox, path: "/student/requests" },
     { id: "schedule", labelKey: "navbar.schedule", icon: FaCalendar, path: "/student/schedule" },
     { id: "progress", labelKey: "navbar.progress", icon: FaChartBar, path: "/student/progress" },
     { id: "messages", labelKey: "navbar.messages", icon: FaEnvelope, path: "/student/messages" },
@@ -13,6 +14,7 @@ export const SIDEBAR_ITEMS = {
   tutor: [
     { id: "dashboard", labelKey: "tutor_dashboard.title", icon: FaHome, path: "/tutor/dashboard" },
     { id: "my_courses", labelKey: "profile.my_courses", icon: FaBook, path: "/tutor/courses" },
+    { id: "requests", labelKey: "navigation.requests", icon: FaInbox, path: "/tutor/requests" },
     { id: "students", labelKey: "tutor_dashboard.students", icon: FaUsers, path: "/tutor/students" },
     { id: "schedule", labelKey: "navbar.schedule", icon: FaCalendar, path: "/tutor/schedule" },
     { id: "messages", labelKey: "navbar.messages", icon: FaEnvelope, path: "/tutor/messages" },
@@ -73,6 +75,7 @@ export const PAGE_TITLES = {
     "/tutor/courses/new": "tutor.create_course",
     "/tutor/courses/create": "tutor.create_course",
     "/tutor/students": "tutor_dashboard.students",
+    "/tutor/requests": "navigation.requests",
     "/tutor/schedule": "navbar.schedule",
     "/tutor/lessons": "navbar.lessons",
     "/tutor/messages": "navbar.messages",

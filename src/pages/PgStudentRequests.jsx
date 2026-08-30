@@ -79,15 +79,20 @@ export default function PgStudentRequests() {
         <div className="bookings-list">
           {enrollments.map((e2) => (
             <div key={e2.id} className="booking-card">
-              <div className="booking-info">
-                <h3>{e2.course_title || e2.course?.title}</h3>
-                <p>{e2.teacher_name || e2.course?.teacher_name}</p>
-                {e2.created_at && (
-                  <p className="booking-time">{new Date(e2.created_at).toLocaleDateString()}</p>
-                )}
-              </div>
+              <Link to={`/student/requests/${e2.id}`} className="booking-info-link">
+                <div className="booking-info">
+                  <h3>{e2.course_title || e2.course?.title}</h3>
+                  <p>{e2.teacher_name || e2.course?.teacher_name}</p>
+                  {e2.created_at && (
+                    <p className="booking-time">{new Date(e2.created_at).toLocaleDateString()}</p>
+                  )}
+                </div>
+              </Link>
               <div className="booking-actions">
                 <Badge status={e2.status}>{enrollmentStatusLabel(e2.status, t)}</Badge>
+                <Link to={`/student/requests/${e2.id}`} className="btn-secondary">
+                  {t("request_detail.view_schedule", "View details")}
+                </Link>
                 {e2.status === ENROLLMENT_STATUS.PENDING && (
                   <button className="btn-danger" onClick={() => setCancelTarget(e2)}>
                     {t("common.cancel_request", "Cancel")}

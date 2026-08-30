@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './i18n';
 import './styles/index.css';
+import './styles/overlay.css';
 
 window.addEventListener('error', (event) => {
   console.error('[GlobalError]', event.message, event.filename, event.lineno, event.colno, event.error);

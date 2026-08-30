@@ -288,3 +288,45 @@
     padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
   }
 }
+
+
+/* ===== Sticky mobile CTA — spec §10, §60 ===== */
+.course-sticky-cta {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .course-sticky-cta {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-header);
+    padding: var(--space-3) var(--space-4) calc(var(--safe-area-bottom) + var(--space-3));
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -4px 12px rgba(16, 23, 39, 0.06);
+  }
+
+  .course-sticky-cta .btn-block {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .course-sticky-cta {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-sticky-cta {
+    transition: none;
+  }
+}
+
+/* Inline primary CTA in the page body (desktop) */
+.course-detail-container .book-lesson-btn {
+  margin-top: var(--space-2);
+}

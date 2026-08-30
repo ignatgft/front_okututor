@@ -62,6 +62,7 @@ export const endpoints = {
     enroll: (courseId) => `/api/v1/courses/${courseId}/enroll`,
     myEnrollments: "/api/v1/students/me/enrollments",
     tutorRequests: "/api/v1/tutors/me/requests",
+    byId: (id) => `/api/v1/enrollments/${id}`,
     accept: (id) => `/api/v1/enrollments/${id}/accept`,
     acceptAndSchedule: (id) => `/api/v1/enrollments/${id}/accept-and-schedule`,
     reject: (id) => `/api/v1/enrollments/${id}/reject`,

@@ -66,7 +66,7 @@ export default function AvatarCropModal({ imageSrc, onCancel, onConfirm }) {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.startX;
     const dy = e.clientY - drag.startY;
-    setPan((p) => clampPan({ x: drag.originX + dx, y: drag.originY + dy }, zoom));
+    setPan(() => clampPan({ x: drag.originX + dx, y: drag.originY + dy }, zoom));
   };
 
   const endDrag = (e) => {
@@ -99,8 +99,6 @@ export default function AvatarCropModal({ imageSrc, onCancel, onConfirm }) {
       0.92
     );
   };
-
-  const scale = (dir) => setZoom((z) => clamp(z * (dir > 0 ? 1.1 : 0.9), minZoom(), 4));
 
   return createPortal(
     <div className="avatar-crop-overlay" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onCancel?.()}>

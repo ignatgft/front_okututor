@@ -7,11 +7,12 @@ export const studentsApi = {
   cancelEnrollment: (id) => apiClient.request("DELETE", endpoints.enrollments.cancel(id)),
 };
 
-export const enrollmentsApi = {
-  tutorRequests: () => apiClient.get(endpoints.enrollments.tutorRequests),
+  export const enrollmentsApi = {
+    byId: (id) => apiClient.get(endpoints.enrollments.byId(id)),
+    tutorRequests: () => apiClient.get(endpoints.enrollments.tutorRequests),
   accept: (id) => apiClient.post(endpoints.enrollments.accept(id)),
   acceptAndSchedule: (id, payload) =>
     apiClient.post(endpoints.enrollments.acceptAndSchedule(id), payload),
-  reject: (id) => apiClient.post(endpoints.enrollments.reject(id)),
+    reject: (id, payload) => apiClient.post(endpoints.enrollments.reject(id), payload || {}),
   forCourse: (courseId) => apiClient.get(endpoints.enrollments.forCourse(courseId)),
 };

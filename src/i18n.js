@@ -17,6 +17,7 @@ i18n
       kg: { translation: translationKG },
     },
     fallbackLng: "en",
+    pluralSeparator: "_",
     interpolation: {
       escapeValue: false,
     },

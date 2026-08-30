@@ -273,7 +273,7 @@ export default function PgMessages() {
     }
   };
 
-  const handleTicketCreated = (ticket) => {
+  const handleTicketCreated = () => {
     setNewTicketOpen(false);
     loadConversations().then(() => setFilter(CONVERSATION_TYPES.SUPPORT));
   };

@@ -9,8 +9,9 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { FaStarHalfAlt } from "react-icons/fa";
 import ConfirmModal from "./ui/ConfirmModal";
 import { Spinner, ErrorState, EmptyState } from "./ui/Primitives";
-import BookingModal from "./booking/BookingModal";
-import { useTutorAvailability } from "../hooks/useTutorAvailability";
+import ApplicationWizard from "./course/ApplicationWizard";
+import { resolveCourseCta } from "./course/CourseCta";
+import { ENROLLMENT_STATUS } from "../constants/enums";
 import "../styles/CourseView.css";
 
 const CourseView = () => {
@@ -29,25 +30,17 @@ const CourseView = () => {
   const [reviewSuccess, setReviewSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const [showBooking, setShowBooking] = useState(false);
+  const [showApplication, setShowApplication] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const [enrollmentStatus, setEnrollmentStatus] = useState("NOT_REQUESTED");
   const [enrollmentId, setEnrollmentId] = useState(null);
-  const [showEnrollForm, setShowEnrollForm] = useState(false);
-  const [enrollForm, setEnrollForm] = useState({ message: "", preferred_schedule: "" });
-  const [enrollLoading, setEnrollLoading] = useState(false);
-  const [enrollError, setEnrollError] = useState("");
-  const [enrollSuccess, setEnrollSuccess] = useState("");
-
-  const [showCancelRequest, setShowCancelRequest] = useState(false);
   const [canReview, setCanReview] = useState(null);
 
   const teacherName = course?.teacher_name || course?.teacherName || "";
   const teacherAvatar = course?.teacher_avatar || course?.teacherAvatar || "";
   const price = course?.price_per_hour || course?.price || null;
-  const { availability: tutorAvailability } = useTutorAvailability(course?.teacher_id);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -146,49 +139,6 @@ const CourseView = () => {
       }
     } catch {
       setReviewError(t("course.network_error"));
-    }
-  };
-
-  const handleEnrollSubmit = async (e) => {
-    e.preventDefault();
-    setEnrollError("");
-    setEnrollSuccess("");
-    setEnrollLoading(true);
-    try {
-      const { response, data: result } = await apiClient.post(endpoints.enrollments.enroll(courseId), {
-        message: enrollForm.message,
-        preferred_schedule: enrollForm.preferred_schedule,
-      });
-      if (response.ok) {
-        setEnrollmentStatus("PENDING");
-        setEnrollmentId(result?.id || null);
-        setShowEnrollForm(false);
-        setEnrollSuccess(t("course_enroll.request_sent", "Request sent! The tutor will review it."));
-      } else if (response.status === 409) {
-        setEnrollError(t("course_enroll.already_requested", "You have already requested this course"));
-      } else {
-        setEnrollError(result?.error || result?.message || t("course_enroll.request_fail", "Failed to send request"));
-      }
-    } catch {
-      setEnrollError(t("course.network_error", "Network error"));
-    } finally {
-      setEnrollLoading(false);
-    }
-  };
-
-  const handleCancelRequest = async () => {
-    if (!enrollmentId) return;
-    setEnrollLoading(true);
-    try {
-      await apiClient.delete(endpoints.enrollments.cancel(enrollmentId));
-      setEnrollmentStatus("NOT_REQUESTED");
-      setEnrollmentId(null);
-      setEnrollForm({ message: "", preferred_schedule: "" });
-    } catch {
-      setEnrollError(t("course.network_error", "Network error"));
-    } finally {
-      setEnrollLoading(false);
-      setShowCancelRequest(false);
     }
   };
 
@@ -310,79 +260,88 @@ const CourseView = () => {
 
             {!isOwner && isAuthenticated && (
               <div className="booking-section">
-                {enrollmentStatus === "PENDING" && (
-                  <div className="enrollment-state">
-                    <span className="status-badge status-pending">
-                      {t("course_enroll.request_pending", "Request pending — waiting for tutor's response")}
-                    </span>
-                    <button
-                      type="button"
-                      className="cancel-btn"
-                      onClick={() => setShowCancelRequest(true)}
-                      disabled={enrollLoading}
-                    >
-                      {t("common.cancel_request", "Cancel request")}
-                    </button>
-                  </div>
-                )}
-
-                {(enrollmentStatus === "ACCEPTED" || enrollmentStatus === "COMPLETED" || enrollmentStatus === "ENROLLED") && (
-                  <>
-                    <p className="success-message">{t("course_enroll.request_accepted", "You are enrolled in this course 🎉")}</p>
-                    <button className="btn book-lesson-btn" onClick={() => setShowBooking(true)}>
-                      {t("course.book_lesson", "Book Lesson")}
-                    </button>
-                  </>
-                )}
-
-                {enrollmentStatus === "REJECTED" && (
-                  <p className="error-message">{t("course_enroll.request_rejected", "Your request was declined by the tutor.")}</p>
-                )}
-
-                {(enrollmentStatus === "NOT_REQUESTED" || !enrollmentStatus) && (
-                  <>
-                    {!showEnrollForm ? (
-                      <button className="btn book-lesson-btn" onClick={() => setShowEnrollForm(true)}>
-                        {t("course_enroll.request_to_join", "Request to join")}
-                      </button>
-                    ) : (
-                      <form className="booking-form" onSubmit={handleEnrollSubmit}>
-                        <h4>{t("course_enroll.request_form_title", "Join this course")}</h4>
-                        <div className="form-field">
-                          <label htmlFor="enroll-message">{t("course_enroll.message_label", "Message to tutor")}</label>
-                          <textarea
-                            id="enroll-message"
-                            rows={3}
-                            value={enrollForm.message}
-                            onChange={(e) => setEnrollForm((prev) => ({ ...prev, message: e.target.value }))}
-                            required
-                          />
-                        </div>
-                        <div className="form-field">
-                          <label htmlFor="enroll-schedule">{t("course_enroll.preferred_schedule", "Preferred schedule")}</label>
-                          <input
-                            id="enroll-schedule"
-                            type="text"
-                            value={enrollForm.preferred_schedule}
-                            onChange={(e) => setEnrollForm((prev) => ({ ...prev, preferred_schedule: e.target.value }))}
-                            placeholder={t("course_enroll.preferred_schedule_hint", "e.g. weekdays after 18:00")}
-                          />
-                        </div>
-                        {enrollError && <p className="error-message">{enrollError}</p>}
-                        {enrollSuccess && <p className="success-message">{enrollSuccess}</p>}
-                        <div className="form-actions">
-                          <button type="button" className="cancel-btn" onClick={() => setShowEnrollForm(false)}>
-                            {t("course.cancel", "Cancel")}
-                          </button>
-                          <button type="submit" className="create-btn" disabled={enrollLoading}>
-                            {enrollLoading ? t("common.sending", "Sending...") : t("course_enroll.send_request", "Send request")}
+                {(() => {
+                  const cta = resolveCourseCta(enrollmentStatus, { t, isOwner, isAuthenticated });
+                  if (!cta) return null;
+                  switch (cta.type) {
+                    case "apply":
+                      return (
+                        <div className="enrollment-state">
+                          <button
+                            type="button"
+                            className="btn-primary book-lesson-btn"
+                            onClick={() => setShowApplication(true)}
+                          >
+                            {t("application.title")}
                           </button>
                         </div>
-                      </form>
-                    )}
-                    {enrollSuccess && !showEnrollForm && <p className="success-message">{enrollSuccess}</p>}
-                  </>
-                )}
+                      );
+                    case "rejected":
+                      return (
+                        <div className="enrollment-state">
+                          <span className="status-badge status-danger">🔴 {t(cta.key)}</span>
+                          {enrollmentId && (
+                            <Link to={`/student/requests/${enrollmentId}`} className="btn-secondary book-lesson-btn">
+                              {t("request_detail.view_schedule")}
+                            </Link>
+                          )}
+                        </div>
+                      );
+                    case "pending":
+                    case "needs_info":
+                      return (
+                        <div className="enrollment-state">
+                          <span className="status-badge status-warning">🟡 {t(cta.key)}</span>
+                          {enrollmentId && (
+                            <Link to={`/student/requests/${enrollmentId}`} className="btn-secondary book-lesson-btn">
+                              {t("request_detail.view_schedule")}
+                            </Link>
+                          )}
+                          <button
+                            type="button"
+                            className="btn-ghost"
+                            onClick={() => navigate(`/student/messages?filter=direct`)}
+                          >
+                            {t("request_detail.message_tutor")}
+                          </button>
+                        </div>
+                      );
+                    case "schedule_pending":
+                    case "confirm_schedule":
+                      return (
+                        <div className="enrollment-state">
+                          <span className="status-badge status-warning">🟡 {t(cta.key)}</span>
+                          {enrollmentId && (
+                            <button
+                              type="button"
+                              className="btn-primary book-lesson-btn"
+                              onClick={() => navigate(`/student/requests/${enrollmentId}`)}
+                            >
+                              {cta.type === "confirm_schedule" ? t("request_detail.accept_schedule") : t("request_detail.accept_schedule")}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    case "view_schedule":
+                    case "review":
+                      return (
+                        <div className="enrollment-state">
+                          <span className="status-badge status-success">🟢 {t(cta.key)}</span>
+                          {enrollmentId && (
+                            <button
+                              type="button"
+                              className="btn-primary book-lesson-btn"
+                              onClick={() => navigate(`/student/requests/${enrollmentId}`)}
+                            >
+                              {t("request_detail.view_schedule")}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    default:
+                      return null;
+                  }
+                })()}
               </div>
             )}
       </div>
@@ -394,14 +353,13 @@ const CourseView = () => {
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={showCancelRequest}
-        title={t("student_requests.cancel_title", "Cancel request?")}
-        message={t("course_enroll.cancel_request_message", "Your join request will be withdrawn.")}
-        confirmLabel={t("common.cancel_request", "Cancel request")}
-        loading={enrollLoading}
-        onCancel={() => setShowCancelRequest(false)}
-        onConfirm={handleCancelRequest}
+      <ApplicationWizard
+        courseId={courseId}
+        isOpen={showApplication}
+        onClose={() => setShowApplication(false)}
+        onSuccess={() => {
+          setEnrollmentStatus(ENROLLMENT_STATUS.PENDING);
+        }}
       />
 
       <ConfirmModal
@@ -464,16 +422,28 @@ const CourseView = () => {
                 )}
             </>
         )}
-        {reviewError && <p className="error-message">{reviewError}</p>}
-        {reviewSuccess && <p className="success-message">{reviewSuccess}</p>}
+      {reviewError && <p className="error-message">{reviewError}</p>}
+      {reviewSuccess && <p className="success-message">{reviewSuccess}</p>}
       </div>
 
-      <BookingModal
-        course={course}
-        availability={tutorAvailability}
-        isOpen={showBooking}
-        onClose={() => setShowBooking(false)}
-      />
+      {(() => {
+        const cta = resolveCourseCta(enrollmentStatus, { t, isOwner, isAuthenticated });
+        if (!isAuthenticated || isOwner || !cta) return null;
+        const apply = cta.type === "apply";
+        return (
+          <div className="course-sticky-cta" aria-hidden={!apply}>
+            {apply ? (
+              <button type="button" className="btn-primary btn-block" onClick={() => setShowApplication(true)}>
+                {t("application.title")}
+              </button>
+            ) : (
+              <Link to={`/student/requests/${enrollmentId || ""}`} className="btn-secondary btn-block">
+                {t("request_detail.view_schedule")}
+              </Link>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 };

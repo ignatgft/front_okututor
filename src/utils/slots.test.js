@@ -11,13 +11,23 @@ describe("weekdayOf", () => {
   });
 });
 
+// A Monday strictly in the future, so `generateSlotTimes` never treats it as
+// "today" (which would filter out past slots and make the assertions flaky).
+function futureMonday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const daysToMonday = (8 - d.getDay()) % 7 || 7;
+  d.setDate(d.getDate() + daysToMonday);
+  return d;
+}
+
 describe("generateSlotTimes", () => {
   it("returns [] for a missing date", () => {
     expect(generateSlotTimes([], null)).toEqual([]);
   });
 
   it("falls back to a whole-day 15-min grid when no availability matches", () => {
-    const date = new Date(2026, 7, 31); // Monday, no matching slots
+    const date = futureMonday(); // a Monday with no matching slots
     const times = generateSlotTimes([{ weekday: "sunday", start_time: "10:00", end_time: "12:00" }], date);
     expect(times.length).toBe(96);
     expect(times[0]).toBe("00:00");
@@ -25,7 +35,7 @@ describe("generateSlotTimes", () => {
   });
 
   it("generates times only within the matching weekday window", () => {
-    const date = new Date(2026, 7, 31); // Monday
+    const date = futureMonday();
     const times = generateSlotTimes(
       [{ weekday: "monday", start_time: "10:00", end_time: "12:00" }],
       date,
