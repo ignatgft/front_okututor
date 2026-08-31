@@ -73,7 +73,7 @@ export default function PgTutorRequests() {
         )}
       </div>
 
-      <Tabs tabs={tabs} active={tab} onChange={setTab} id="tutor-requests-tabs" />
+      <Tabs items={tabs} active={tab} onChange={setTab} id="tutor-requests-tabs" />
 
       {loading ? (
         <Spinner label={t("common.loading", "Loading...")} />
