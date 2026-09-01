@@ -32,3 +32,7 @@ figma_tree.txt
 
 # Documentation is not tracked
 *.md
+
+coverage/
+
+coverage/

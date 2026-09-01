@@ -35,7 +35,16 @@ export default function PgLessons() {
       setError(data.message || data.error || t("common.error", "Error"));
       return;
     }
-    const rows = (Array.isArray(data) ? data : data.content || []).map((b) => {
+    const raw = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.content)
+        ? data.content
+        : Array.isArray(data?.lessons)
+          ? data.lessons
+          : Array.isArray(data?.items)
+            ? data.items
+            : [];
+    const rows = raw.map((b) => {
       const start = new Date(b.start_at);
       const joinableWithinWindow =
         b.status === BOOKING_STATUS.CONFIRMED &&
@@ -60,7 +69,16 @@ export default function PgLessons() {
     try {
       const { response, data } = await lessonsApi.list();
       if (response.ok) {
-        setLessons(Array.isArray(data) ? data : data.content || []);
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.content)
+            ? data.content
+            : Array.isArray(data?.lessons)
+              ? data.lessons
+              : Array.isArray(data?.items)
+                ? data.items
+                : [];
+        setLessons(list);
       } else {
         await loadFromBookings();
       }

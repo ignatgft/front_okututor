@@ -30,7 +30,7 @@ describe("authStore state machine", () => {
 
   it("restores the user via /me when a token exists", async () => {
     sessionStorage.setItem("access_token", "tok");
-    localStorage.setItem("refresh_token", "rtok");
+    sessionStorage.setItem("refresh_token", "rtok");
     getCurrentUser.mockResolvedValue({ id: 7, role: "TUTOR" });
 
     await useAuthStore.getState().init();
@@ -41,9 +41,9 @@ describe("authStore state machine", () => {
     expect(useAuthStore.getState().user.role).toBe("TUTOR");
   });
 
-  it("clears auth state when /me fails", async () => {
+  it("clears auth state when /me fails with auth error", async () => {
     sessionStorage.setItem("access_token", "tok");
-    localStorage.setItem("refresh_token", "rtok");
+    sessionStorage.setItem("refresh_token", "rtok");
     getCurrentUser.mockRejectedValue(new Error("unauthorized"));
 
     await useAuthStore.getState().init();
@@ -51,7 +51,27 @@ describe("authStore state machine", () => {
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
     expect(useAuthStore.getState().status).toBe(AUTH_STATUS.UNAUTHENTICATED);
     expect(sessionStorage.getItem("access_token")).toBe(null);
-    expect(localStorage.getItem("refresh_token")).toBe(null);
+    expect(sessionStorage.getItem("refresh_token")).toBe(null);
+  });
+
+  it("does not clear tokens on network error during init", async () => {
+    sessionStorage.setItem("access_token", "tok");
+    sessionStorage.setItem("refresh_token", "rtok");
+    const networkError = Object.assign(new Error("Network error"), {
+      name: "ApiRequestError",
+      code: "NETWORK_ERROR",
+      retryable: true,
+      status: 0,
+    });
+    getCurrentUser.mockRejectedValue(networkError);
+
+    await useAuthStore.getState().init();
+
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(useAuthStore.getState().status).toBe(AUTH_STATUS.UNAUTHENTICATED);
+    // tokens must NOT be cleared on network failure
+    expect(sessionStorage.getItem("access_token")).toBe("tok");
+    expect(sessionStorage.getItem("refresh_token")).toBe("rtok");
   });
 
   it("logout clears tokens and returns to unauthenticated status", async () => {

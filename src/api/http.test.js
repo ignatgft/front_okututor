@@ -61,7 +61,7 @@ describe("apiClient refresh flow", () => {
     expect(courseCalls).toBe(4);
     expect(localStorage.getItem("access_token")).toBe(null);
     expect(sessionStorage.getItem("access_token")).toBe("at2");
-    expect(localStorage.getItem("refresh_token")).toBe("rt2");
+    expect(sessionStorage.getItem("refresh_token")).toBe("rt2");
   });
 
   it("replays the request that triggered the refresh itself (not just queued ones)", async () => {
@@ -104,11 +104,13 @@ describe("apiClient refresh flow", () => {
     const eventSpy = vi.fn();
     window.addEventListener("auth:logout", eventSpy);
 
-    const result = await apiClient.request("GET", "/api/v1/courses");
-
-    expect(result.response.status).toBe(401);
-    expect(localStorage.getItem("access_token")).toBe(null);
-    expect(localStorage.getItem("refresh_token")).toBe(null);
+    await expect(apiClient.request("GET", "/api/v1/courses")).rejects.toMatchObject({
+      name: "ApiRequestError",
+      code: "UNAUTHORIZED",
+      status: 401,
+    });
+    expect(sessionStorage.getItem("access_token")).toBe(null);
+    expect(sessionStorage.getItem("refresh_token")).toBe(null);
     expect(eventSpy).toHaveBeenCalledWith(expect.objectContaining({
       detail: { reason: "session_expired" }
     }));

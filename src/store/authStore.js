@@ -49,7 +49,18 @@ const useAuthStore = create((set) => ({
           isAuthenticated: false,
         });
       }
-    } catch {
+    } catch (e) {
+      // Network/timeout/server errors should NOT clear tokens — otherwise a 2s Wi-Fi blip logs user out
+      // Only clear on confirmed auth failures (401/403 handled above as `user === null`)
+      const isRetryable = e?.retryable || e?.code === "NETWORK_ERROR" || e?.code === "TIMEOUT" || e?.code === "SERVER_ERROR" || e?.code === "RATE_LIMIT";
+      if (isRetryable) {
+        set({
+          user: null,
+          status: AUTH_STATUS.UNAUTHENTICATED,
+          isAuthenticated: false,
+        });
+        return;
+      }
       clearTokens();
       set({
         user: null,

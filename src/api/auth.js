@@ -58,9 +58,16 @@ export async function logout() {
 export async function getCurrentUser() {
   try {
     const { response, data } = await apiClient.get(endpoints.users.me, true);
-    if (!response.ok) return null;
-    return data;
-  } catch {
+    if (response.ok) return data;
+    // 401/403/404 mean not authenticated or not found -> return null without throwing
+    // 4xx/5xx with retryable (5xx, network) should be propagated so caller can decide
+    if (response.status === 401 || response.status === 403 || response.status === 404) return null;
+    return null;
+  } catch (e) {
+    // Network/timeout/server errors are retryable -> propagate to caller (authStore) so it doesn't clear tokens
+    if (e?.retryable || e?.code === "NETWORK_ERROR" || e?.code === "TIMEOUT" || e?.code === "SERVER_ERROR") {
+      throw e;
+    }
     return null;
   }
 }

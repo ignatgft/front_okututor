@@ -4,7 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist', 'mobile-okututor/**'] },
+  { ignores: ['dist', 'coverage/**', 'mobile-okututor/**'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {

@@ -1,4 +1,4 @@
-import { getRefreshToken, setTokens, clearTokens } from "../token";
+import { getRefreshToken, setTokens, clearTokens, isCookieRefreshEnabled } from "../token";
 import { apiClient } from "../http";
 import { endpoints } from "../endpoints";
 
@@ -33,11 +33,9 @@ export function waitForRefresh() {
 export async function refreshAccessToken() {
   isRefreshing = true;
   try {
-    const { response, data } = await apiClient.post(
-      endpoints.auth.refresh,
-      { refresh_token: getRefreshToken() },
-      false
-    );
+    const payload = isCookieRefreshEnabled() ? {} : { refresh_token: getRefreshToken() };
+    // In cookie mode, refresh token is HttpOnly cookie — no body needed, credentials: include handles it
+    const { response, data } = await apiClient.post(endpoints.auth.refresh, payload, false);
 
     if (!response.ok) {
       clearTokens();

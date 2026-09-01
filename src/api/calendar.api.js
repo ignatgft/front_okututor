@@ -30,10 +30,18 @@ function normalizeBooking(b) {
 }
 
 export function normalizeCalendarEvents(data) {
-  if (Array.isArray(data)) {
-    return data.map((item) => (isBookingLike(item) ? normalizeBooking(item) : item));
-  }
-  return [];
+  const arr = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.content)
+      ? data.content
+      : Array.isArray(data?.lessons)
+        ? data.lessons
+        : Array.isArray(data?.items)
+          ? data.items
+          : Array.isArray(data?.result)
+            ? data.result
+            : [];
+  return arr.map((item) => (isBookingLike(item) ? normalizeBooking(item) : item));
 }
 
 export function isJoinable(evt, now = Date.now()) {
@@ -46,13 +54,21 @@ export async function loadCalendarRange(fromStr, toStr, opts = {}) {
   const { fallbackToBookings = true, tutorMode = false } = opts;
   const { response, data } = await calendarApi.range(fromStr, toStr);
   if (response.ok) {
-    const events = normalizeCalendarEvents(data.content ?? data);
+    const events = normalizeCalendarEvents(data);
     if (events.length > 0) return events;
   }
   if (!fallbackToBookings) return [];
 
   const { response: bRes, data: bData } = await (tutorMode ? bookingApi.teacher() : bookingApi.my());
   if (!bRes.ok) throw new Error(bData?.error || bData?.message || "");
-  const rows = Array.isArray(bData) ? bData : bData.content || [];
+  const rows = Array.isArray(bData)
+    ? bData
+    : Array.isArray(bData?.content)
+      ? bData.content
+      : Array.isArray(bData?.lessons)
+        ? bData.lessons
+        : Array.isArray(bData?.items)
+          ? bData.items
+          : [];
   return rows.map(normalizeBooking);
 }
