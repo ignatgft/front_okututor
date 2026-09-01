@@ -66,8 +66,28 @@ export const endpoints = {
     accept: (id) => `/api/v1/enrollments/${id}/accept`,
     acceptAndSchedule: (id) => `/api/v1/enrollments/${id}/accept-and-schedule`,
     reject: (id) => `/api/v1/enrollments/${id}/reject`,
+    requestInfo: (id) => `/api/v1/applications/${id}/request-info`,
+    provideInfo: (id) => `/api/v1/applications/${id}/submit-info`,
     cancel: (id) => `/api/v1/enrollments/${id}`,
     forCourse: (courseId) => `/api/v1/courses/${courseId}/enrollment`,
+  },
+  applications: {
+    requestInfo: (id) => `/api/v1/applications/${id}/request-info`,
+    submitInfo: (id) => `/api/v1/applications/${id}/submit-info`,
+    byId: (id) => `/api/v1/applications/${id}`,
+    timeline: (id) => `/api/v1/applications/${id}/timeline`,
+  },
+  schedule: {
+    propose: (applicationId) => `/api/v1/schedule/applications/${applicationId}/propose`,
+    proposals: (applicationId) => `/api/v1/schedule/applications/${applicationId}/proposals`,
+    proposal: (id) => `/api/v1/schedule/proposals/${id}`,
+    accept: (id) => `/api/v1/schedule/proposals/${id}/accept`,
+    reject: (id) => `/api/v1/schedule/proposals/${id}/reject`,
+    counter: (id) => `/api/v1/schedule/proposals/${id}/counter`,
+    my: "/api/v1/schedule/me",
+    byId: (id) => `/api/v1/schedule/${id}`,
+    lessons: (id) => `/api/v1/schedule/${id}/lessons`,
+    availableSlots: (applicationId) => `/api/v1/schedule/applications/${applicationId}/available-slots`,
   },
   lessons: {
     list: "/api/v1/lessons",
@@ -78,7 +98,7 @@ export const endpoints = {
     start: (id) => `/api/v1/lessons/${id}/start`,
   },
   calendar: {
-    range: (from, to) => `/api/v1/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    range: (from, to, tz) => `/api/v1/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&tz=${encodeURIComponent(tz || "")}`,
   },
   messages: {
     conversations: "/api/v1/messages/conversations",

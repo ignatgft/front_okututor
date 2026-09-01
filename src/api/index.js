@@ -6,6 +6,7 @@ export { coursesApi } from "./courses.api";
 export { lessonsApi } from "./lessons.api";
 export { tutorsApi } from "./tutors.api";
 export { studentsApi } from "./students.api";
+export { enrollmentsApi } from "./enrollments.api";
 export { usersApi } from "./users.api";
 export { authApi } from "./auth.api";
 export { login, register, getCurrentUser, logout, buildGoogleOAuthUrl } from "./auth.js";

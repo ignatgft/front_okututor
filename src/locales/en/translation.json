@@ -116,7 +116,8 @@
     "scheduleNotAvailable": "The selected time is not available. Try another one.",
     "lessonConflict": "A lesson is already scheduled for this time.",
     "invalidTimezone": "Invalid timezone.",
-    "invalidDate": "Invalid date or time."
+    "invalidDate": "Invalid date or time.",
+    "reload_hint": "Please refresh the page and check the current status."
   },
   "common": {
     "loading": "Loading...",
@@ -146,7 +147,9 @@
     "done": "Done",
     "next": "Next",
     "reject_reason_hint": "Provide a reason for the applicant...",
-    "email": "Email"
+    "email": "Email",
+    "in_timezone": "({{tz}})",
+    "optional": "optional"
   },
   "messages": {
     "no_conversations": "No conversations yet",
@@ -204,7 +207,14 @@
     "join_lesson": "Join lesson",
     "events_on_day": "Lessons on this day",
     "view": "View",
-    "slot_removed": "Availability slot removed"
+    "slot_removed": "Availability slot removed",
+    "proposal_accepted": "Schedule confirmed",
+    "proposal_rejected": "Proposal rejected",
+    "counter_propose": "Propose another time",
+    "counter_title": "Suggest another time",
+    "counter_send": "Send proposal",
+    "counter_sent": "Counter-proposal sent",
+    "counter_message_placeholder": "e.g. Evening works better for me"
   },
   "calendar": {
     "student": "Student",
@@ -214,7 +224,21 @@
     "cancel_title": "Cancel this lesson?",
     "cancel_message": "Your booking request will be withdrawn.",
     "cancel_confirm": "Cancel booking",
-    "tutor_hint": "This is one of your lessons."
+    "tutor_hint": "This is one of your lessons.",
+    "choose_date": "Choose a date",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "prev_month": "Previous month",
+    "next_month": "Next month",
+    "locale": "en",
+    "week_start": "monday",
+    "day_monday": "Mon",
+    "day_tuesday": "Tue",
+    "day_wednesday": "Wed",
+    "day_thursday": "Thu",
+    "day_friday": "Fri",
+    "day_saturday": "Sat",
+    "day_sunday": "Sun"
   },
   "categories": {
     "subtitle": "Tutors by Categories",
@@ -664,7 +688,15 @@
     "cancel_title": "Cancel request?",
     "cancel_message": "Your request to join \"{{course}}\" will be withdrawn.",
     "cancel_success": "Request cancelled",
-    "no_pending": "No pending requests"
+    "no_pending": "No pending requests",
+    "tab_awaiting": "Awaiting",
+    "tab_action": "Action needed",
+    "tab_active": "Active",
+    "tab_archive": "Archive",
+    "empty_tab": "Nothing in this tab",
+    "empty_tab_hint": "Check other tabs — you have requests elsewhere.",
+    "view_proposal": "View proposal",
+    "view_schedule": "My schedule"
   },
   "lessons": {
     "title": "Lessons",
@@ -1136,7 +1168,10 @@
     "light": "Light",
     "notifications": "Notifications",
     "theme": "Theme",
-    "toggle_theme": "Toggle dark mode"
+    "toggle_theme": "Toggle dark mode",
+    "timezone": "Timezone",
+    "timezone_hint": "Times in schedules and lessons will be shown in the selected zone",
+    "timezone_saved": "Timezone saved"
   },
   "tutor": {
     "create_course": "Create course",
@@ -1157,7 +1192,8 @@
     "cancel": "Cancel",
     "slot_taken": "This slot is already taken",
     "preferred": "Preferred schedule",
-    "message": "Message"
+    "message": "Message",
+    "pick_date_first": "Choose a date first"
   },
   "statuses": {
     "PENDING": "Awaiting response",
@@ -1223,6 +1259,7 @@
     "error_format": "Choose a study format",
     "error_frequency": "Choose how often",
     "error_duration": "Choose a lesson duration",
+    "error_time_range": "Start time must be before end time",
     "days_monday": "Mo",
     "days_tuesday": "Tu",
     "days_wednesday": "We",
@@ -1252,7 +1289,32 @@
     "accept_schedule": "Confirm schedule",
     "propose_other": "Propose another time",
     "view_schedule": "View schedule",
-    "review_tutor": "\"{{name}}\" is reviewing your application"
+    "review_tutor": "\"{{name}}\" is reviewing your application",
+    "event_sent_tutor": "Student sent the application",
+    "event_accepted_tutor": "You accepted the application",
+    "event_schedule_proposed_tutor": "You proposed a schedule",
+    "hint_pending": "Waiting for tutor response",
+    "hint_needs_info": "Tutor asked for more info",
+    "hint_accepted": "Tutor accepted — awaiting schedule",
+    "hint_schedule_pending": "Schedule awaiting confirmation",
+    "hint_schedule_proposed": "Tutor proposed a schedule",
+    "hint_scheduled": "Schedule confirmed — check your lessons",
+    "hint_pending_tutor": "New application — take action",
+    "hint_needs_info_tutor": "Waiting for student response",
+    "hint_accepted_tutor": "You accepted — assign schedule",
+    "hint_schedule_pending_tutor": "Schedule pending",
+    "hint_schedule_proposed_tutor": "You proposed a schedule — awaiting student",
+    "hint_scheduled_tutor": "Schedule confirmed",
+    "hint_rejected": "Application rejected",
+    "hint_terminal": "This application is closed.",
+    "awaiting_student_confirm": "Awaiting student confirmation",
+    "schedule_confirmed_title": "Schedule confirmed",
+    "proposal_title": "Schedule proposal",
+    "add_to_calendar": "Add to calendar",
+    "ics_description": "Lesson via Okututor",
+    "open_schedule": "Open schedule",
+    "view_proposal": "View proposal",
+    "reject_proposal": "Reject"
   },
   "tutor_request": {
     "title": "Applications",
@@ -1276,7 +1338,11 @@
     "reject_confirm": "Reject application",
     "accepting": "Accepting...",
     "message_student": "Message student",
-    "schedule_negotiate": "Negotiate schedule"
+    "schedule_negotiate": "Negotiate schedule",
+    "assign_schedule": "Assign schedule",
+    "reschedule": "Change schedule",
+    "empty_tab": "Nothing in this tab",
+    "empty_tab_hint": "Check other tabs"
   },
   "schedule_agreement": {
     "title": "Schedule agreement",
@@ -1322,5 +1388,49 @@
     "student_other": "{{count}} students",
     "review_one": "{{count}} review",
     "review_other": "{{count}} reviews"
+  },
+  "location": {
+    "place": "Place",
+    "tutor": "At tutor",
+    "student": "At student",
+    "center": "Learning center",
+    "other": "Other place",
+    "address": "Address",
+    "details": "Details",
+    "details_placeholder": "e.g. Office 305"
+  },
+  "schedule_wizard": {
+    "format": "Format",
+    "location": "Location",
+    "days": "Days of week",
+    "time": "Time",
+    "start_date": "Start date",
+    "count": "Number of lessons",
+    "duration": "Duration",
+    "review": "Review",
+    "online_hint": "This is an online lesson — a meeting link will be used.",
+    "location_required": "Place and address are required for offline lessons",
+    "days_required": "Select at least one day",
+    "date_future": "Start date must be in the future",
+    "pick_date_first": "Choose a start date first",
+    "no_availability": "Availability not configured yet",
+    "pick_time": "Pick a time from the available slots.",
+    "success": "The schedule has been proposed. The other party can review and confirm it.",
+    "view_availability": "View weekly availability",
+    "no_date": "not chosen yet",
+    "no_slots_for_date": "No available slots for this date.",
+    "assign_immediately": "Assign immediately",
+    "propose_for_confirm": "Propose for confirmation"
+  },
+  "needs_info": {
+    "request": "Request more info",
+    "question": "Your question",
+    "question_placeholder": "Clarify, e.g. what is your level of preparation?",
+    "request_sent": "Request sent to the student",
+    "provide": "Reply to tutor",
+    "provide_title": "Additional information",
+    "provide_label": "Your answer",
+    "provide_placeholder": "Provide clarifying information...",
+    "provided": "Answer sent"
   }
 }

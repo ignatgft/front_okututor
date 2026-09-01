@@ -167,3 +167,22 @@
   align-items: center;
   justify-content: center;
 }
+
+
+.timezone-select {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #111);
+  max-width: 260px;
+}
+.settings-hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--color-text-secondary, #666);
+}
+.settings-saving {
+  color: var(--color-text-secondary, #666);
+  font-size: 13px;
+}

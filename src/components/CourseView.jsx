@@ -42,51 +42,80 @@ const CourseView = () => {
   const teacherAvatar = course?.teacher_avatar || course?.teacherAvatar || "";
   const price = course?.price_per_hour || course?.price || null;
 
+  const currentUserId = currentUser?.id;
+  const currentUserRole = currentUser?.role;
+
   useEffect(() => {
+    let cancelled = false;
     const fetchCourse = async () => {
       setIsLoading(true);
+      setFetchError("");
+      let courseData = null;
       try {
         const { response, data } = await apiClient.get(endpoints.courses.byId(courseId));
+        if (cancelled) return;
         if (response.ok) {
+          courseData = data;
           setCourse(data);
-          if (currentUser && currentUser.id === data.teacher_id) setIsOwner(true);
+          setIsOwner(!!(currentUserId && data.teacher_id === currentUserId));
         } else {
-          setFetchError(data.error || t("course.fetch_error"));
+          setFetchError(data?.error || data?.message || t("course.fetch_error"));
+          courseData = null;
         }
 
         const { response: revRes, data: revData } = await apiClient.get(endpoints.reviews.list(courseId), false);
+        if (cancelled) return;
         if (revRes.ok && Array.isArray(revData)) {
           setReviews(revData);
+        } else if (revRes.ok && revData && Array.isArray(revData.content)) {
+          setReviews(revData.content);
         }
 
-        if (isAuthenticated && currentUser && currentUser.id !== data?.teacher_id) {
-          // GET /courses/{id}/enrollment returns { id, status } for the current student
-          const { response: enrRes, data: enrData } = await apiClient.get(endpoints.enrollments.forCourse(courseId));
-          if (enrRes.ok && enrData?.status) {
-            setEnrollmentStatus(enrData.status);
-            setEnrollmentId(enrData.id || null);
+        if (isAuthenticated && currentUserId && courseData && currentUserId !== courseData.teacher_id) {
+          try {
+            const { response: enrRes, data: enrData } = await apiClient.get(endpoints.enrollments.forCourse(courseId));
+            if (cancelled) return;
+            if (enrRes.ok && enrData?.status) {
+              setEnrollmentStatus(enrData.status);
+              setEnrollmentId(enrData.id || null);
+            } else {
+              setEnrollmentStatus(ENROLLMENT_STATUS.NOT_REQUESTED);
+              setEnrollmentId(null);
+            }
+          } catch {
+            if (!cancelled) {
+              setEnrollmentStatus(ENROLLMENT_STATUS.NOT_REQUESTED);
+            }
           }
+        } else {
+          setEnrollmentStatus(ENROLLMENT_STATUS.NOT_REQUESTED);
+          setEnrollmentId(null);
         }
 
-        if (isAuthenticated && currentUser && currentUser.role === "STUDENT" && data?.teacher_id !== currentUser.id) {
+        if (isAuthenticated && currentUserRole === "STUDENT" && courseData && courseData.teacher_id !== currentUserId) {
             try {
                 const { response: crRes, data: crData } = await apiClient.get(
                     endpoints.courses.canReview(courseId)
                 );
+                if (cancelled) return;
                 if (crRes.ok) setCanReview(crData?.eligible ? crData : null);
+                else setCanReview(null);
             } catch {
-                // не блокируем загрузку страницы
+                if (!cancelled) setCanReview(null);
             }
+        } else {
+          setCanReview(null);
         }
       } catch {
-        setFetchError(t("course.fetch_error"));
+        if (!cancelled) setFetchError(t("course.fetch_error"));
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchCourse();
-  }, [courseId, t, currentUser, isAuthenticated]);
+    return () => { cancelled = true; };
+  }, [courseId, t, currentUserId, currentUserRole, isAuthenticated]);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -204,7 +233,7 @@ const CourseView = () => {
 
   if (isLoading) return <div className="course-detail-container"><Spinner label={t("common.loading")} /></div>;
   if (fetchError && !course) return <div className="course-detail-container"><ErrorState message={fetchError} /></div>;
-  if (!course) return <div className="course-detail-container"><EmptyState icon="📚" title={t("course.not_found", "Course not found")} /></div>;
+  if (!course) return <div className="course-detail-container"><EmptyState title={t("course.not_found", "Course not found")} /></div>;
 
   return (
     <div className="course-detail-container">
@@ -279,7 +308,7 @@ const CourseView = () => {
                     case "rejected":
                       return (
                         <div className="enrollment-state">
-                          <span className="status-badge status-danger">🔴 {t(cta.key)}</span>
+                          <span className="status-badge status-danger">{t(cta.key)}</span>
                           {enrollmentId && (
                             <Link to={`/student/requests/${enrollmentId}`} className="btn-secondary book-lesson-btn">
                               {t("request_detail.view_schedule")}
@@ -291,7 +320,7 @@ const CourseView = () => {
                     case "needs_info":
                       return (
                         <div className="enrollment-state">
-                          <span className="status-badge status-warning">🟡 {t(cta.key)}</span>
+                          <span className="status-badge status-warning">{t(cta.key)}</span>
                           {enrollmentId && (
                             <Link to={`/student/requests/${enrollmentId}`} className="btn-secondary book-lesson-btn">
                               {t("request_detail.view_schedule")}
@@ -310,7 +339,7 @@ const CourseView = () => {
                     case "confirm_schedule":
                       return (
                         <div className="enrollment-state">
-                          <span className="status-badge status-warning">🟡 {t(cta.key)}</span>
+                          <span className="status-badge status-warning">{t(cta.key)}</span>
                           {enrollmentId && (
                             <button
                               type="button"
@@ -326,7 +355,7 @@ const CourseView = () => {
                     case "review":
                       return (
                         <div className="enrollment-state">
-                          <span className="status-badge status-success">🟢 {t(cta.key)}</span>
+                          <span className="status-badge status-success">{t(cta.key)}</span>
                           {enrollmentId && (
                             <button
                               type="button"
@@ -412,7 +441,7 @@ const CourseView = () => {
                 )}
                 {canReview?.has_attended && canReview?.already_reviewed && (
                     <p style={{ color: "var(--color-success, #38a169)", marginTop: 8 }}>
-                        ✅ {t("course.review_submitted", "Review submitted successfully")}
+                        {t("course.review_submitted", "Review submitted successfully")}
                     </p>
                 )}
                 {canReview !== null && !canReview?.has_attended && (

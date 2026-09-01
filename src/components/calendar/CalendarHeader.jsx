@@ -1,5 +1,6 @@
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { CalendarPicker } from "../ui/CalendarPicker";
 
 const VIEWS = ["day", "week", "month"];
 
@@ -46,11 +47,10 @@ function CalendarHeader({ view, onChangeView, month, onPrev, onNext, onToday, on
 
       <div className="schedule-date-field">
         <label htmlFor="schedule-date">{t("schedule.pick_date", "Pick date")}</label>
-        <input
-          id="schedule-date"
-          type="date"
+        <CalendarPicker
           value={dateValue}
-          onChange={(e) => e.target.value && onPickDate(e.target.value)}
+          onSelect={(iso) => iso && onPickDate(iso)}
+          ariaLabel={t("schedule.pick_date", "Pick date")}
         />
       </div>
     </>

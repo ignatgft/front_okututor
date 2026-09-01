@@ -2,10 +2,11 @@ import { endpoints } from "./endpoints";
 import { apiClient } from "./http";
 import { bookingApi } from "./booking.api";
 import { BOOKING_STATUS } from "../constants/enums";
+import { getUserTimezone } from "../utils/timezone";
 
 export const calendarApi = {
-  range(from, to) {
-    return apiClient.get(endpoints.calendar.range(from, to));
+  range(from, to, tz = getUserTimezone()) {
+    return apiClient.get(endpoints.calendar.range(from, to, tz));
   },
 };
 

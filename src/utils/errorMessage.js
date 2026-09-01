@@ -39,13 +39,34 @@ export function extractErrorCode(error) {
  * @param {Function} t i18next translate function
  */
 export function getErrorMessage(error, t) {
-  const code = extractErrorCode(error);
+  let code = extractErrorCode(error);
+  // also treat Error.message as code if it matches SCREAMING_SNAKE
+  if (!code && typeof error?.message === "string" && /^[A-Z_]+$/.test(error.message)) {
+    code = error.message;
+  }
   if (code && ERROR_CODE_KEYS[code]) {
     return t(ERROR_CODE_KEYS[code]);
   }
   if (code && typeof code === "string" && code.startsWith("errors.")) {
     const v = t(code);
     if (v && v !== code) return v;
+  }
+  if (code) {
+    const direct = t(`errors.${code}`, "");
+    if (direct && direct !== `errors.${code}`) return direct;
+    // try camelCase for SCREAMING_SNAKE: INVALID_APPLICATION_STATE -> invalidApplicationState
+    const camel = code.toLowerCase().replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    const camelKey = `errors.${camel}`;
+    const v2 = t(camelKey, "");
+    if (v2 && v2 !== camelKey) return v2;
+    const v3 = t(code, "");
+    if (v3 && v3 !== code) return v3;
+  }
+  if (error?.message && !/^[A-Z_]+$/.test(error.message)) return error.message;
+  if (code && /^[A-Z_]+$/.test(code)) {
+    // fallback: show translated invalid state instead of raw code
+    const fallback = t("errors.invalidApplicationState", "");
+    if (fallback && fallback !== "errors.invalidApplicationState") return fallback;
   }
   if (error?.message) return error.message;
   return t("errors.default", "Something went wrong.");

@@ -174,7 +174,6 @@ export default function PgTutorDashboard() {
 
               {pendingBookings.length === 0 && (
                 <EmptyState
-                  icon="✅"
                   title={t("tutor_dashboard.no_pending", "No pending requests")}
                   hint={t("tutor_dashboard.no_pending_hint", "All caught up! New booking requests will appear here.")}
                 />
@@ -195,7 +194,6 @@ export default function PgTutorDashboard() {
               <div className="bookings-section">
                   {enrollments.filter((e) => e.status === "PENDING").length === 0 ? (
                       <EmptyState
-                          icon="📋"
                           title={t("tutor_dashboard.no_pending", "No pending requests")}
                           hint={t("tutor_dashboard.no_pending_hint", "New requests from students will appear here.")}
                       />
@@ -206,12 +204,12 @@ export default function PgTutorDashboard() {
                               <div key={e.id} className="booking-card">
                                   <div className="booking-info">
                                       <h3>{e.course_title}</h3>
-                                      <p>👤 {e.student_name}</p>
+                                      <p>{e.student_name}</p>
                                       {e.preferred_schedule && (
-                                          <p>🕐 {t("schedule_modal.preferred", "Preferred")}: {e.preferred_schedule}</p>
+                                          <p>{t("schedule_modal.preferred", "Preferred")}: {e.preferred_schedule}</p>
                                       )}
                                       {e.message && (
-                                          <p>💬 {e.message}</p>
+                                          <p>{e.message}</p>
                                       )}
                                   </div>
                                   <div className="booking-actions">
@@ -239,7 +237,6 @@ export default function PgTutorDashboard() {
             <div className="bookings-section">
               {bookings.length === 0 ? (
                 <EmptyState
-                  icon="📋"
                   title={t("tutor_dashboard.no_bookings", "No bookings yet")}
                   hint={t("tutor_dashboard.no_bookings_hint", "Your bookings will appear here once students enroll.")}
                 />

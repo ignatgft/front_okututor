@@ -47,8 +47,12 @@ export function eventDaysKey(date) {
   return toLocalInput(date);
 }
 
-export function formatTime(date, locale = "ru") {
-  return new Date(date).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+export function formatTime(date, locale = "ru", timezone) {
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  const opts = { hour: "2-digit", minute: "2-digit" };
+  if (timezone) opts.timeZone = timezone;
+  return d.toLocaleTimeString(locale, opts);
 }
 
 export function formatDurationMin(start, end) {

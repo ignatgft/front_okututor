@@ -1,28 +1,22 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { usePageTitle } from "../components/pageTitleContext";
-import { enrollmentsApi } from "../api/students.api";
+import { enrollmentsApi } from "../api/enrollments.api";
 import { Badge, Spinner, EmptyState, ErrorState } from "../components/ui/Primitives";
 import { Tabs } from "../components/ui/Tabs";
 import ScheduleModal from "../components/ScheduleModal";
 import { useToast } from "../components/ui/Toast";
 import { ENROLLMENT_STATUS } from "../constants/enums";
 import { applicationStatusLabel } from "../utils/statusLabels";
+import { TUTOR_TABS, canAssignSchedule, canReschedule, canTutorMessage, openDirectChat } from "../utils/enrollmentHelpers";
 import "../styles/Dashboard.css";
 import "../styles/overlay.css";
-
-const TAB_STATUS = {
-  new: [ENROLLMENT_STATUS.PENDING],
-  waiting: [ENROLLMENT_STATUS.ACCEPTED],
-  schedule: [ENROLLMENT_STATUS.SCHEDULE_PENDING, ENROLLMENT_STATUS.SCHEDULE_PROPOSED],
-  active: [ENROLLMENT_STATUS.SCHEDULED],
-  archive: [ENROLLMENT_STATUS.REJECTED, ENROLLMENT_STATUS.CANCELLED, ENROLLMENT_STATUS.COMPLETED],
-};
 
 export default function PgTutorRequests() {
   const { t } = useTranslation();
   const toast = useToast();
+  const navigate = useNavigate();
   const setPageTitle = usePageTitle();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,24 +45,34 @@ export default function PgTutorRequests() {
 
   useEffect(() => { load(); }, [load]);
 
-  const newCount = requests.filter((r) => TAB_STATUS.new.includes(r.status)).length;
+  const counts = {
+    new: requests.filter((r) => TUTOR_TABS.new.includes(r.status)).length,
+    waiting: requests.filter((r) => TUTOR_TABS.waiting.includes(r.status)).length,
+    schedule: requests.filter((r) => TUTOR_TABS.schedule.includes(r.status)).length,
+    active: requests.filter((r) => TUTOR_TABS.active.includes(r.status)).length,
+    archive: requests.filter((r) => TUTOR_TABS.archive.includes(r.status)).length,
+  };
+
   const tabs = [
-    { value: "new", label: t("tutor_request.tab_new") },
-    { value: "waiting", label: t("tutor_request.tab_waiting") },
-    { value: "schedule", label: t("tutor_request.tab_schedule") },
-    { value: "active", label: t("tutor_request.tab_active") },
-    { value: "archive", label: t("tutor_request.tab_archive") },
+    { value: "new", label: `${t("tutor_request.tab_new", "New")} (${counts.new})` },
+    { value: "waiting", label: `${t("tutor_request.tab_waiting", "Awaiting")} (${counts.waiting})` },
+    { value: "schedule", label: `${t("tutor_request.tab_schedule", "Needs schedule")} (${counts.schedule})` },
+    { value: "active", label: `${t("tutor_request.tab_active", "Active")} (${counts.active})` },
+    { value: "archive", label: `${t("tutor_request.tab_archive", "Archive")} (${counts.archive})` },
   ];
 
-  const visible = requests.filter((r) => (TAB_STATUS[tab] || []).includes(r.status));
+  const visible = requests.filter((r) => (TUTOR_TABS[tab] || []).includes(r.status));
+  const hasAny = requests.length > 0;
+
+  const getStudentId = (r) => r.student_id || r.student?.id || null;
 
   return (
     <>
       <div className="section-head">
         <h2>{t("tutor_request.title", "Requests")}</h2>
-        {newCount > 0 && (
+        {counts.new > 0 && (
           <span className="badge badge-new">
-            {t("tutor_request.new_count", "{{count}} new", { count: newCount })}
+            {t("tutor_request.new_count", "{{count}} new", { count: counts.new })}
           </span>
         )}
       </div>
@@ -79,11 +83,10 @@ export default function PgTutorRequests() {
         <Spinner label={t("common.loading", "Loading...")} />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
+      ) : !hasAny ? (
+        <EmptyState title={t("tutor_request.empty_all", "Nothing here")} />
       ) : visible.length === 0 ? (
-        <EmptyState
-          icon="📨"
-          title={tab === "new" ? t("tutor_request.empty_new", "No new requests") : t("tutor_request.empty_all", "Nothing here")}
-        />
+        <EmptyState title={t("tutor_request.empty_tab", "Nothing in this tab")} hint={t("tutor_request.empty_tab_hint", "Check other tabs")} />
       ) : (
         <div className="bookings-list">
           {visible.map((r) => (
@@ -95,21 +98,34 @@ export default function PgTutorRequests() {
                   <p className="booking-time">
                     <Badge status={r.status}>{applicationStatusLabel(r.status, t)}</Badge>
                   </p>
-                  {r.preferred_schedule && <p className="booking-meta">🕐 {r.preferred_schedule}</p>}
-                  {r.message && <p className="booking-meta">«{r.message}»</p>}
+                  {r.preferred_schedule && <p className="booking-meta">{r.preferred_schedule}</p>}
+                  {r.message && <p className="booking-meta">{r.message}</p>}
                 </div>
               </Link>
               <div className="booking-actions">
-                {(r.status === ENROLLMENT_STATUS.PENDING || r.status === ENROLLMENT_STATUS.ACCEPTED) && (
-                  <>
-                    <button className="btn-primary" onClick={() => setScheduleTarget(r)}>
-                      {t("tutor_request.accept", "Accept")}
-                    </button>
-                    <Link to={`/tutor/requests/${r.id}`} className="btn-secondary">
-                      {t("request_detail.view_schedule", "Details")}
-                    </Link>
-                  </>
+                {canAssignSchedule(r.status) && (
+                  <button className="btn-primary" onClick={() => setScheduleTarget(r)}>
+                    {t("tutor_request.assign_schedule", "Assign schedule")}
+                  </button>
                 )}
+                {canReschedule(r.status) && !canAssignSchedule(r.status) && (
+                  <button className="btn-secondary" onClick={() => setScheduleTarget(r)}>
+                    {t("tutor_request.reschedule", "Change schedule")}
+                  </button>
+                )}
+                {r.status === ENROLLMENT_STATUS.SCHEDULED && (
+                  <Link to="/tutor/schedule" className="btn-primary">
+                    {t("navbar.schedule", "Schedule")}
+                  </Link>
+                )}
+                {canTutorMessage(r.status) && (
+                  <button type="button" className="btn-ghost" onClick={() => openDirectChat(navigate, "TUTOR", getStudentId(r))}>
+                    {t("tutor_request.message_student", "Message student")}
+                  </button>
+                )}
+                <Link to={`/tutor/requests/${r.id}`} className="btn-secondary">
+                  {t("request_detail.view_schedule", "Details")}
+                </Link>
               </div>
             </div>
           ))}

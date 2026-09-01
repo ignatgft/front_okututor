@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { bookingApi } from "../../api/booking.api";
 import { useToast } from "../ui/Toast";
 import SlotPicker from "./SlotPicker";
+import CalendarPicker from "../ui/CalendarPicker";
+import { getUserTimezone } from "../../utils/timezone";
 import "../../styles/BookingModal.css";
 
 const toInputDate = (d) => {
@@ -76,6 +78,7 @@ export function BookingModal({
         date,
         time,
         duration_minutes: Number(duration),
+        timezone: getUserTimezone(),
       });
       if (response.ok) {
         toast.success(t("booking.booking_created", "Booking request sent!"));
@@ -114,16 +117,14 @@ export function BookingModal({
           <label className="booking-modal-label" htmlFor="booking-date">
             {t("booking.select_date", "Select Date")}
           </label>
-          <input
-            id="booking-date"
-            type="date"
+          <CalendarPicker
             value={date}
-            min={todayStr}
-            onChange={(e) => {
-              setDate(e.target.value);
+            minDate={todayStr}
+            onSelect={(d) => {
+              setDate(d);
               setTime("");
             }}
-            required
+            ariaLabel={t("booking.select_date", "Select Date")}
           />
 
           <span className="booking-modal-label">{t("booking.select_time", "Select Time")}</span>

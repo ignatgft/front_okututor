@@ -114,7 +114,9 @@
     "pagination": "Барактоо",
     "reject_reason_hint": "Өтүнмө ээсине себеп көрсөтүңүз...",
     "success": "Аракет аткарылды",
-    "email": "Эл. почта"
+    "email": "Эл. почта",
+    "in_timezone": "({{tz}})",
+    "optional": "милдеттүү эмес"
   },
   "messages": {
     "no_conversations": "Сүйлөшүүлөр жок",
@@ -171,7 +173,8 @@
     "scheduleNotAvailable": "Тандалган убакыт жеткиликтүү эмес. Башкасын тандаңыз.",
     "lessonConflict": "Бул убакытка сабак пландалган.",
     "invalidTimezone": "Убакыт алкагы туура эмес.",
-    "invalidDate": "Дата же убакыт туура эмес."
+    "invalidDate": "Дата же убакыт туура эмес.",
+    "reload_hint": "Баракты жаңыртып, учурдагы статусту текшериңиз."
   },
   "schedule": {
     "view_day": "Күн",
@@ -198,7 +201,14 @@
     "join_lesson": "Сабакка кирүү",
     "events_on_day": "Бул күндөгү сабактар",
     "view": "Көрүнүш",
-    "slot_removed": "Жеткиликтүүлүк уячасы өчүрүлдү"
+    "slot_removed": "Жеткиликтүүлүк уячасы өчүрүлдү",
+    "proposal_accepted": "Жадыбал ырасталды",
+    "proposal_rejected": "Сунуш четке кагылды",
+    "counter_propose": "Башка убакыт сунуштоо",
+    "counter_title": "Башка убакыт сунуштаңыз",
+    "counter_send": "Сунушту жөнөтүү",
+    "counter_sent": "Каршы сунуш жөнөтүлдү",
+    "counter_message_placeholder": "Мисалы, кечинде ыңгайлуу"
   },
   "calendar": {
     "student": "Окуучу",
@@ -208,7 +218,21 @@
     "cancel_title": "Бул сабакты жокко чыгарасызбы?",
     "cancel_message": "Сиздин брондоо сурамыңыз артка алынат.",
     "cancel_confirm": "Брондоону жокко чыгаруу",
-    "tutor_hint": "Бул сиздин сабактарыңыздын бири."
+    "tutor_hint": "Бул сиздин сабактарыңыздын бири.",
+    "choose_date": "Күндү тандаңыз",
+    "today": "Бүгүн",
+    "tomorrow": "Эртең",
+    "prev_month": "Мурунку ай",
+    "next_month": "Кийинки ай",
+    "locale": "ru",
+    "week_start": "monday",
+    "day_monday": "Дш",
+    "day_tuesday": "Шш",
+    "day_wednesday": "Шр",
+    "day_thursday": "Бш",
+    "day_friday": "Жм",
+    "day_saturday": "Иш",
+    "day_sunday": "Жк"
   },
   "categories": {
     "subtitle": "Категориялар боюнча мугалимдер",
@@ -657,7 +681,15 @@
     "cancel_title": "Сурамды жокко чыгарасызбы?",
     "cancel_message": "\"{{course}}\" курсуна берилген сурамыңыз кайтарылат.",
     "cancel_success": "Сурам жокко чыгарылды",
-    "no_pending": "Жооп күткөн сурам жок"
+    "no_pending": "Жооп күткөн сурам жок",
+    "tab_awaiting": "Ожидают",
+    "tab_action": "Нужно действие",
+    "tab_active": "Активные",
+    "tab_archive": "Архив",
+    "empty_tab": "Ничего в этой вкладке",
+    "empty_tab_hint": "Проверьте другие вкладки",
+    "view_proposal": "Смотреть предложение",
+    "view_schedule": "Моё расписание"
   },
   "lessons": {
     "title": "Сабактар",
@@ -1096,7 +1128,10 @@
     "light": "Жарык",
     "notifications": "Билдирүүлөр",
     "theme": "Тема",
-    "toggle_theme": "Караңгы режимди которуу"
+    "toggle_theme": "Караңгы режимди которуу",
+    "timezone": "Убакыт алкагы",
+    "timezone_hint": "Графикте жана сабактарда убакыт тандалган алкакта көрсөтүлөт",
+    "timezone_saved": "Убакыт алкагы сакталды"
   },
   "tutor": {
     "create_course": "Курс түзүү",
@@ -1117,7 +1152,8 @@
     "cancel": "Баш тартуу",
     "slot_taken": "Бул убакыт буга чейин ээленген",
     "preferred": "Ыңгайлуу график",
-    "message": "Кабар"
+    "message": "Кабар",
+    "pick_date_first": "Алгач күндү тандаңыз"
   },
   "statuses": {
     "PENDING": "Жооп күтүлүүдө",
@@ -1212,7 +1248,32 @@
     "accept_schedule": "Графикти ырастоо",
     "propose_other": "Башка убакыт сунуштоо",
     "view_schedule": "Графикти көрүү",
-    "review_tutor": "\"{{name}}\" өтүнмөңүздү карап жатат"
+    "review_tutor": "\"{{name}}\" өтүнмөңүздү карап жатат",
+    "event_sent_tutor": "Студент отправил заявку",
+    "event_accepted_tutor": "Вы приняли заявку",
+    "event_schedule_proposed_tutor": "Вы предложили расписание",
+    "hint_pending": "Ожидает ответа тьютора",
+    "hint_needs_info": "Тьютор запросил доп. информацию",
+    "hint_accepted": "Заявка принята — ожидается расписание",
+    "hint_schedule_pending": "Расписание ожидает подтверждения",
+    "hint_schedule_proposed": "Тьютор предложил расписание",
+    "hint_scheduled": "Расписание подтверждено",
+    "hint_pending_tutor": "Новая заявка — требуется действие",
+    "hint_needs_info_tutor": "Ожидает ответа студента",
+    "hint_accepted_tutor": "Вы приняли — назначьте расписание",
+    "hint_schedule_pending_tutor": "Расписание ожидает",
+    "hint_schedule_proposed_tutor": "Вы предложили расписание — ждём студента",
+    "hint_scheduled_tutor": "Расписание подтверждено",
+    "hint_rejected": "Заявка отклонена",
+    "hint_terminal": "Заявка закрыта",
+    "awaiting_student_confirm": "Ожидает подтверждения студента",
+    "schedule_confirmed_title": "Расписание подтверждено",
+    "proposal_title": "Предложение расписания",
+    "add_to_calendar": "Добавить в календарь",
+    "ics_description": "Урок через Okututor",
+    "open_schedule": "Открыть расписание",
+    "view_proposal": "Смотреть предложение",
+    "reject_proposal": "Четке кагуу"
   },
   "tutor_request": {
     "title": "Өтүнмөлөр",
@@ -1235,8 +1296,12 @@
     "reject_placeholder": "Четке кагуу себебин жазыңыз",
     "reject_confirm": "Өтүнмөнү четке кагуу",
     "accepting": "Кабыл алынууда...",
-    "message_student": "Окуучуга жазуу",
-    "schedule_negotiate": "Графикти макулдашуу"
+    "message_student": "Написать студенту",
+    "schedule_negotiate": "Графикти макулдашуу",
+    "assign_schedule": "Назначить расписание",
+    "reschedule": "Изменить расписание",
+    "empty_tab": "Ничего в этой вкладке",
+    "empty_tab_hint": "Проверьте другие вкладки"
   },
   "schedule_agreement": {
     "title": "Графикти макулдашуу",
@@ -1292,5 +1357,49 @@
     "review_few": "{{count}} пикир",
     "review_many": "{{count}} пикир",
     "review_other": "{{count}} пикир"
+  },
+  "location": {
+    "place": "Орун",
+    "tutor": "Тьютордо",
+    "student": "Окуучуда",
+    "center": "Окуу борбору",
+    "other": "Башка орун",
+    "address": "Дарек",
+    "details": "Чоо-жайы",
+    "details_placeholder": "Мис. 305-кабинет"
+  },
+  "schedule_wizard": {
+    "format": "Форматы",
+    "location": "Орун",
+    "days": "Апта күндөрү",
+    "time": "Убакыт",
+    "start_date": "Башталыш күнү",
+    "count": "Сабактардын саны",
+    "duration": "Узактыгы",
+    "review": "Сынап көрүү",
+    "online_hint": "Бул онлайн сабак — жолугушуу шилтемеси колдонулат.",
+    "location_required": "Офлайн сабактар үчүн орун жана дарек көрсөтүңүз",
+    "days_required": "Жок дегенде бир күн тандаңыз",
+    "date_future": "Башталыш күнү келечекте болушу керек",
+    "pick_date_first": "Алгач башталыш күнүн тандаңыз",
+    "no_availability": "Жеткиликтүүлүк азырынча коюлган эмес",
+    "pick_time": "Жеткиликтүү убакыттан тандаңыз.",
+    "success": "График сунушталды. Башка тарап карап, ырастай алат.",
+    "view_availability": "Жумалык жеткиликтүүлүктү көрсөтүү",
+    "no_date": "тандала элек",
+    "no_slots_for_date": "Бул күнгө жеткиликтүү убакыт жок.",
+    "assign_immediately": "Assign immediately",
+    "propose_for_confirm": "Propose for confirmation"
+  },
+  "needs_info": {
+    "request": "Маалымат суроо",
+    "question": "Сурооңуз",
+    "question_placeholder": "Тактаңыз, мисалы: даярдык деңгээлиңиз кандай?",
+    "request_sent": "Суроо окуучуга жөнөтүлдү",
+    "provide": "Тьюторго жооп берүү",
+    "provide_title": "Кошумча маалымат",
+    "provide_label": "Жообуңуз",
+    "provide_placeholder": "Тактоочу маалымат жазыңыз...",
+    "provided": "Жооп жөнөтүлдү"
   }
 }

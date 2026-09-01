@@ -1,23 +1,27 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { usePageTitle } from "../components/pageTitleContext";
 import { studentsApi } from "../api/students.api";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import { Badge, Spinner, EmptyState, ErrorState } from "../components/ui/Primitives";
+import { Tabs } from "../components/ui/Tabs";
 import { useToast } from "../components/ui/Toast";
 import { ENROLLMENT_STATUS } from "../constants/enums";
 import { enrollmentStatusLabel } from "../utils/statusLabels";
+import { STUDENT_TABS, canStudentMessage, canViewScheduleProposal, canStudentCancel, openDirectChat } from "../utils/enrollmentHelpers";
 import "../styles/Dashboard.css";
 
 export default function PgStudentRequests() {
   const { t } = useTranslation();
   const toast = useToast();
+  const navigate = useNavigate();
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancelTarget, setCancelTarget] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [tab, setTab] = useState("awaiting");
   const setPageTitle = usePageTitle();
   useEffect(() => { setPageTitle(t("student_requests.title", "My Requests")); }, [setPageTitle, t]);
 
@@ -42,7 +46,22 @@ export default function PgStudentRequests() {
     load();
   }, [load]);
 
-  const pending = enrollments.filter((e2) => e2.status === ENROLLMENT_STATUS.PENDING);
+  const counts = {
+    awaiting: enrollments.filter((e) => STUDENT_TABS.awaiting.includes(e.status)).length,
+    action: enrollments.filter((e) => STUDENT_TABS.action.includes(e.status)).length,
+    active: enrollments.filter((e) => STUDENT_TABS.active.includes(e.status)).length,
+    archive: enrollments.filter((e) => STUDENT_TABS.archive.includes(e.status)).length,
+  };
+
+  const tabs = [
+    { value: "awaiting", label: `${t("student_requests.tab_awaiting", "Awaiting")} (${counts.awaiting})` },
+    { value: "action", label: `${t("student_requests.tab_action", "Action needed")} (${counts.action})` },
+    { value: "active", label: `${t("student_requests.tab_active", "Active")} (${counts.active})` },
+    { value: "archive", label: `${t("student_requests.tab_archive", "Archive")} (${counts.archive})` },
+  ];
+
+  const visible = enrollments.filter((e) => (STUDENT_TABS[tab] || []).includes(e.status));
+  const hasAny = enrollments.length > 0;
 
   const handleCancel = async () => {
     if (!cancelTarget) return;
@@ -59,15 +78,17 @@ export default function PgStudentRequests() {
     }
   };
 
+  const getTeacherId = (e) => e.teacher_id || e.teacher?.id || e.course?.teacher_id || null;
+
   return (
     <>
+      <Tabs items={tabs} active={tab} onChange={setTab} id="student-requests-tabs" />
       {loading ? (
         <Spinner label={t("common.loading", "Loading...")} />
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
-      ) : enrollments.length === 0 ? (
+      ) : !hasAny ? (
         <EmptyState
-          icon="📨"
           title={t("student_requests.empty", "No requests yet")}
           hint={
             <Link to="/student/search" className="btn-primary">
@@ -75,9 +96,14 @@ export default function PgStudentRequests() {
             </Link>
           }
         />
+      ) : visible.length === 0 ? (
+        <EmptyState
+          title={t("student_requests.empty_tab", "Nothing in this tab")}
+          hint={t("student_requests.empty_tab_hint", "Check other tabs — you have requests elsewhere.")}
+        />
       ) : (
         <div className="bookings-list">
-          {enrollments.map((e2) => (
+          {visible.map((e2) => (
             <div key={e2.id} className="booking-card">
               <Link to={`/student/requests/${e2.id}`} className="booking-info-link">
                 <div className="booking-info">
@@ -93,17 +119,39 @@ export default function PgStudentRequests() {
                 <Link to={`/student/requests/${e2.id}`} className="btn-secondary">
                   {t("request_detail.view_schedule", "View details")}
                 </Link>
-                {e2.status === ENROLLMENT_STATUS.PENDING && (
-                  <button className="btn-danger" onClick={() => setCancelTarget(e2)}>
+                {e2.status === ENROLLMENT_STATUS.NEEDS_INFO && (
+                  <Link to={`/student/requests/${e2.id}`} className="btn-primary">
+                    {t("needs_info.provide", "Reply")}
+                  </Link>
+                )}
+                {canViewScheduleProposal(e2.status) && e2.status !== ENROLLMENT_STATUS.SCHEDULED && (
+                  <Link to={`/student/requests/${e2.id}`} className="btn-primary">
+                    {t("student_requests.view_proposal", "View proposal")}
+                  </Link>
+                )}
+                {e2.status === ENROLLMENT_STATUS.SCHEDULED && (
+                  <Link to="/student/schedule" className="btn-primary">
+                    {t("student_requests.view_schedule", "My schedule")}
+                  </Link>
+                )}
+                {e2.status === ENROLLMENT_STATUS.COMPLETED && (
+                  <Link to={e2.course_id || e2.course?.id ? `/course/${e2.course_id || e2.course.id}` : "/student/courses"} className="btn-primary">
+                    {t("request_detail.review_tutor", "Leave a review")}
+                  </Link>
+                )}
+                {canStudentMessage(e2.status) && (
+                  <button type="button" className="btn-ghost" onClick={() => openDirectChat(navigate, "STUDENT", getTeacherId(e2))}>
+                    {t("request_detail.message_tutor", "Message tutor")}
+                  </button>
+                )}
+                {canStudentCancel(e2.status) && (
+                  <button type="button" className="btn-danger" onClick={() => setCancelTarget(e2)}>
                     {t("common.cancel_request", "Cancel")}
                   </button>
                 )}
               </div>
             </div>
           ))}
-          {pending.length === 0 && (
-            <p className="empty-state-hint">{t("student_requests.no_pending", "No pending requests")}</p>
-          )}
         </div>
       )}
 

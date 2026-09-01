@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { FaCheckCircle } from "react-icons/fa";
 import { studentsApi } from "../../api/students.api";
 import { Modal } from "../ui/Overlay";
 import { getErrorMessage } from "../../utils/errorMessage";
+import { getUserTimezone } from "../../utils/timezone";
 
 const DAY_KEYS = ["days_monday", "days_tuesday", "days_wednesday", "days_thursday", "days_friday", "days_saturday", "days_sunday"];
 const WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
@@ -40,7 +42,18 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
   const validateStep = () => {
     const next = {};
     if (step === 0 && !format) next.format = t("application.error_format");
-    if (step === 1 && days.length === 0) next.days = t("application.error_days");
+    if (step === 1) {
+      if (days.length === 0) next.days = t("application.error_days");
+      if (days.length > 0) {
+        const toMinutes = (v) => {
+          const [h, m] = String(v).split(":").map(Number);
+          return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+        };
+        if (toMinutes(startTime) >= toMinutes(endTime)) {
+          next.time = t("application.error_time_range", "Start time must be before end time");
+        }
+      }
+    }
     if (step === 2) {
       if (!frequency) next.frequency = t("application.error_frequency");
       if (!duration) next.duration = t("application.error_duration");
@@ -78,6 +91,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
         preferred_end_time: endTime,
         frequency,
         duration_minutes: Number(duration),
+        timezone: getUserTimezone(),
       };
       const { response, data } = await studentsApi.requestCourse(courseId, payload);
       if (response.ok) {
@@ -153,7 +167,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
     <Modal open={isOpen} onClose={resetAndClose} title={t("application.title")} footer={footer} ariaLabel={t("application.title")}>
       {success ? (
         <div className="app-wizard-success">
-          <span className="app-success-icon" aria-hidden="true">✓</span>
+          <FaCheckCircle className="app-success-icon" aria-hidden="true" />
           <h3>{t("application.success_title")}</h3>
           <p>{t("application.success_hint")}</p>
         </div>
@@ -177,7 +191,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
                   {t(`application.format_${opt}`)}
                 </button>
               ))}
-              {errors.format && <p className="field-error" role="alert">⚠ {errors.format}</p>}
+              {errors.format && <p className="field-error" role="alert">{errors.format}</p>}
             </fieldset>
           )}
 
@@ -203,20 +217,21 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
                     </button>
                   ))}
                 </div>
-                {errors.days && <p className="field-error" role="alert">⚠ {errors.days}</p>}
+                {errors.days && <p className="field-error" role="alert">{errors.days}</p>}
               </fieldset>
 
               <div className="time-window">
                 <label htmlFor="app-start">
                   <span className="visually-hidden">{t("schedule_agreement.time_from", "From")}</span>
-                  <input id="app-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                  <input id="app-start" type="time" value={startTime} onChange={(e) => { setStartTime(e.target.value); setErrors((p)=>({...p, time: undefined })); }} />
                 </label>
                 <span className="time-sep">—</span>
                 <label htmlFor="app-end">
                   <span className="visually-hidden">{t("schedule_agreement.time_to", "To")}</span>
-                  <input id="app-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                  <input id="app-end" type="time" value={endTime} onChange={(e) => { setEndTime(e.target.value); setErrors((p)=>({...p, time: undefined })); }} />
                 </label>
               </div>
+              {errors.time && <p className="field-error" role="alert">{errors.time}</p>}
               <p className="time-window-hint">{t("application.time_window", { start: startTime, end: endTime })}</p>
             </div>
           )}
@@ -236,7 +251,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
                     {t(`application.frequency_${f}`)}
                   </button>
                 ))}
-                {errors.frequency && <p className="field-error" role="alert">⚠ {errors.frequency}</p>}
+                {errors.frequency && <p className="field-error" role="alert">{errors.frequency}</p>}
               </fieldset>
 
               <fieldset className="app-wizard-fieldset">
@@ -254,7 +269,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
                     </button>
                   ))}
                 </div>
-                {errors.duration && <p className="field-error" role="alert">⚠ {errors.duration}</p>}
+                {errors.duration && <p className="field-error" role="alert">{errors.duration}</p>}
               </fieldset>
 
               <label className="app-wizard-label" htmlFor="app-comment">{t("application.comment_label")}</label>

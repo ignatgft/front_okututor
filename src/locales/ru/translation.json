@@ -114,7 +114,9 @@
     "next": "Далее",
     "pagination": "Пагинация",
     "reject_reason_hint": "Укажите причину для заявителя...",
-    "email": "Эл. почта"
+    "email": "Эл. почта",
+    "in_timezone": "({{tz}})",
+    "optional": "необязательно"
   },
   "messages": {
     "no_conversations": "Диалогов пока нет",
@@ -171,7 +173,8 @@
     "scheduleNotAvailable": "Выбранное время недоступно. Попробуйте другое.",
     "lessonConflict": "На это время уже запланировано занятие.",
     "invalidTimezone": "Некорректный часовой пояс.",
-    "invalidDate": "Некорректная дата или время."
+    "invalidDate": "Некорректная дата или время.",
+    "reload_hint": "Обновите страницу и проверьте текущий статус."
   },
   "schedule": {
     "view_day": "День",
@@ -198,7 +201,14 @@
     "join_lesson": "Войти на урок",
     "events_on_day": "Занятия на этот день",
     "view": "Вид",
-    "slot_removed": "Слот доступности удален"
+    "slot_removed": "Слот доступности удален",
+    "proposal_accepted": "Расписание подтверждено",
+    "proposal_rejected": "Предложение отклонено",
+    "counter_propose": "Предложить другое время",
+    "counter_title": "Предложите другое время",
+    "counter_send": "Отправить предложение",
+    "counter_sent": "Контрпредложение отправлено",
+    "counter_message_placeholder": "Напр. Вечером удобнее"
   },
   "calendar": {
     "student": "Ученик",
@@ -208,7 +218,21 @@
     "cancel_title": "Отменить это занятие?",
     "cancel_message": "Ваша заявка на бронирование будет отозвана.",
     "cancel_confirm": "Отменить бронь",
-    "tutor_hint": "Это одно из ваших занятий."
+    "tutor_hint": "Это одно из ваших занятий.",
+    "choose_date": "Выберите дату",
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "prev_month": "Предыдущий месяц",
+    "next_month": "Следующий месяц",
+    "locale": "ru",
+    "week_start": "monday",
+    "day_monday": "Пн",
+    "day_tuesday": "Вт",
+    "day_wednesday": "Ср",
+    "day_thursday": "Чт",
+    "day_friday": "Пт",
+    "day_saturday": "Сб",
+    "day_sunday": "Вс"
   },
   "categories": {
     "subtitle": "Репетиторы по категориям",
@@ -657,7 +681,15 @@
     "cancel_title": "Отменить заявку?",
     "cancel_message": "Ваша заявка на курс \"{{course}}\" будет отозвана.",
     "cancel_success": "Заявка отменена",
-    "no_pending": "Нет ожидающих заявок"
+    "no_pending": "Нет ожидающих заявок",
+    "tab_awaiting": "Ожидают",
+    "tab_action": "Нужно действие",
+    "tab_active": "Активные",
+    "tab_archive": "Архив",
+    "empty_tab": "Ничего в этой вкладке",
+    "empty_tab_hint": "Проверьте другие вкладки",
+    "view_proposal": "Смотреть предложение",
+    "view_schedule": "Моё расписание"
   },
   "lessons": {
     "title": "Занятия",
@@ -1099,7 +1131,10 @@
     "light": "Светлая",
     "notifications": "Уведомления",
     "theme": "Тема",
-    "toggle_theme": "Переключить тёмную тему"
+    "toggle_theme": "Переключить тёмную тему",
+    "timezone": "Часовой пояс",
+    "timezone_hint": "Время в расписании и уроках будет показываться в выбранном поясе",
+    "timezone_saved": "Часовой пояс сохранён"
   },
   "tutor": {
     "create_course": "Создать курс",
@@ -1120,7 +1155,8 @@
     "cancel": "Отмена",
     "slot_taken": "Этот слот уже занят",
     "preferred": "Предпочитаемое расписание",
-    "message": "Сообщение"
+    "message": "Сообщение",
+    "pick_date_first": "Сначала выберите дату"
   },
   "statuses": {
     "PENDING": "Ожидает ответа",
@@ -1215,7 +1251,32 @@
     "accept_schedule": "Подтвердить расписание",
     "propose_other": "Предложить другое время",
     "view_schedule": "Смотреть расписание",
-    "review_tutor": "«{{name}}» рассматривает вашу заявку"
+    "review_tutor": "«{{name}}» рассматривает вашу заявку",
+    "event_sent_tutor": "Студент отправил заявку",
+    "event_accepted_tutor": "Вы приняли заявку",
+    "event_schedule_proposed_tutor": "Вы предложили расписание",
+    "hint_pending": "Ожидает ответа тьютора",
+    "hint_needs_info": "Тьютор запросил доп. информацию",
+    "hint_accepted": "Заявка принята — ожидается расписание",
+    "hint_schedule_pending": "Расписание ожидает подтверждения",
+    "hint_schedule_proposed": "Тьютор предложил расписание",
+    "hint_scheduled": "Расписание подтверждено",
+    "hint_pending_tutor": "Новая заявка — требуется действие",
+    "hint_needs_info_tutor": "Ожидает ответа студента",
+    "hint_accepted_tutor": "Вы приняли — назначьте расписание",
+    "hint_schedule_pending_tutor": "Расписание ожидает",
+    "hint_schedule_proposed_tutor": "Вы предложили расписание — ждём студента",
+    "hint_scheduled_tutor": "Расписание подтверждено",
+    "hint_rejected": "Заявка отклонена",
+    "hint_terminal": "Заявка закрыта",
+    "awaiting_student_confirm": "Ожидает подтверждения студента",
+    "schedule_confirmed_title": "Расписание подтверждено",
+    "proposal_title": "Предложение расписания",
+    "add_to_calendar": "Добавить в календарь",
+    "ics_description": "Урок через Okututor",
+    "open_schedule": "Открыть расписание",
+    "view_proposal": "Смотреть предложение",
+    "reject_proposal": "Отклонить"
   },
   "tutor_request": {
     "title": "Заявки",
@@ -1238,8 +1299,12 @@
     "reject_placeholder": "Укажите причину отклонения",
     "reject_confirm": "Отклонить заявку",
     "accepting": "Принятие...",
-    "message_student": "Написать ученику",
-    "schedule_negotiate": "Согласовать расписание"
+    "message_student": "Написать студенту",
+    "schedule_negotiate": "Согласовать расписание",
+    "assign_schedule": "Назначить расписание",
+    "reschedule": "Изменить расписание",
+    "empty_tab": "Ничего в этой вкладке",
+    "empty_tab_hint": "Проверьте другие вкладки"
   },
   "schedule_agreement": {
     "title": "Согласование расписания",
@@ -1295,5 +1360,49 @@
     "review_few": "{{count}} отзыва",
     "review_many": "{{count}} отзывов",
     "review_other": "{{count}} reviews"
+  },
+  "location": {
+    "place": "Место",
+    "tutor": "У тьютора",
+    "student": "У ученика",
+    "center": "Учебный центр",
+    "other": "Другое место",
+    "address": "Адрес",
+    "details": "Детали",
+    "details_placeholder": "Напр. Кабинет 305"
+  },
+  "schedule_wizard": {
+    "format": "Формат",
+    "location": "Место",
+    "days": "Дни недели",
+    "time": "Время",
+    "start_date": "Дата начала",
+    "count": "Количество занятий",
+    "duration": "Продолжительность",
+    "review": "Обзор",
+    "online_hint": "Это онлайн-занятие — будет использована ссылка для встречи.",
+    "location_required": "Для офлайн-занятий укажите место и адрес",
+    "days_required": "Выберите хотя бы один день",
+    "date_future": "Дата начала должна быть в будущем",
+    "pick_date_first": "Сначала выберите дату начала",
+    "no_availability": "Доступность ещё не настроена",
+    "pick_time": "Выберите время из доступных слотов.",
+    "success": "Расписание предложено. Другая сторона может просмотреть и подтвердить его.",
+    "view_availability": "Показать недельную доступность",
+    "no_date": "не выбран",
+    "no_slots_for_date": "На эту дату нет доступных слотов.",
+    "assign_immediately": "Назначить сразу",
+    "propose_for_confirm": "Предложить на подтверждение"
+  },
+  "needs_info": {
+    "request": "Запросить информацию",
+    "question": "Ваш вопрос",
+    "question_placeholder": "Уточните, например: какой у вас уровень подготовки?",
+    "request_sent": "Запрос отправлен ученику",
+    "provide": "Ответить тьютору",
+    "provide_title": "Дополнительная информация",
+    "provide_label": "Ваш ответ",
+    "provide_placeholder": "Напишите уточняющую информацию...",
+    "provided": "Ответ отправлен"
   }
 }
