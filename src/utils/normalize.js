@@ -49,3 +49,124 @@ export function normalizeUser(raw = {}) {
     raw,
   };
 }
+
+/**
+ * Normalize notification message from backend raw format to i18n-ready format.
+ * Backend sends raw strings like "MESSAGENew message from John" or
+ * "APPLICATION_CANCELLEDS student cancelled your course".
+ * This function extracts the type and parameters for proper i18n rendering.
+ */
+export function normalizeNotification(raw = {}) {
+  const type = raw.type || "";
+  const message = raw.message || raw.text || "";
+  const payload = raw.payload || {};
+
+  // If message already looks localized (contains spaces, not concatenated), return as-is
+  const looksLocalized = /^[A-Z_]+[a-z\s]/.test(message) || message.includes(" ");
+
+  return {
+    id: raw.id ?? raw._id ?? null,
+    type,
+    read: raw.read ?? false,
+    created_at: raw.created_at ?? raw.createdAt ?? null,
+    link: raw.link ?? null,
+    payload,
+    // Extract structured data for i18n
+    params: extractNotificationParams(type, message, payload),
+    // Fallback to raw message if we can't parse
+    rawMessage: looksLocalized ? message : null,
+  };
+}
+
+function extractNotificationParams(type, message, payload) {
+  const params = { ...payload };
+
+  // Common patterns from backend raw messages
+  switch (type) {
+    case "MESSAGE":
+    case "NEW_MESSAGE": {
+      // "MESSAGENew message from John" -> { senderName: "John" }
+      const msgMatch = message.match(/MESSAGE\s*New message from\s+(.+)/i);
+      if (msgMatch) params.senderName = msgMatch[1].trim();
+      break;
+    }
+
+    case "APPLICATION_CANCELLED": {
+      // "APPLICATION_CANCELLEDS student cancelled your course" -> { studentName: "..." }
+      const cancelMatch = message.match(/APPLICATION_CANCELLED\s*(.+?)\s+cancelled/i);
+      if (cancelMatch) params.studentName = cancelMatch[1].trim();
+      break;
+    }
+
+    case "COURSE_APPLICATION":
+      // Could contain course title, student name
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      if (payload.student_name) params.studentName = payload.student_name;
+      break;
+
+    case "APPLICATION_ACCEPTED":
+    case "APPLICATION_REJECTED":
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      if (payload.tutor_name) params.tutorName = payload.tutor_name;
+      break;
+
+    case "BOOKING_CONFIRMED":
+    case "BOOKING_CANCELLED":
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      if (payload.tutor_name) params.tutorName = payload.tutor_name;
+      if (payload.start_at) params.startAt = payload.start_at;
+      break;
+
+    case "LESSON_REMINDER":
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      if (payload.tutor_name) params.tutorName = payload.tutor_name;
+      if (payload.start_at) params.startAt = payload.start_at;
+      break;
+
+    case "NEW_REVIEW":
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      if (payload.rating) params.rating = payload.rating;
+      break;
+
+    case "TUTOR_APPROVED":
+    case "TUTOR_REJECTED":
+      if (payload.tutor_name) params.tutorName = payload.tutor_name;
+      break;
+
+    case "COURSE_APPROVED":
+    case "COURSE_REJECTED":
+      if (payload.course_title) params.courseTitle = payload.course_title;
+      break;
+
+    case "SYSTEM":
+      // System notifications might have custom messages
+      break;
+  }
+
+  return params;
+}
+
+/**
+ * Get the i18n key for a notification type
+ */
+export function getNotificationTypeKey(type) {
+  const keyMap = {
+    COURSE_APPLICATION: "notifications.types.COURSE_APPLICATION",
+    APPLICATION_ACCEPTED: "notifications.types.APPLICATION_ACCEPTED",
+    APPLICATION_REJECTED: "notifications.types.APPLICATION_REJECTED",
+    BOOKING_CONFIRMED: "notifications.types.BOOKING_CONFIRMED",
+    BOOKING_CANCELLED: "notifications.types.BOOKING_CANCELLED",
+    LESSON_REMINDER: "notifications.types.LESSON_REMINDER",
+    LESSON_CANCELLED: "notifications.types.LESSON_CANCELLED",
+    NEW_MESSAGE: "notifications.types.NEW_MESSAGE",
+    MESSAGE: "notifications.types.NEW_MESSAGE",
+    NEW_REVIEW: "notifications.types.NEW_REVIEW",
+    TUTOR_APPROVED: "notifications.types.TUTOR_APPROVED",
+    TUTOR_REJECTED: "notifications.types.TUTOR_REJECTED",
+    COURSE_APPROVED: "notifications.types.COURSE_APPROVED",
+    COURSE_REJECTED: "notifications.types.COURSE_REJECTED",
+    APPLICATION_CANCELLED: "notifications.types.APPLICATION_CANCELLED",
+    SYSTEM: "notifications.types.SYSTEM",
+  };
+  return keyMap[type] || `notifications.types.${type}`;
+}

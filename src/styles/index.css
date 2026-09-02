@@ -761,6 +761,82 @@ input[type="checkbox"]:focus-visible {
   margin-bottom: var(--space-4);
 }
 
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-4);
+  opacity: 0.6;
+}
+
+.empty-state-hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.empty-state-action {
+  margin-top: var(--space-4);
+}
+
+.empty-state-action .btn {
+  width: auto;
+  min-width: 200px;
+}
+
+/* Empty State Variants */
+.empty-state--schedule .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, var(--color-primary-soft) 0%, var(--color-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-state--lessons .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, var(--color-success) 0%, #16a34a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-state--courses .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, var(--color-warning) 0%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-state--tutors .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, var(--color-info) 0%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-state--messages .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.empty-state--search .empty-state-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-state--profile .empty-state-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* ===== SKIP NAV (Accessibility) ===== */
 .skip-nav {
   position: absolute;
@@ -819,6 +895,148 @@ input[type="checkbox"]:focus-visible {
 .skeleton-image {
   width: 100%;
   aspect-ratio: 16/9;
+  border-radius: var(--radius-md);
+}
+
+/* ===== SPECIALIZED SKELETON VARIANTS ===== */
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: var(--space-5);
+}
+
+.skeleton-tutor-card,
+.skeleton-course-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-tags {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.skeleton-tag {
+  height: 24px;
+  min-width: 60px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-lesson-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-border);
+}
+
+.skeleton-lesson-time {
+  width: 80px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-lesson-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-lesson-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.skeleton-badge {
+  width: 80px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-btn {
+  width: 100px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+.skeleton-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.skeleton-stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+}
+
+.skeleton-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Schedule Skeleton */
+.schedule-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.schedule-skeleton.compact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.skeleton-cell {
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, var(--color-surface-secondary) 25%, var(--color-surface-hover) 50%, var(--color-surface-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
   border-radius: var(--radius-md);
 }
 

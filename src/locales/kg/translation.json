@@ -777,7 +777,33 @@
       "APPLICATION_REJECTED": "Өтүнмө четке кагылды",
       "BOOKING_CONFIRMED": "Жазылуу ырасталды",
       "BOOKING_CANCELLED": "Жазылуу жокко чыгарылды",
+      "LESSON_REMINDER": "Сабак тууралуу эскеритирүү",
+      "LESSON_CANCELLED": "Сабак жокко чыгарылды",
+      "NEW_MESSAGE": "Жаңы месеж",
+      "NEW_REVIEW": "Жаңы пикир",
+      "TUTOR_APPROVED": "Мугалим макулданды",
+      "TUTOR_REJECTED": "Мугалим чекке кагылды",
+      "COURSE_APPROVED": "Курс жарыялды",
+      "COURSE_REJECTED": "Курс чекке кагылды",
+      "APPLICATION_CANCELLED": "Өтүнмө жокко чыгарылды",
       "SYSTEM": "Системалык билдирүү"
+    },
+    "messages": {
+      "COURSE_APPLICATION": "{{studentName}} «{{courseTitle}}» курска өтүнмө жөнөтүшү",
+      "APPLICATION_ACCEPTED": "Сиздин «{{courseTitle}}» курска өтүнүңүз кабыл алынды",
+      "APPLICATION_REJECTED": "Сиздин «{{courseTitle}}» курска өтүнүңүз чекке кагылды",
+      "BOOKING_CONFIRMED": "«{{courseTitle}}» курска жазылуу ырасталды",
+      "BOOKING_CANCELLED": "«{{courseTitle}}» курска жазылуу жокко чыгарылды",
+      "LESSON_REMINDER": "«{{courseTitle}}» сабагы {{tutorName}} билан 15 мүнөт ичинде башталат",
+      "LESSON_CANCELLED": "«{{courseTitle}}» сабагы {{tutorName}} билан жокко чыгарылды",
+      "NEW_MESSAGE": "{{senderName}}: {{preview}}",
+      "NEW_REVIEW": "«{{courseTitle}}» курсуна жаңы пикир ({{rating}}/5)",
+      "TUTOR_APPROVED": "Мугалим {{tutorName}} макулданды",
+      "TUTOR_REJECTED": "Мугалим {{tutorName}} чекке кагылды",
+      "COURSE_APPROVED": "«{{courseTitle}}» курсу жарыялды",
+      "COURSE_REJECTED": "«{{courseTitle}}» курсу чекке кагылды",
+      "APPLICATION_CANCELLED": "{{studentName}} «{{courseTitle}}» курска өтүнү жокко чыгарды",
+      "SYSTEM": "{{message}}"
     }
   },
   "admin": {

@@ -4,15 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { usePageTitle } from "../components/pageTitleContext";
 import { notificationsApi } from "../api/messages.api";
 import { Spinner, EmptyState, ErrorState, Badge } from "../components/ui/Primitives";
-
-const typeKeys = {
-  COURSE_APPLICATION: "notifications.types.COURSE_APPLICATION",
-  APPLICATION_ACCEPTED: "notifications.types.APPLICATION_ACCEPTED",
-  APPLICATION_REJECTED: "notifications.types.APPLICATION_REJECTED",
-  BOOKING_CONFIRMED: "notifications.types.BOOKING_CONFIRMED",
-  BOOKING_CANCELLED: "notifications.types.BOOKING_CANCELLED",
-  SYSTEM: "notifications.types.SYSTEM",
-};
+import { normalizeNotification, getNotificationTypeKey } from "../utils/normalize";
 
 export default function PgNotifications() {
   const { t, i18n } = useTranslation();
@@ -29,8 +21,13 @@ export default function PgNotifications() {
     setError("");
     try {
       const { response, data } = await notificationsApi.list();
-      if (response.ok) setItems(Array.isArray(data) ? data : data.content || []);
-      else setError(data.message || data.error || t("common.error", "Error"));
+      if (response.ok) {
+        const rawItems = Array.isArray(data) ? data : data.content || [];
+        // Normalize notifications for proper i18n rendering
+        setItems(rawItems.map(normalizeNotification));
+      } else {
+        setError(data.message || data.error || t("common.error", "Error"));
+      }
     } catch (e) {
       setError(e.message || t("errors.default", "Something went wrong"));
     } finally {
@@ -73,25 +70,40 @@ export default function PgNotifications() {
     }
   };
 
-  const formatScheduledAt = (n) => {
-    const raw = n.payload?.scheduled_at || n.scheduled_at;
-    if (!raw) return null;
+  const formatDate = (dateStr) => {
+    if (!dateStr) return null;
     try {
-      const d = new Date(raw);
-      return d.toLocaleString(i18n.language);
+      const d = new Date(dateStr);
+      return d.toLocaleString(i18n.language, {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } catch {
-      return raw;
+      return dateStr;
     }
   };
 
-  const renderTitle = (n) => {
-    const typeLabel = typeKeys[n.type] ? t(typeKeys[n.type]) : n.type;
+  const renderNotificationContent = (n) => {
+    // Use normalized params for i18n message template
+    const typeKey = getNotificationTypeKey(n.type);
+    const messageKey = `notifications.messages.${n.type}`;
+    const hasTemplate = t(messageKey, { defaultValue: messageKey }) !== messageKey;
+
+    if (hasTemplate && n.params) {
+      // Render using i18n template with interpolated params
+      return t(messageKey, n.params);
+    }
+
+    // Fallback: show type label + raw message if available
     return (
       <>
-        <span className="notification-type">{typeLabel}</span>
-        {n.message && <span className="notification-message">{n.message || n.text}</span>}
-        {formatScheduledAt(n) && (
-          <span className="notification-date">{formatScheduledAt(n)}</span>
+        <span className="notification-type">{t(typeKey, n.type)}</span>
+        {n.rawMessage && <span className="notification-message">{n.rawMessage}</span>}
+        {n.payload?.scheduled_at && (
+          <span className="notification-date">{formatDate(n.payload.scheduled_at)}</span>
         )}
       </>
     );
@@ -117,11 +129,9 @@ export default function PgNotifications() {
           {items.map((n) => (
             <li key={n.id} className={`notification-item ${n.read ? "" : "unread"}`}>
               <div className="notification-body">
-                {renderTitle(n)}
+                {renderNotificationContent(n)}
                 {n.created_at && (
-                  <span className="notification-date">
-                    {new Date(n.created_at).toLocaleString(i18n.language)}
-                  </span>
+                  <span className="notification-date">{formatDate(n.created_at)}</span>
                 )}
               </div>
               {!n.read && <Badge status="NEW" />}

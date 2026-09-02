@@ -784,7 +784,33 @@
       "APPLICATION_REJECTED": "Application rejected",
       "BOOKING_CONFIRMED": "Booking confirmed",
       "BOOKING_CANCELLED": "Booking cancelled",
+      "LESSON_REMINDER": "Lesson reminder",
+      "LESSON_CANCELLED": "Lesson cancelled",
+      "NEW_MESSAGE": "New message",
+      "NEW_REVIEW": "New review",
+      "TUTOR_APPROVED": "Tutor approved",
+      "TUTOR_REJECTED": "Tutor rejected",
+      "COURSE_APPROVED": "Course approved",
+      "COURSE_REJECTED": "Course rejected",
+      "APPLICATION_CANCELLED": "Application cancelled",
       "SYSTEM": "System notification"
+    },
+    "messages": {
+      "COURSE_APPLICATION": "{{studentName}} applied to course «{{courseTitle}}»",
+      "APPLICATION_ACCEPTED": "Your application to «{{courseTitle}}» was accepted",
+      "APPLICATION_REJECTED": "Your application to «{{courseTitle}}» was rejected",
+      "BOOKING_CONFIRMED": "Booking for «{{courseTitle}}» confirmed",
+      "BOOKING_CANCELLED": "Booking for «{{courseTitle}}» cancelled",
+      "LESSON_REMINDER": "Lesson «{{courseTitle}}» with {{tutorName}} starts in 15 minutes",
+      "LESSON_CANCELLED": "Lesson «{{courseTitle}}» with {{tutorName}} cancelled",
+      "NEW_MESSAGE": "{{senderName}}: {{preview}}",
+      "NEW_REVIEW": "New review for «{{courseTitle}}» ({{rating}}/5)",
+      "TUTOR_APPROVED": "Tutor {{tutorName}} approved",
+      "TUTOR_REJECTED": "Tutor {{tutorName}} rejected",
+      "COURSE_APPROVED": "Course «{{courseTitle}}» published",
+      "COURSE_REJECTED": "Course «{{courseTitle}}» rejected",
+      "APPLICATION_CANCELLED": "{{studentName}} cancelled application to «{{courseTitle}}»",
+      "SYSTEM": "{{message}}"
     }
   },
   "admin": {

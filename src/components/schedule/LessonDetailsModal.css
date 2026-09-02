@@ -1,0 +1,282 @@
+/* LessonDetailsModal — Full lesson details with actions */
+
+.lesson-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lesson-modal-box {
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--color-surface, #fff);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-5);
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.lesson-modal-close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--color-surface-alt, #fafafa);
+  color: var(--color-text-secondary, #4a5568);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.lesson-modal-close:hover {
+  background: var(--color-surface-hover, #edf2f7);
+  color: var(--color-text, #1a202c);
+}
+
+.lesson-modal-close:focus-visible {
+  outline: 2px solid var(--color-primary, #3182ce);
+  outline-offset: 2px;
+}
+
+.lesson-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.lesson-modal-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text, #1a202c);
+  line-height: 1.3;
+}
+
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--color-status-in-progress, #3b82f6);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold, 700);
+  border-radius: 999px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.lesson-modal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface-alt, #fafafa);
+  border-radius: var(--radius-lg, 12px);
+  margin-bottom: var(--space-4);
+}
+
+.lesson-modal-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.meta-icon {
+  font-size: var(--font-size-base);
+  width: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.meta-label {
+  flex: 0 0 100px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #4a5568);
+}
+
+.meta-value {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text, #1a202c);
+  word-break: break-word;
+}
+
+.tutor-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-primary-soft, #ebf8ff);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-primary, #3182ce);
+  font-size: var(--font-size-xs);
+  margin-right: var(--space-2);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tutor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lesson-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.lesson-modal-join {
+  height: 48px;
+  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-base);
+}
+
+.lesson-modal-confirm,
+.lesson-modal-reschedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.lesson-modal-confirm h3,
+.lesson-modal-reschedule h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text, #1a202c);
+}
+
+.lesson-modal-confirm p,
+.lesson-modal-reschedule p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary, #4a5568);
+}
+
+.reschedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-field label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text, #1a202c);
+}
+
+.form-field input {
+  height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border, #cbd5e0);
+  background: var(--color-surface, #fff);
+  color: var(--color-text, #1a202c);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md, 8px);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--color-primary, #3182ce);
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+}
+
+.lesson-modal-confirm-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.lesson-modal-confirm-actions .btn-secondary,
+.lesson-modal-confirm-actions .btn-danger,
+.lesson-modal-confirm-actions .btn-primary {
+  flex: 1;
+  height: 44px;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold, 600);
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.status-scheduled { background: var(--color-status-confirmed, #22c55e); color: #fff; }
+.status-in-progress { background: var(--color-status-in-progress, #3b82f6); color: #fff; }
+.status-pending-confirmation { background: var(--color-status-pending, #eab308); color: #fff; }
+.status-schedule-negotiation { background: var(--color-status-negotiation, #a855f7); color: #fff; }
+.status-completed { background: var(--color-status-completed, #71717a); color: #fff; }
+.status-cancelled { background: var(--color-status-cancelled, #ef4444); color: #fff; }
+.status-rescheduled { background: var(--color-status-rescheduled, #06b6d4); color: #fff; }
+.status-application { background: var(--color-status-application, #8b5cf6); color: #fff; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .lesson-modal-box {
+    max-height: 100vh;
+    border-radius: 0;
+    height: 100%;
+    max-width: none;
+  }
+
+  .lesson-modal-meta {
+    padding: var(--space-3);
+  }
+
+  .meta-label {
+    flex: 0 0 80px;
+    font-size: var(--font-size-xs);
+  }
+
+  .meta-value {
+    font-size: var(--font-size-sm);
+  }
+}

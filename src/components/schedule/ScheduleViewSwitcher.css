@@ -1,0 +1,65 @@
+/* ScheduleViewSwitcher — Segmented control for day/week/month */
+
+.schedule-view-switcher {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 2px;
+}
+
+.view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, #4a5568);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium, 500);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.view-btn:hover:not(.active) {
+  background: var(--color-surface-hover, #edf2f7);
+  color: var(--color-text, #1a202c);
+}
+
+.view-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #3182ce);
+  outline-offset: 2px;
+}
+
+.view-btn.active {
+  background: var(--color-primary, #3182ce);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.view-btn-icon {
+  font-size: var(--font-size-base);
+}
+
+.view-btn-label {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .view-btn-label {
+    display: inline;
+  }
+}
+
+/* Mobile: icon-only */
+@media (max-width: 479px) {
+  .view-btn {
+    padding: var(--space-2);
+    min-width: 44px;
+    justify-content: center;
+  }
+}

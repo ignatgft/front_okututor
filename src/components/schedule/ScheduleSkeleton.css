@@ -1,0 +1,125 @@
+/* ScheduleSkeleton — Loading placeholders */
+
+.schedule-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.schedule-skeleton.compact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.skeleton-cell {
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md, 8px);
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+}
+
+.skeleton-card-time {
+  height: 24px;
+  width: 80px;
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.skeleton-card-title {
+  height: 24px;
+  width: 60%;
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-tutor {
+  height: 20px;
+  width: 40%;
+  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-format {
+  height: 16px;
+  width: 80px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border, #e2e8f0);
+}
+
+.skeleton-badge {
+  height: 20px;
+  width: 80px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-btn {
+  height: 36px;
+  width: 100px;
+  border-radius: var(--radius-md, 8px);
+  background: linear-gradient(90deg, var(--color-surface-alt, #fafafa) 25%, var(--color-surface-hover, #edf2f7) 50%, var(--color-surface-alt, #fafafa) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-cell,
+  .skeleton-card-time,
+  .skeleton-card-title,
+  .skeleton-card-tutor,
+  .skeleton-card-format,
+  .skeleton-badge,
+  .skeleton-btn {
+    animation: none;
+    background: var(--color-surface-hover, #edf2f7);
+  }
+}

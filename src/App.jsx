@@ -41,7 +41,7 @@ const PgLesson = Lazy(() => import("./pages/PgLesson"));
 const PgTutorProfile = Lazy(() => import("./pages/PgTutorProfile"));
 const PgAdmin = Lazy(() => import("./pages/PgAdmin"));
 const PgAdminUsers = Lazy(() => import("./pages/PgAdminUsers"));
-const PgSchedule = Lazy(() => import("./pages/PgSchedule"));
+const PgSchedule = Lazy(() => import("./pages/Schedule/SchedulePage"));
 const PgProgress = Lazy(() => import("./pages/PgProgress"));
 const PgMessages = Lazy(() => import("./pages/PgMessages"));
 const PgSettings = Lazy(() => import("./pages/PgSettings"));

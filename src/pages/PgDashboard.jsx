@@ -12,6 +12,7 @@ import { useToast } from "../components/ui/Toast";
 import { studentsApi } from "../api/students.api";
 import { ENROLLMENT_STATUS } from "../constants/enums";
 import { enrollmentStatusLabel } from "../utils/statusLabels";
+import { NextLessonCard, ActionRequiredBlock } from "../components/schedule";
 import "../styles/Dashboard.css";
 
 export default function PgDashboard() {
@@ -160,43 +161,83 @@ export default function PgDashboard() {
     [bookings]
   );
 
+  // Convert upcomingBooking to LessonDTO format for NextLessonCard
+  const nextLesson = useMemo(() => {
+    if (!upcomingBooking) return null;
+    return {
+      id: upcomingBooking.id,
+      courseId: upcomingBooking.course_id,
+      courseTitle: upcomingBooking.course_title,
+      tutorId: upcomingBooking.teacher_id,
+      tutorName: upcomingBooking.teacher_name,
+      tutorAvatar: upcomingBooking.teacher_avatar,
+      studentId: user?.id,
+      startAt: upcomingBooking.start_at,
+      endAt: upcomingBooking.end_at,
+      timezone: user?.timezone || "UTC",
+      status: "SCHEDULED",
+      statusLabel: t("statuses.scheduled", "Scheduled"),
+      format: "ONLINE",
+      canJoin: joinableId === upcomingBooking.id,
+      canCancel: true,
+      canReschedule: false,
+      canReview: false,
+      createdAt: upcomingBooking.created_at,
+      updatedAt: upcomingBooking.updated_at,
+    };
+  }, [upcomingBooking, user?.id, user?.timezone, joinableId, t]);
+
+  // Mock actions for now - in real app these would come from API
+  const actions = useMemo(() => {
+    // Filter enrollments that need action
+    return enrollments
+      .filter((e) =>
+        e.status === ENROLLMENT_STATUS.SCHEDULE_PENDING ||
+        e.status === ENROLLMENT_STATUS.SCHEDULE_PROPOSED ||
+        e.status === ENROLLMENT_STATUS.PENDING
+      )
+      .slice(0, 3)
+      .map((e) => ({
+        id: e.id,
+        type: "SCHEDULE_NEGOTIATION",
+        title: t("schedule.action.negotiation", "Согласовать расписание"),
+        description: t("schedule.action.negotiation_desc", "{{tutor}} предложил время для {{course}}", { tutor: e.teacher_name || "Тьютор", course: e.course_title || "Курс" }),
+        courseId: e.course_id,
+        courseTitle: e.course_title,
+        tutorId: e.teacher_id,
+        tutorName: e.teacher_name,
+        tutorAvatar: e.teacher_avatar,
+        primaryAction: { label: t("schedule.action.confirm", "Подтвердить"), endpoint: `/api/v1/enrollments/${e.id}/confirm`, method: "POST", variant: "primary" },
+        secondaryAction: { label: t("schedule.action.view", "Открыть"), endpoint: `/student/requests/${e.id}`, method: "GET", variant: "secondary" },
+        createdAt: e.created_at,
+      }));
+  }, [enrollments, t]);
+
   return (
     <>
       <div className="dashboard-greeting">
         <h2>{t("dashboard.greeting", "Hello, {{name}}", { name: user?.full_name?.split(" ")[0] || "" })}</h2>
       </div>
 
-      {loading && (
-        <div className="upcoming-lesson-card">
-          <Skeleton count={1} className="skeleton-card" />
-        </div>
-      )}
+      {/* NEXT LESSON CARD */}
+      <NextLessonCard
+        lesson={nextLesson}
+        onJoin={joinLesson}
+        onViewDetails={(lesson) => navigate(`/lesson/${lesson.id}`)}
+      />
 
-      {!loading && upcomingBooking && (
-        <div className="upcoming-lesson-card">
-          <div className="upcoming-lesson-info">
-            <span className="upcoming-lesson-label">{t("dashboard.upcoming_lesson", "Upcoming lesson")}</span>
-            <h3>{upcomingBooking.course_title}</h3>
-            <p>{t("course.tutor", "Tutor")}: {upcomingBooking.teacher_name}</p>
-            <p className="booking-time">
-              {new Date(upcomingBooking.start_at).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric"})}
-              {" "}
-              {new Date(upcomingBooking.start_at).toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
-            </p>
-            <p className="booking-countdown">
-              {formatCountdown(upcomingBooking.start_at, now, t)}
-            </p>
-          </div>
-          <button
-            className="btn-primary"
-            onClick={() => joinLesson(upcomingBooking.id)}
-            disabled={joinableId !== upcomingBooking.id}
-            aria-disabled={joinableId !== upcomingBooking.id}
-          >
-            {t("dashboard.join_lesson", "Join Lesson")}
-          </button>
-        </div>
-      )}
+      {/* ACTION REQUIRED BLOCK */}
+      <ActionRequiredBlock
+        actions={actions}
+        onActionClick={(action) => {
+          if (action.method === "GET") {
+            navigate(action.endpoint);
+          } else {
+            // For POST actions, we'd call the API
+            console.log("Action:", action);
+          }
+        }}
+      />
 
       {!loading && myTutors.length > 0 && (
         <div className="pending-section">
@@ -352,21 +393,4 @@ export default function PgDashboard() {
       />
     </>
   );
-}
-
-function formatCountdown(startAt, now, t) {
-  const diff = new Date(startAt).getTime() - now;
-  if (diff <= 0) {
-    return t("dashboard.lesson_in_progress", "Lesson is starting / in progress");
-  }
-  const mins = Math.floor(diff / 60000);
-  const days = Math.floor(mins / 1440);
-  const hours = Math.floor((mins % 1440) / 60);
-  const minutes = mins % 60;
-  const seconds = Math.floor((diff % 60000) / 1000);
-  const opts = { days, hours, minutes, seconds };
-  if (days > 0) return t("dashboard.countdown_days", "in {{days}}d {{hours}}h {{minutes}}m", opts);
-  if (hours > 0) return t("dashboard.countdown_hours", "in {{hours}}h {{minutes}}m {{seconds}}s", opts);
-  if (minutes > 0) return t("dashboard.countdown_minutes", "in {{minutes}}m {{seconds}}s", opts);
-  return t("dashboard.countdown_seconds", "in {{seconds}}s", opts);
 }
