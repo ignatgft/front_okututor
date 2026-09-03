@@ -4,7 +4,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  box-sizing:border-box;
 }
+.week-view *{min-width:0;box-sizing:border-box}
 
 .week-view-header {
   display: flex;
@@ -28,6 +34,9 @@
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: var(--radius-xl, 16px);
   overflow: hidden;
+  min-width:0;
+  width:100%;
+  max-width:100%;
 }
 
 /* Weekday headers */
@@ -250,13 +259,18 @@
   }
 }
 
-/* Tablet: 7 columns but with horizontal scroll if needed */
+/* Tablet: allow horizontal scroll inside grid without body overflow */
 @media (min-width: 769px) and (max-width: 1024px) {
   .week-view-grid {
-    overflow-x: auto;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    max-width:100%;
   }
-
   .week-view-days {
-    min-width: 700px;
+    min-width:640px;
   }
+}
+@media (max-width: 360px){
+  .week-view-day-header{padding:var(--space-2) var(--space-3)}
+  .week-view-day-number{font-size:var(--font-size-base)}
 }

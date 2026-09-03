@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/calendar-picker.css";
 
 const DAY_NAMES = [
@@ -128,11 +128,11 @@ export function CalendarPicker({
 
           <div className="calendar-head">
             <button type="button" className="calendar-nav" onClick={() => shiftMonth(-1)} aria-label={t("calendar.prev_month", "Previous month")}>
-              <IoChevronBack />
+              <ChevronLeft size={18} />
             </button>
             <span className="calendar-month-label">{capitalize(monthLabel)}</span>
             <button type="button" className="calendar-nav" onClick={() => shiftMonth(1)} aria-label={t("calendar.next_month", "Next month")}>
-              <IoChevronForward />
+              <ChevronRight size={18} />
             </button>
           </div>
 

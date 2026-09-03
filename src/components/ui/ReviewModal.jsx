@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
+import { Star } from "lucide-react";
 import { reviewsApi } from "../../api/reviews.api";
 
 const ReviewModal = ({ isOpen, booking, onClose, onSubmitted }) => {
@@ -80,7 +80,7 @@ const ReviewModal = ({ isOpen, booking, onClose, onSubmitted }) => {
                 aria-checked={rating === value}
                 aria-label={`${t("review.rating_label", "Rating")}: ${value}`}
               >
-                {value <= rating ? <AiFillStar color="#ffd700" size={28} /> : <AiOutlineStar color="#ffd700" size={28} />}
+                {value <= rating ? <Star color="#ffd700" fill="#ffd700" size={28} /> : <Star color="#ffd700" size={28} />}
               </button>
             ))}
           </div>

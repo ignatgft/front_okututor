@@ -6,10 +6,13 @@ import { apiClient } from "../../api/http";
 import { endpoints } from "../../api/endpoints";
 import ConfirmModal from "../ui/ConfirmModal";
 import { resolveLessonJoinError } from "./lessonErrors";
+import useAuthStore from "../../store/authStore";
+import { ROLES } from "../../constants/roles";
 
 export default function LessonRoom({ bookingId }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
   const [room, setRoom] = useState(null);
   const [connected, setConnected] = useState(false);
   const [connectionState, setConnectionState] = useState("connecting");
@@ -70,6 +73,29 @@ export default function LessonRoom({ bookingId }) {
   const joinRoom = async () => {
     try {
       setConnectionState("connecting");
+      // --- P1 guard: role + lesson status before requesting LiveKit token ---
+      const role = user?.role;
+      if (!role || ![ROLES.STUDENT, ROLES.TUTOR].includes(role)) {
+        throw { status: 403, message: t("lesson.forbidden_role", "You do not have permission to join this lesson") };
+      }
+      // optional: validate booking/lesson is in joinable state (best effort, don't block on network error)
+      try {
+        const { response: bkRes, data: bkData } = await apiClient.get(endpoints.bookings.byId(bookingId));
+        if (bkRes.ok && bkData) {
+          const s = String(bkData.status || bkData.state || bkData.lesson_status || "").toUpperCase();
+          const blocked = ["CANCELLED", "REJECTED", "EXPIRED", "COMPLETED", "CANCELLED_BY_STUDENT", "CANCELLED_BY_TUTOR"];
+          if (blocked.includes(s)) {
+            throw { status: 403, message: t("lesson.not_joinable_status", "This lesson cannot be joined in its current status") };
+          }
+        } else if (bkRes.status === 403 || bkRes.status === 404) {
+          throw { status: bkRes.status };
+        }
+      } catch (guardErr) {
+        // if guard itself threw 403, propagate; otherwise ignore network errors and continue to token request
+        if (guardErr?.status === 403 || guardErr?.status === 404) throw guardErr;
+        // network/timeout during guard should not block join attempt
+      }
+
       const { response, data } = await apiClient.post(endpoints.meetings.token(bookingId));
       if (!response.ok) {
         console.error(

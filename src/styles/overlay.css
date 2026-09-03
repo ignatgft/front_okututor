@@ -28,7 +28,8 @@
 .modal-panel {
   position: relative;
   width: calc(100% - var(--space-8));
-  max-height: min(90vh, 640px);
+  max-height: min(90dvh, 640px);
+  max-height: min(90dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px), 640px);
   background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
@@ -76,15 +77,20 @@
 .modal-body {
   padding: var(--space-6);
   overflow-y: auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  padding-bottom: max(var(--space-6), env(safe-area-inset-bottom,0px));
 }
 
 .modal-footer {
   padding: var(--space-4) var(--space-6);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom,0px));
   border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
   background: var(--color-surface);
+  flex-shrink:0;
 }
 
 /* Drawer */
@@ -124,11 +130,13 @@
   /* Modal becomes a full-height bottom sheet on phones (spec §61) */
   .overlay-root {
     align-items: flex-end;
+    padding-bottom: env(safe-area-inset-bottom,0px);
   }
 
   .modal-panel {
     width: 100%;
-    max-height: 100vh;
+    max-height: min(92dvh, 100dvh - env(safe-area-inset-top,0px));
+    max-height: min(92dvh - env(safe-area-inset-bottom,0px), 100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
     max-width: none;
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     animation: slideUp var(--transition-base);
@@ -136,6 +144,10 @@
 
   .drawer-panel {
     width: 100%;
+  }
+  /* ensure footer buttons stay above keyboard / safe area */
+  .modal-footer, .app-wizard-footer, .schedule-wizard-actions {
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom,0px));
   }
 }
 

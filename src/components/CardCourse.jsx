@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { FaStarHalfAlt } from "react-icons/fa";
+import { Star, StarHalf } from "lucide-react";
 import "../styles/CardCourse.css";
 
 const getDefaultAvatar = (name) => {
@@ -33,11 +32,11 @@ const CardCourse = ({ course }) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       if (i <= Math.floor(r)) {
-        stars.push(<AiFillStar key={i} color="#ffd700" size={12} aria-hidden="true" />);
+        stars.push(<Star key={i} size={12} color="#ffd700" fill="#ffd700" aria-hidden="true" />);
       } else if (i - 0.5 <= r) {
-        stars.push(<FaStarHalfAlt key={i} color="#ffd700" size={12} aria-hidden="true" />);
+        stars.push(<StarHalf key={i} size={12} color="#ffd700" fill="#ffd700" aria-hidden="true" />);
       } else {
-        stars.push(<AiOutlineStar key={i} color="#ffd700" size={12} aria-hidden="true" />);
+        stars.push(<Star key={i} size={12} color="#ffd700" aria-hidden="true" />);
       }
     }
     return <div className="card-star-rating" aria-hidden="true">{stars}</div>;

@@ -109,6 +109,7 @@ export default function PgStudentRequests() {
               </Link>
               <div className="booking-actions">
                 <Badge status={e2.status}>{enrollmentStatusLabel(e2.status, t)}</Badge>
+                <span className="status-hint" style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", display: "block", marginTop: 4 }}>{t(`status_hint.${e2.status}`, "")}</span>
                 <Link to={`/student/requests/${e2.id}`} className="btn-secondary">
                   {t("request_detail.view_schedule", "View details")}
                 </Link>

@@ -97,9 +97,19 @@
   transition: all var(--transition-fast);
 }
 
-/* Mobile bottom padding for BottomNav */
+/* Mobile bottom padding for BottomNav — only when bottom nav is actually visible.
+   DashboardLayout adds class .has-bottom-nav via JS when route requires it.
+   Fallback: on mobile assume padding, but override when explicitly no-bottom-nav. */
 .dashboard-content-area {
-  padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + var(--space-6));
+  padding-bottom: var(--space-4);
+}
+@media (max-width: 767px) {
+  .dashboard-layout.has-bottom-nav .dashboard-content-area {
+    padding-bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + var(--space-6));
+  }
+  .dashboard-layout:not(.has-bottom-nav) .dashboard-content-area {
+    padding-bottom: var(--space-4);
+  }
 }
 
 /* Extra safety: any page that uses fixed bottom content */

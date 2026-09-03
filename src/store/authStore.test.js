@@ -68,10 +68,14 @@ describe("authStore state machine", () => {
     await useAuthStore.getState().init();
 
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
-    expect(useAuthStore.getState().status).toBe(AUTH_STATUS.UNAUTHENTICATED);
+    // P0 fix: network/timeout/server errors must NOT set UNAUTHENTICATED nor clear tokens — use OFFLINE instead
+    expect(useAuthStore.getState().status).toBe(AUTH_STATUS.OFFLINE);
     // tokens must NOT be cleared on network failure
     expect(sessionStorage.getItem("access_token")).toBe("tok");
     expect(sessionStorage.getItem("refresh_token")).toBe("rtok");
+    expect(useAuthStore.getState().initError).toBeTruthy();
+    // retry should be possible
+    expect(typeof useAuthStore.getState().retryInit).toBe("function");
   });
 
   it("logout clears tokens and returns to unauthenticated status", async () => {
@@ -104,5 +108,6 @@ describe("authStore state machine", () => {
     expect(AUTH_STATUS.INITIALIZING).toBe("initializing");
     expect(AUTH_STATUS.AUTHENTICATED).toBe("authenticated");
     expect(AUTH_STATUS.UNAUTHENTICATED).toBe("unauthenticated");
+    expect(AUTH_STATUS.OFFLINE).toBe("offline");
   });
 });

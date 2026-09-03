@@ -5,8 +5,7 @@ import { useUIStore } from "../store/uiStore";
 import { endpoints } from "../api/endpoints";
 import { apiClient } from "../api/http";
 import { useTranslation } from "react-i18next";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import { FaStarHalfAlt } from "react-icons/fa";
+import { Star, StarHalf } from "lucide-react";
 import ConfirmModal from "./ui/ConfirmModal";
 import { Spinner, ErrorState, EmptyState } from "./ui/Primitives";
 import ApplicationWizard from "./course/ApplicationWizard";
@@ -185,10 +184,11 @@ const CourseView = () => {
     for (let i = 0; i < fullStars; i++) {
       const value = i + 1;
       stars.push(
-        <AiFillStar
+        <Star
           key={`full-${starIndex++}`}
-          color="#ffd700"
           size={16}
+          color="#ffd700"
+          fill="#ffd700"
           onClick={isInteractive ? () => handleStarClick(value) : undefined}
           className={isInteractive ? "interactive-star" : ""}
         />
@@ -197,10 +197,11 @@ const CourseView = () => {
     if (hasHalfStar) {
       const value = fullStars + 1;
       stars.push(
-        <FaStarHalfAlt
+        <StarHalf
           key={`half-${starIndex++}`}
-          color="#ffd700"
           size={16}
+          color="#ffd700"
+          fill="#ffd700"
           onClick={isInteractive ? () => handleStarClick(value) : undefined}
           className={isInteractive ? "interactive-star" : ""}
         />
@@ -209,10 +210,10 @@ const CourseView = () => {
     for (let i = 0; i < emptyStars; i++) {
       const value = fullStars + (hasHalfStar ? 1 : 0) + i + 1;
       stars.push(
-        <AiOutlineStar
+        <Star
           key={`empty-${starIndex++}`}
-          color="#ffd700"
           size={16}
+          color="#ffd700"
           onClick={isInteractive ? () => handleStarClick(value) : undefined}
           className={isInteractive ? "interactive-star" : ""}
         />

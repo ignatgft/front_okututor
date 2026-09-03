@@ -2,9 +2,10 @@
 .tg-page{
   display:flex;
   flex-direction:column;
-  height:calc(100dvh - 56px - var(--bottom-nav-height,64px) - env(safe-area-inset-bottom,0px));
-  min-height:420px;
-  max-height:calc(100dvh - 56px - var(--bottom-nav-height,64px) - env(safe-area-inset-bottom,0px));
+  /* mobile: full viewport minus header + bottom nav + safe area; uses dvh for keyboard-aware sizing */
+  height:calc(100dvh - var(--header-height,56px) - var(--bottom-nav-height,64px) - env(safe-area-inset-bottom,0px));
+  max-height:calc(100dvh - var(--header-height,56px) - var(--bottom-nav-height,64px) - env(safe-area-inset-bottom,0px));
+  min-height:0;
   background:var(--color-bg);
   border:1px solid var(--color-border);
   border-radius:var(--radius-lg);
@@ -13,13 +14,15 @@
   width:calc(100% + 2 * var(--space-4));
   box-sizing:border-box;
 }
-.tg-page *{box-sizing:border-box}
+.tg-page *{box-sizing:border-box;min-width:0}
 /* Parent override — let tg-page fill without double padding */
 .dashboard-content-area:has(.tg-page){
   padding:0 !important;
   display:flex;
   flex-direction:column;
   min-height:0;
+  /* ensure content area itself doesn't add extra bottom padding when messages is active */
+  padding-bottom:0 !important;
 }
 .tg-center{display:flex;align-items:center;justify-content:center;padding:24px}
 .tg-hint{color:var(--color-text-muted);font-size:var(--font-size-sm)}
@@ -403,7 +406,7 @@
     grid-template-rows:1fr;
     height:100%;
     max-height:100%;
-    min-height:560px;
+    min-height:0;
     margin:0;
     width:100%;
     border-radius:var(--radius-lg);
@@ -418,7 +421,23 @@
 }
 /* Small mobile fixes */
 @media(max-width:767px){
-  .tg-page{border-radius:0}
+  .tg-page{
+    border-radius:0;
+    margin:0;
+    width:100%;
+    /* keep dvh calculation, ensure no 420px min-height */
+    min-height:0;
+  }
+}
+@media (orientation: landscape) and (max-height: 520px){
+  /* keyboard + landscape: don't force header+nav subtraction if viewport very short */
+  .tg-page{
+    height:100dvh;
+    max-height:100dvh;
+  }
+  .tg-composer{
+    padding-bottom:4px;
+  }
 }
 @media(max-width:480px){
   .tg-composer{padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));gap:6px}

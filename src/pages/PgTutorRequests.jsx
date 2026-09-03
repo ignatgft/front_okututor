@@ -97,6 +97,7 @@ export default function PgTutorRequests() {
                   <p>{r.course_title || r.course?.title}</p>
                   <p className="booking-time">
                     <Badge status={r.status}>{applicationStatusLabel(r.status, t)}</Badge>
+                    <span className="status-hint" style={{ fontSize: "var(--font-size-xs)", color: "var(--color-text-muted)", display: "block", marginTop: 4 }}>{t(`status_hint.${r.status}`, "")}</span>
                   </p>
                   {r.preferred_schedule && <p className="booking-meta">{r.preferred_schedule}</p>}
                   {r.message && <p className="booking-meta">{r.message}</p>}

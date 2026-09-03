@@ -380,6 +380,10 @@ export function ScheduleWizard({
               <p><strong>{t("schedule_wizard.time", "Time")}:</strong> {time}{endTime ? ` — ${endTime}` : ""} ({startDate})</p>
               <p><strong>{t("schedule_wizard.count", "Lessons")}:</strong> {count}</p>
               <p><strong>{t("schedule_agreement.options", "Duration")}:</strong> {duration} {t("schedule.minutes_short", "min")}</p>
+              <div className="wizard-review-summary" style={{ marginTop: 12, padding: 12, background: "var(--color-primary-soft)", borderRadius: 10, fontSize: 13 }}>
+                <p style={{ margin: 0, fontWeight: 600 }}>{t("schedule_wizard.summary", "Will be created: {{count}} lessons from {{from}} to {{to}}", { count, from: startDate, to: computeEndDate(startDate, count, days) })}</p>
+                <p style={{ margin: "6px 0 0", color: "var(--color-text-secondary)" }}>{t("schedule_wizard.summary_hint", "Lessons are scheduled only on selected weekdays at the chosen time.")}</p>
+              </div>
             </div>
           )}
         </div>

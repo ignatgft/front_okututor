@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { IoClose } from "react-icons/io5";
+import { X } from "lucide-react";
 
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -69,7 +69,7 @@ export function Modal({ open, onClose, title, children, footer, size = "md", ari
           {title && <h2 className="modal-title">{title}</h2>}
           {onClose && (
             <button type="button" className="modal-close btn-icon" onClick={onClose} aria-label={onClose ? "Close" : undefined}>
-              <IoClose size={20} />
+              <X size={20} />
             </button>
           )}
         </div>
@@ -100,7 +100,7 @@ export function Drawer({ open, onClose, title, children, footer, side = "left" }
           {title && <h2 className="modal-title">{title}</h2>}
           {onClose && (
             <button type="button" className="modal-close btn-icon" onClick={onClose} aria-label="Close">
-              <IoClose size={20} />
+              <X size={20} />
             </button>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle } from "react-icons/fa";
+import { CheckCircle } from "lucide-react";
 import { studentsApi } from "../../api/students.api";
 import { Modal } from "../ui/Overlay";
 import { getErrorMessage } from "../../utils/errorMessage";
@@ -167,7 +167,7 @@ export default function ApplicationWizard({ courseId, isOpen, onClose, onSuccess
     <Modal open={isOpen} onClose={resetAndClose} title={t("application.title")} footer={footer} ariaLabel={t("application.title")}>
       {success ? (
         <div className="app-wizard-success">
-          <FaCheckCircle className="app-success-icon" aria-hidden="true" />
+          <CheckCircle className="app-success-icon" size={56} aria-hidden="true" />
           <h3>{t("application.success_title")}</h3>
           <p>{t("application.success_hint")}</p>
         </div>

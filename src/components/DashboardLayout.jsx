@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Sidebar from "./Sidebar";
 import { PageTitleProvider } from "./pageTitleContext";
+import useAuthStore from "../store/authStore";
 import "../styles/DashboardLayout.css";
 
 const DashboardLayout = ({ children, title, subtitle }) => {
@@ -54,10 +55,15 @@ const DashboardLayout = ({ children, title, subtitle }) => {
   }, [sidebarOpen]);
 
   const showDrawerSidebar = isMobile;
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
+  const p = location.pathname;
+  const isDetailPage = /^\/(course|lesson)\/[^/]+/.test(p) || /^\/tutor\/\d+$/.test(p);
+  const hasBottomNav = isAuthenticated && p !== "/" && !isDetailPage && isMobile;
 
   return (
     <PageTitleProvider value={setTitle}>
-      <div className={`dashboard-layout ${isTablet ? "dashboard-layout--tablet" : ""} ${showDrawerSidebar ? "dashboard-layout--mobile" : ""}`}>
+      <div className={`dashboard-layout ${isTablet ? "dashboard-layout--tablet" : ""} ${showDrawerSidebar ? "dashboard-layout--mobile" : ""} ${hasBottomNav ? "has-bottom-nav" : ""}`}>
         <a href="#main-content" className="skip-link">
           {t("a11y.skip_to_content", "Skip to main content")}
         </a>

@@ -16,20 +16,24 @@ export const AUTH_STATUS = {
   INITIALIZING: "initializing",
   AUTHENTICATED: "authenticated",
   UNAUTHENTICATED: "unauthenticated",
+  OFFLINE: "offline",
 };
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
   status: AUTH_STATUS.INITIALIZING,
   isAuthenticated: false,
+  initError: null,
 
   init: async () => {
+    // do not clear isAuthenticated while retrying offline – keep previous session if retryable
     if (!isAuthenticated() || !areTokensConsistent()) {
       clearTokens();
       set({
         status: AUTH_STATUS.UNAUTHENTICATED,
         isAuthenticated: false,
         user: null,
+        initError: null,
       });
       return;
     }
@@ -40,6 +44,7 @@ const useAuthStore = create((set) => ({
           user,
           status: AUTH_STATUS.AUTHENTICATED,
           isAuthenticated: true,
+          initError: null,
         });
       } else {
         clearTokens();
@@ -47,6 +52,7 @@ const useAuthStore = create((set) => ({
           user: null,
           status: AUTH_STATUS.UNAUTHENTICATED,
           isAuthenticated: false,
+          initError: null,
         });
       }
     } catch (e) {
@@ -54,10 +60,12 @@ const useAuthStore = create((set) => ({
       // Only clear on confirmed auth failures (401/403 handled above as `user === null`)
       const isRetryable = e?.retryable || e?.code === "NETWORK_ERROR" || e?.code === "TIMEOUT" || e?.code === "SERVER_ERROR" || e?.code === "RATE_LIMIT";
       if (isRetryable) {
+        // keep tokens, expose offline state so UI can show "no network / retry" instead of redirecting to login
         set({
           user: null,
-          status: AUTH_STATUS.UNAUTHENTICATED,
+          status: AUTH_STATUS.OFFLINE,
           isAuthenticated: false,
+          initError: e?.message || "Network error",
         });
         return;
       }
@@ -66,19 +74,25 @@ const useAuthStore = create((set) => ({
         user: null,
         status: AUTH_STATUS.UNAUTHENTICATED,
         isAuthenticated: false,
+        initError: e?.message || null,
       });
     }
+  },
+
+  retryInit: async () => {
+    set({ status: AUTH_STATUS.INITIALIZING, initError: null });
+    return get().init();
   },
 
   setUser: (user) =>
     set(
       user
-        ? { user, status: AUTH_STATUS.AUTHENTICATED, isAuthenticated: true }
-        : { user: null, status: AUTH_STATUS.UNAUTHENTICATED, isAuthenticated: false }
+        ? { user, status: AUTH_STATUS.AUTHENTICATED, isAuthenticated: true, initError: null }
+        : { user: null, status: AUTH_STATUS.UNAUTHENTICATED, isAuthenticated: false, initError: null }
     ),
 
   login: (user) =>
-    set({ user, status: AUTH_STATUS.AUTHENTICATED, isAuthenticated: true }),
+    set({ user, status: AUTH_STATUS.AUTHENTICATED, isAuthenticated: true, initError: null }),
 
   logout: async () => {
     await apiLogout().catch(() => {});
@@ -87,6 +101,7 @@ const useAuthStore = create((set) => ({
       user: null,
       status: AUTH_STATUS.UNAUTHENTICATED,
       isAuthenticated: false,
+      initError: null,
     });
   },
 }));

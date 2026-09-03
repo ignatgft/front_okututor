@@ -5,7 +5,7 @@ import useAuthStore from "../store/authStore";
 import { useTheme } from "../hooks/useTheme";
 import { notificationsApi } from "../api/messages.api";
 import { isAdmin, isTutor, isSuperAdmin } from "../constants/roles";
-import { FaSignOutAlt, FaBell, FaCog } from "react-icons/fa";
+import { LogOut, Bell, Settings as SettingsIcon } from "lucide-react";
 import { SIDEBAR_ITEMS, getSectionPath } from "../config/navigation";
 import "../styles/Sidebar.css";
 
@@ -58,8 +58,8 @@ const Sidebar = ({ isOpen = false, onClose, collapsed = false }) => {
   const section = getSectionPath(role);
 
   const bottomItems = [
-    { id: "notifications", labelKey: "notifications.title", icon: FaBell, path: `${section}/notifications`, badge: unreadCount },
-    { id: "settings", labelKey: "navbar.settings", icon: FaCog, path: `${section}/settings` },
+    { id: "notifications", labelKey: "notifications.title", icon: Bell, path: `${section}/notifications`, badge: unreadCount },
+    { id: "settings", labelKey: "navbar.settings", icon: SettingsIcon, path: `${section}/settings` },
   ];
 
   const isActive = (path) => {
@@ -142,7 +142,7 @@ const Sidebar = ({ isOpen = false, onClose, collapsed = false }) => {
               onClick={() => { handleLogout(); onClose?.(); }}
               title={collapsed ? t("navbar.logout") : undefined}
             >
-              <FaSignOutAlt className="sidebar-icon" />
+              <LogOut className="sidebar-icon" size={18} />
               {!collapsed && <span className="sidebar-label">{t("navbar.logout")}</span>}
             </button>
           </li>

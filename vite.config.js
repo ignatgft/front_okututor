@@ -81,17 +81,27 @@ export default defineConfig({
   },
 
   build: {
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // split large vendor libs
-          react: ['react', 'react-dom'],
-          // split heavy pages
-          dashboard: ['src/pages/PgDashboard.jsx'],
-          lesson: ['src/pages/PgLesson.jsx'],
-          course: ['src/pages/PgCourse.jsx']
-        }
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("node_modules/react") || id.includes("node_modules/react-dom")) return "vendor-react";
+            if (id.includes("@tanstack/react-query")) return "vendor-react-query";
+            if (id.includes("livekit-client")) return "vendor-livekit";
+            if (id.includes("i18next") || id.includes("react-i18next")) return "vendor-i18n";
+            if (id.includes("react-router")) return "vendor-router";
+            if (id.includes("zustand")) return "vendor-zustand";
+            if (id.includes("lucide-react")) return "vendor-lucide";
+            // remaining vendors
+            if (id.includes("node_modules")) return "vendor";
+          }
+          // heavy pages — keep separate chunks
+          if (id.includes("src/pages/PgDashboard")) return "page-dashboard";
+          if (id.includes("src/pages/PgCourse")) return "page-course";
+          if (id.includes("src/pages/PgLesson")) return "page-lesson";
+          return undefined;
+        },
       }
     }
   }

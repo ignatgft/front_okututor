@@ -1,16 +1,12 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useAuthStore from "../../store/authStore";
 import { usePageTitle } from "../../components/pageTitleContext";
-import { isTutorLike } from "../../constants/enums";
-import { startOfWeek, addDays, addMonths, isSameDay, toLocalInput } from "../../utils/calendar";
-import { getUserTimezone } from "../../utils/timezone";
+import { startOfWeek, addDays, addMonths, toLocalInput } from "../../utils/calendar";
 import {
   NextLessonCard,
   ActionRequiredBlock,
   ScheduleViewSwitcher,
-  ScheduleFilters,
   DayView,
   WeekView,
   MonthView,
@@ -23,37 +19,43 @@ import {
   useScheduleDay,
   useScheduleWeek,
   useScheduleMonth,
-  useCoursesForFilter,
 } from "../../hooks/schedule";
-import type { ScheduleView, LessonDTO, ScheduleFilters as ScheduleFiltersType } from "../../types/schedule";
+import type { ScheduleView, LessonDTO } from "../../types/schedule";
 import "./SchedulePage.css";
 
 export default function SchedulePage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const setPageTitle = usePageTitle();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tutorMode = isTutorLike(user);
   const locale = i18n.language || "ru";
-  const userTimezone = getUserTimezone();
 
-  // URL-synced state
-  const urlView = (searchParams.get("view") as ScheduleView) || "week";
+  // URL-synced state — mobile-first: on <768 default to DayView
+  const getDefaultView = (): ScheduleView => {
+    const param = searchParams.get("view") as ScheduleView | null;
+    if (param === "day" || param === "week" || param === "month") return param;
+    if (typeof window !== "undefined" && window.innerWidth < 768) return "day";
+    return "week";
+  };
+  const urlView = (searchParams.get("view") as ScheduleView) || getDefaultView();
   const urlDate = searchParams.get("date") || toLocalInput(new Date());
 
   const [view, setView] = useState<ScheduleView>(urlView);
   const [selectedDate, setSelectedDate] = useState(urlDate);
   const [selectedLesson, setSelectedLesson] = useState<LessonDTO | null>(null);
-  const [filters, setFilters] = useState<ScheduleFiltersType>({
-    courseIds: [],
-    statuses: [],
-  });
 
   // Sync URL with state
   useEffect(() => {
     if (view !== urlView) setView(urlView);
-  }, [urlView]);
+  }, [view, urlView]);
+
+  // Auto-switch to DayView on first mobile load if no explicit view param
+  useEffect(() => {
+    if (!searchParams.get("view") && typeof window !== "undefined" && window.innerWidth < 768 && view === "week") {
+      setView("day");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (selectedDate !== urlDate) setSelectedDate(urlDate);
@@ -93,14 +95,8 @@ export default function SchedulePage() {
     navigate(`/lesson/${lesson.id}`);
   }, [navigate]);
 
-  const handleActionClick = useCallback(async (action: any, scheduleAction: any) => {
-    // Handle action clicks (accept/reject proposals, etc.)
-    // This would call the appropriate mutation
-    console.log("Action clicked:", action, scheduleAction);
-  }, []);
-
-  const handleFilterChange = useCallback((newFilters: ScheduleFiltersType) => {
-    setFilters(newFilters);
+  const handleActionClick = useCallback(async (_action: unknown, _scheduleAction: unknown) => {
+    // TODO: wire to schedule mutations when needed
   }, []);
 
   // Page title
@@ -133,7 +129,6 @@ export default function SchedulePage() {
   const dayQuery = useScheduleDay(view === "day" ? selectedDate : "");
   const weekQuery = useScheduleWeek(weekStartStr);
   const monthQuery = useScheduleMonth(view === "month" ? dateRange.from.getFullYear() : 0, view === "month" ? dateRange.from.getMonth() + 1 : 0);
-  const coursesQuery = useCoursesForFilter();
 
   // Navigation helpers
   const goPrev = useCallback(() => {
@@ -155,10 +150,7 @@ export default function SchedulePage() {
   }, [handleDateChange]);
 
   // Показываем скелет только для активных вьюх, ошибку — только для текущего view
-  const viewLoading = view === "day" ? dayQuery.isLoading : view === "week" ? weekQuery.isLoading : monthQuery.isLoading;
   const viewError = view === "day" ? dayQuery.error : view === "week" ? weekQuery.error : monthQuery.error;
-  const loading = nextLessonQuery.isLoading || actionsQuery.isLoading || viewLoading;
-  const error = viewError as Error | null;
 
   return (
     <div className="schedule-page">

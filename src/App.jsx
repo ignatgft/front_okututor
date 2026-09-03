@@ -74,7 +74,7 @@ const PgAdminSupportTicket = Lazy(() => import("./pages/PgAdminSupportTicket"));
 
 function App() {
   const { t } = useTranslation();
-  const { init, status, logout } = useAuthStore();
+  const { init, retryInit, status, initError, logout } = useAuthStore();
   const { isAuthOpen, isRegisterOpen, closeAuth, closeRegister } = useUIStore();
 
   useEffect(() => {
@@ -93,6 +93,16 @@ function App() {
 
   if (status === "initializing")
     return <div className="loading-screen">{i18n.t("common.loading", "Loading...")}</div>;
+
+  if (status === "offline")
+    return (
+      <div className="loading-screen" role="alert" style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: 24, textAlign: "center" }}>
+        <p>{initError || t("errors.network_error", "Network error. Check your connection.")}</p>
+        <button type="button" className="btn-primary" onClick={() => retryInit()}>
+          {t("common.retry", "Retry")}
+        </button>
+      </div>
+    );
 
   return (
     <ToastProvider>
