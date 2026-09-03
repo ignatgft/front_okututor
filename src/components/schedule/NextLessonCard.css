@@ -222,6 +222,55 @@
   border-left: 4px solid var(--color-status-negotiation, #a855f7);
 }
 
+[data-theme="dark"] .next-lesson-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .next-lesson-card .next-lesson-title,
+[data-theme="dark"] .next-lesson-card .next-lesson-label,
+[data-theme="dark"] .next-lesson-card .next-lesson-detail {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .next-lesson-card .next-lesson-tutor,
+[data-theme="dark"] .next-lesson-card .next-lesson-countdown {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .next-lesson-card .next-lesson-countdown {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .next-lesson-card .lesson-card,
+[data-theme="dark"] .next-lesson-card .next-lesson-details,
+[data-theme="dark"] .next-lesson-card .next-lesson-meta {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .lesson-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .lesson-card .lesson-card-time-main,
+[data-theme="dark"] .lesson-card .lesson-card-title {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .lesson-card .lesson-card-date,
+[data-theme="dark"] .lesson-card .lesson-card-tutor {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .lesson-card.compact .lesson-card-join {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .next-lesson-card {

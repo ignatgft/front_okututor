@@ -251,10 +251,17 @@
 
 .status-scheduled { background: var(--color-status-confirmed, #22c55e); color: #fff; }
 .status-in-progress { background: var(--color-status-in-progress, #3b82f6); color: #fff; }
-.status-pending-confirmation { background: var(--color-status-pending, #eab308); color: #fff; }
+.status-pending-confirmation,
+.status-reschedule-pending,
+.status-format-change-pending,
+.status-location-change-pending,
+.status-duration-change-pending { background: var(--color-status-pending, #eab308); color: #fff; }
 .status-schedule-negotiation { background: var(--color-status-negotiation, #a855f7); color: #fff; }
 .status-completed { background: var(--color-status-completed, #71717a); color: #fff; }
-.status-cancelled { background: var(--color-status-cancelled, #ef4444); color: #fff; }
+.status-cancelled,
+.status-student-no-show,
+.status-tutor-no-show,
+.status-issue { background: var(--color-status-cancelled, #ef4444); color: #fff; }
 .status-rescheduled { background: var(--color-status-rescheduled, #06b6d4); color: #fff; }
 .status-application { background: var(--color-status-application, #8b5cf6); color: #fff; }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, Fragment } from "react";
+import { useState, useEffect, useRef, useCallback, Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../components/pageTitleContext";
@@ -13,40 +13,36 @@ import ConfirmDialog from "../components/ui/ConfirmDialog";
 import NewTicketModal from "../components/messages/NewTicketModal";
 import AttachmentRenderer from "../components/attachments/AttachmentRenderer";
 import { isSameDay, isToday } from "../utils/date";
+import { Search, Paperclip, Image as ImageIcon, Send, Smile, ArrowLeft, MoreVertical, Reply, Heart, Forward, Trash2, Edit2, X, Check, CheckCheck, Clock3, AlertCircle } from "lucide-react";
 import "../styles/Messages.css";
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
-
 const POLL_INTERVAL = 5000;
 
-function conversationIcon(type) {
-  if (type === CONVERSATION_TYPES.SUPPORT) return "🎫";
-  if (type === CONVERSATION_TYPES.SYSTEM) return "🔔";
-  return "💬";
-}
-
-function conversationSubtitle(c) {
-  if (c.type === CONVERSATION_TYPES.SUPPORT) {
-    return c.ticket_status ? `${c.ticket_status}${c.ticket_priority ? ` · ${c.ticket_priority}` : ""}` : "Support";
-  }
-  return c.last_message?.body || "";
-}
-
+/* helpers */
 function safeDisplayName(name, t) {
   const trimmed = (name || "").replace(/\s+/g, " ").trim();
-  if (!trimmed || trimmed.length < 2) {
-    return t("messages.unknown", "Unknown user");
-  }
+  if (!trimmed || trimmed.length < 2) return t("messages.unknown", "Unknown user");
   return trimmed;
 }
-
+function initials(name) {
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+function avatarColor(name) {
+  const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FECA57", "#A29BFE", "#FD79A8", "#FDCB6E", "#6C5CE7", "#00B894"];
+  let hash = 0;
+  for (let i = 0; i < (name || "").length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return colors[hash % colors.length];
+}
 function formatChatTime(raw, locale = "ru") {
   if (!raw) return "";
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false });
 }
-
 function dayLabel(raw, locale = "ru", t) {
   if (!raw) return "";
   const d = new Date(raw);
@@ -55,46 +51,57 @@ function dayLabel(raw, locale = "ru", t) {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   if (isSameDay(d, yesterday)) return t ? t("messages.yesterday", "Yesterday") : "Yesterday";
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(d);
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d);
+}
+function previewText(c, t) {
+  if (c.type === CONVERSATION_TYPES.SUPPORT) {
+    if (c.ticket_status) {
+      const sk = STATUS_I18N[c.ticket_status] ? t(STATUS_I18N[c.ticket_status]) : c.ticket_status;
+      const pk = c.ticket_priority && PRIORITY_I18N[c.ticket_priority] ? ` · ${t(PRIORITY_I18N[c.ticket_priority])}` : "";
+      return `${sk}${pk}`;
+    }
+    return t("messages.support", "Support");
+  }
+  return c.last_message?.body || c.last_message?.text || "";
+}
+function isUnread(c) {
+  return Number(c.unread_count) > 0;
 }
 
-function SupportThreadHeader({ conversation, onClose, onReopen, busy }) {
+function TgAvatar({ name, size = 44 }) {
+  const bg = avatarColor(name);
+  return (
+    <span className="tg-avatar" style={{ width: size, height: size, background: bg, fontSize: size * 0.38 }} aria-hidden="true">
+      {initials(name)}
+    </span>
+  );
+}
+
+function SupportHeader({ conversation, onClose, onReopen, busy }) {
   const { t } = useTranslation();
   const isOpen = OPEN_STATUSES.includes(conversation.ticket_status);
   const statusKey = STATUS_I18N[conversation.ticket_status] || null;
   const priorityKey = PRIORITY_I18N[conversation.ticket_priority] || null;
   const categoryKey = CATEGORY_I18N[conversation.ticket_category] || null;
-
   return (
-    <div className="support-thread-header">
-      <div className="support-thread-title">
-        <div className="support-thread-subject">{conversation.counterpart_name || safeDisplayName(conversation.name, t)}</div>
-        {categoryKey && <span className="support-thread-category">{t(categoryKey)}</span>}
+    <div className="tg-chat-header tg-chat-header--support">
+      <div className="tg-chat-header__main">
+        <div className="tg-chat-header__title">{safeDisplayName(conversation.counterpart_name || conversation.name, t)}</div>
+        <div className="tg-chat-header__subtitle">
+          {categoryKey && <span>{t(categoryKey)}</span>}
+          {statusKey && <Badge status={isOpen ? "active" : "completed"}>{t(statusKey)}</Badge>}
+          {priorityKey && <Badge status={conversation.ticket_priority === "HIGH" || conversation.ticket_priority === "URGENT" ? "cancelled" : "active"}>{t(priorityKey)}</Badge>}
+        </div>
       </div>
-      <div className="support-thread-meta">
-        <Badge status={isOpen ? "active" : "completed"}>
-          {statusKey ? t(statusKey) : conversation.ticket_status}
-        </Badge>
-        {priorityKey && (
-          <Badge status={conversation.ticket_priority === "HIGH" || conversation.ticket_priority === "URGENT" ? "cancelled" : "active"}>
-            {t(priorityKey)}
-          </Badge>
-        )}
-        {conversation.ticket_assigned_to && (
-          <span className="support-thread-assigned">
-            {t("support.assigned_to", "Agent")}: {conversation.ticket_assigned_to}
-          </span>
-        )}
-        {isOpen ? (
-          <button type="button" className="support-thread-action close" onClick={onClose} disabled={busy}>
-            {t("support.close_ticket", "Close ticket")}
-          </button>
-        ) : (
-          <button type="button" className="support-thread-action reopen" onClick={onReopen} disabled={busy}>
-            {t("support.reopen_ticket", "Reopen")}
-          </button>
-        )}
-      </div>
+      {isOpen ? (
+        <button type="button" className="tg-icon-btn tg-icon-btn--danger" onClick={onClose} disabled={busy} title={t("support.close_ticket", "Close ticket")}>
+          <X size={18} />
+        </button>
+      ) : (
+        <button type="button" className="tg-btn tg-btn--primary tg-btn--sm" onClick={onReopen} disabled={busy}>
+          {t("support.reopen_ticket", "Reopen")}
+        </button>
+      )}
     </div>
   );
 }
@@ -122,7 +129,18 @@ export default function PgMessages() {
     if (param === "direct") return CONVERSATION_TYPES.DIRECT;
     return "all";
   });
+  const [query, setQuery] = useState("");
   const threadRef = useRef(null);
+  const composerRef = useRef(null);
+
+  const [reactions, setReactions] = useState({});
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [editDraft, setEditDraft] = useState("");
+  const [showReactionPicker, setShowReactionPicker] = useState(null);
+  const [forwardingMessage, setForwardingMessage] = useState(null);
+  const [forwardTargetConvo, setForwardTargetConvo] = useState(null);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
 
   const loadConversations = useCallback(async () => {
     setLoading(true);
@@ -137,9 +155,7 @@ export default function PgMessages() {
     }
   }, []);
 
-  useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
+  useEffect(() => { loadConversations(); }, [loadConversations]);
 
   useEffect(() => {
     const ticketId = searchParams.get("ticket");
@@ -150,12 +166,8 @@ export default function PgMessages() {
   }, [searchParams, conversations]);
 
   useEffect(() => {
-    if (!activeConvo) {
-      setMessages([]);
-      return undefined;
-    }
+    if (!activeConvo) { setMessages([]); return undefined; }
     let cancelled = false;
-
     const loadThread = async () => {
       try {
         let msgs;
@@ -166,27 +178,23 @@ export default function PgMessages() {
           msgs = response.ok ? (Array.isArray(data) ? data : data.messages || []) : [];
         }
         if (!cancelled) setMessages(msgs);
-      } catch {
-        /* keep last state on transient errors */
-      }
+        // mark read (best effort)
+        if (activeConvo.type !== CONVERSATION_TYPES.SUPPORT && activeConvo.id && !String(activeConvo.id).startsWith("support-")) {
+          messagesApi.markConversationRead(activeConvo.id).catch(() => {});
+        }
+      } catch { /* keep */ }
     };
-
     setThreadLoading(true);
     loadThread().finally(() => !cancelled && setThreadLoading(false));
     const timer = setInterval(loadThread, POLL_INTERVAL);
-
-    return () => {
-      cancelled = true;
-      clearInterval(timer);
-    };
+    return () => { cancelled = true; clearInterval(timer); };
   }, [activeConvo]);
 
   useEffect(() => {
     if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight;
-  }, [messages]);
+  }, [messages, replyingTo, editingMessage]);
 
   const tempIdRef = useRef(0);
-
   const [newTicketOpen, setNewTicketOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -210,29 +218,17 @@ export default function PgMessages() {
       toast.error(t("attachments.too_large", "File must be 10 MB or smaller"));
       return;
     }
-    const allowedTypes = [
-      "image/", "video/", "audio/",
-      "application/pdf", "application/zip", "application/x-zip-compressed",
-      "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "text/plain", "text/csv", "application/rtf",
-    ];
-    if (!allowedTypes.some((prefix) => file.type.startsWith(prefix)) && file.type !== "") {
+    const allowedTypes = ["image/", "video/", "audio/", "application/pdf", "application/zip", "application/x-zip-compressed", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "text/plain", "text/csv", "application/rtf"];
+    if (!allowedTypes.some((p) => file.type.startsWith(p)) && file.type !== "") {
       toast.error(t("attachments.unsupported_type", "Unsupported file type"));
       return;
     }
-    if (pendingFile) {
-      if (pendingFile.objectUrl) URL.revokeObjectURL(pendingFile.objectUrl);
-    }
+    if (pendingFile?.objectUrl) URL.revokeObjectURL(pendingFile.objectUrl);
     setPendingFile({ file, progress: 0, objectUrl: URL.createObjectURL(file) });
+    setShowAttachMenu(false);
   };
-
   const clearPendingFile = useCallback(() => {
-    setPendingFile((pf) => {
-      if (pf?.objectUrl) URL.revokeObjectURL(pf.objectUrl);
-      return null;
-    });
+    setPendingFile((pf) => { if (pf?.objectUrl) URL.revokeObjectURL(pf.objectUrl); return null; });
   }, []);
 
   const closeTicket = async () => {
@@ -240,80 +236,38 @@ export default function PgMessages() {
     setBusy(true);
     try {
       const { response, data } = await supportApi.close(activeConvo.ticket_id);
-      if (response.ok) {
-        toast.success(t("support.ticket_closed", "Ticket closed"));
-        updateActiveTicket({ ticket_status: "CLOSED" });
-      } else {
-        toast.error(data?.message || t("support.action_failed", "Action failed"));
-      }
-    } catch {
-      toast.error(t("support.action_failed", "Action failed"));
-    } finally {
-      setBusy(false);
-      setConfirmAction(null);
-    }
+      if (response.ok) { toast.success(t("support.ticket_closed", "Ticket closed")); updateActiveTicket({ ticket_status: "CLOSED" }); }
+      else toast.error(data?.message || t("support.action_failed", "Action failed"));
+    } catch { toast.error(t("support.action_failed", "Action failed")); }
+    finally { setBusy(false); setConfirmAction(null); }
   };
-
   const reopenTicket = async () => {
     if (!activeConvo) return;
     setBusy(true);
     try {
       const { response, data } = await supportApi.reopen(activeConvo.ticket_id);
-      if (response.ok) {
-        toast.success(t("support.ticket_reopened", "Ticket reopened"));
-        updateActiveTicket({ ticket_status: "OPEN" });
-      } else {
-        toast.error(data?.message || t("support.action_failed", "Action failed"));
-      }
-    } catch {
-      toast.error(t("support.action_failed", "Action failed"));
-    } finally {
-      setBusy(false);
-      setConfirmAction(null);
-    }
+      if (response.ok) { toast.success(t("support.ticket_reopened", "Ticket reopened")); updateActiveTicket({ ticket_status: "OPEN" }); }
+      else toast.error(data?.message || t("support.action_failed", "Action failed"));
+    } catch { toast.error(t("support.action_failed", "Action failed")); }
+    finally { setBusy(false); setConfirmAction(null); }
   };
-
-  const handleTicketCreated = () => {
-    setNewTicketOpen(false);
-    loadConversations().then(() => setFilter(CONVERSATION_TYPES.SUPPORT));
-  };
+  const handleTicketCreated = () => { setNewTicketOpen(false); loadConversations().then(() => setFilter(CONVERSATION_TYPES.SUPPORT)); };
 
   const handleSend = async (e) => {
     e.preventDefault();
+    // if replying, delegate to reply flow
+    if (replyingTo) return handleReplySend(e);
     const body = draft.trim();
     if ((!body && !pendingFile) || !activeConvo) return;
-
-    const optimisticAttachment = pendingFile
-      ? {
-          id: `tmp-file-${tempIdRef.current}`,
-          name: pendingFile.file.name,
-          size: pendingFile.file.size,
-          mime_type: pendingFile.file.type,
-          kind: pendingFile.file.type?.startsWith("image/") ? "IMAGE" : "FILE",
-          url: pendingFile.objectUrl,
-          pending: true,
-        }
-      : null;
-
-    const optimistic = {
-      id: `tmp-${++tempIdRef.current}`,
-      body,
-      attachment: optimisticAttachment,
-      sender_id: user?.id,
-      own: true,
-      sending: true,
-      created_at: new Date().toISOString(),
-    };
-
+    const optimisticAttachment = pendingFile ? { id: `tmp-file-${tempIdRef.current}`, name: pendingFile.file.name, size: pendingFile.file.size, mime_type: pendingFile.file.type, kind: pendingFile.file.type?.startsWith("image/") ? "IMAGE" : "FILE", url: pendingFile.objectUrl, pending: true } : null;
+    const optimistic = { id: `tmp-${++tempIdRef.current}`, body, attachment: optimisticAttachment, sender_id: user?.id, own: true, sending: true, created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, optimistic]);
     setDraft("");
     setSending(true);
     try {
       let attachmentId = null;
       if (pendingFile) {
-        const up = await messagesApi.uploadAttachment(pendingFile.file, (p) =>
-          setPendingFile((pf) => (pf ? { ...pf, progress: p } : pf))
-        );
+        const up = await messagesApi.uploadAttachment(pendingFile.file, (p) => setPendingFile((pf) => (pf ? { ...pf, progress: p } : pf)));
         if (!up.response.ok) throw new Error(up.data?.message || "upload failed");
         attachmentId = up.data?.id || up.data?.attachment?.id || null;
         clearPendingFile();
@@ -323,41 +277,26 @@ export default function PgMessages() {
         const msgs = await loadSupportThread(activeConvo.ticket_id);
         setMessages(msgs);
       } else {
-        await messagesApi.send({
-          conversation_id: activeConvo.id,
-          body,
-          ...(attachmentId ? { attachment_id: attachmentId } : {}),
-        });
+        await messagesApi.send({ conversation_id: activeConvo.id, body, ...(attachmentId ? { attachment_id: attachmentId } : {}) });
         const { response, data } = await messagesApi.conversation(activeConvo.id);
         if (response.ok) setMessages(Array.isArray(data) ? data : data.messages || []);
       }
     } catch {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === optimistic.id ? { ...m, sending: false, failed: true } : m))
-      );
+      setMessages((prev) => prev.map((m) => (m.id === optimistic.id ? { ...m, sending: false, failed: true } : m)));
       toast.error(t("messages.send_failed", "Failed to send message"));
-    } finally {
-      setSending(false);
-      if (pendingFile) clearPendingFile();
-    }
+    } finally { setSending(false); if (pendingFile) clearPendingFile(); }
   };
 
   const retrySend = async (m) => {
     setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, sending: true, failed: false } : x)));
     try {
-      const attachmentId = m.attachment?.id && !String(m.attachment.id).startsWith("tmp-file")
-        ? m.attachment.id
-        : null;
+      const attachmentId = m.attachment?.id && !String(m.attachment.id).startsWith("tmp-file") ? m.attachment.id : null;
       if (activeConvo.type === CONVERSATION_TYPES.SUPPORT) {
         await sendSupportMessage(activeConvo.ticket_id, m.body, attachmentId);
         const msgs = await loadSupportThread(activeConvo.ticket_id);
         setMessages(msgs);
       } else {
-        await messagesApi.send({
-          conversation_id: activeConvo.id,
-          body: m.body,
-          ...(attachmentId ? { attachment_id: attachmentId } : {}),
-        });
+        await messagesApi.send({ conversation_id: activeConvo.id, body: m.body, ...(attachmentId ? { attachment_id: attachmentId } : {}) });
         const { response, data } = await messagesApi.conversation(activeConvo.id);
         if (response.ok) setMessages(Array.isArray(data) ? data : data.messages || []);
       }
@@ -367,266 +306,467 @@ export default function PgMessages() {
     }
   };
 
-  const filtered = filter === "all"
-    ? conversations
-    : conversations.filter((c) => c.type === filter);
+  const handleAddReaction = async (messageId, emoji) => {
+    try {
+      await messagesApi.addReaction(messageId, emoji);
+      setReactions((prev) => {
+        const existing = prev[messageId] || { emoji: {}, userReacted: {} };
+        const newCount = (existing.emoji[emoji] || 0) + 1;
+        return { ...prev, [messageId]: { emoji: { ...existing.emoji, [emoji]: newCount }, userReacted: { ...existing.userReacted, [emoji]: true } } };
+      });
+    } catch { toast.error(t("messages.reaction_failed", "Failed to add reaction")); }
+  };
+  const handleRemoveReaction = async (messageId, emoji) => {
+    try {
+      await messagesApi.removeReaction(messageId, emoji);
+      setReactions((prev) => {
+        const existing = prev[messageId];
+        if (!existing) return prev;
+        const newCount = Math.max(0, (existing.emoji[emoji] || 1) - 1);
+        return { ...prev, [messageId]: { emoji: { ...existing.emoji, [emoji]: newCount }, userReacted: { ...existing.userReacted, [emoji]: false } } };
+      });
+    } catch { toast.error(t("messages.reaction_failed", "Failed to remove reaction")); }
+  };
+  const handleToggleReaction = (messageId, emoji) => {
+    const existing = reactions[messageId];
+    const userReacted = existing?.userReacted?.[emoji];
+    if (userReacted) handleRemoveReaction(messageId, emoji);
+    else handleAddReaction(messageId, emoji);
+  };
+  const startReply = (message) => { setReplyingTo(message); setEditingMessage(null); composerRef.current?.querySelector("input")?.focus(); };
+  const cancelReply = () => setReplyingTo(null);
+  const handleReplySend = async (e) => {
+    e.preventDefault();
+    if (!replyingTo || (!draft.trim() && !pendingFile)) return;
+    const body = draft.trim();
+    const optimisticAttachment = pendingFile ? { id: `tmp-file-${tempIdRef.current}`, name: pendingFile.file.name, size: pendingFile.file.size, mime_type: pendingFile.file.type, kind: pendingFile.file.type?.startsWith("image/") ? "IMAGE" : "FILE", url: pendingFile.objectUrl, pending: true } : null;
+    const optimistic = { id: `tmp-${++tempIdRef.current}`, body, attachment: optimisticAttachment, sender_id: user?.id, own: true, sending: true, created_at: new Date().toISOString(), reply_to: replyingTo.id };
+    setMessages((prev) => [...prev, optimistic]);
+    setDraft("");
+    setSending(true);
+    const savedReply = replyingTo;
+    setReplyingTo(null);
+    try {
+      let attachmentId = null;
+      if (pendingFile) {
+        const up = await messagesApi.uploadAttachment(pendingFile.file, (p) => setPendingFile((pf) => (pf ? { ...pf, progress: p } : pf)));
+        if (!up.response.ok) throw new Error(up.data?.message || "upload failed");
+        attachmentId = up.data?.id || up.data?.attachment?.id || null;
+        clearPendingFile();
+      }
+      if (activeConvo.type === CONVERSATION_TYPES.SUPPORT) {
+        await sendSupportMessage(activeConvo.ticket_id, body, attachmentId);
+        const msgs = await loadSupportThread(activeConvo.ticket_id);
+        setMessages(msgs);
+      } else {
+        await messagesApi.reply(savedReply.id, body, attachmentId);
+        const { response, data } = await messagesApi.conversation(activeConvo.id);
+        if (response.ok) setMessages(Array.isArray(data) ? data : data.messages || []);
+      }
+    } catch {
+      setMessages((prev) => prev.map((m) => (m.id === optimistic.id ? { ...m, sending: false, failed: true } : m)));
+      toast.error(t("messages.reply_failed", "Failed to send reply"));
+    } finally { setSending(false); if (pendingFile) clearPendingFile(); }
+  };
+  const startEdit = (message) => { setEditingMessage(message); setEditDraft(message.body || message.text || ""); setReplyingTo(null); };
+  const cancelEdit = () => { setEditingMessage(null); setEditDraft(""); };
+  const handleEditSave = async () => {
+    if (!editingMessage || !editDraft.trim()) return;
+    try {
+      await messagesApi.edit(editingMessage.id, editDraft);
+      setMessages((prev) => prev.map((m) => (m.id === editingMessage.id ? { ...m, body: editDraft, edited: true } : m)));
+      setEditingMessage(null); setEditDraft("");
+    } catch { toast.error(t("messages.edit_failed", "Failed to edit message")); }
+  };
+  const handleDelete = async (messageId) => {
+    try { await messagesApi.delete(messageId); setMessages((prev) => prev.filter((m) => m.id !== messageId)); }
+    catch { toast.error(t("messages.delete_failed", "Failed to delete message")); }
+  };
+  const startForward = (message) => { setForwardingMessage(message); setForwardTargetConvo(null); };
+  const cancelForward = () => { setForwardingMessage(null); setForwardTargetConvo(null); };
+  const handleForward = async () => {
+    if (!forwardingMessage || !forwardTargetConvo) return;
+    try { await messagesApi.forward(forwardingMessage.id, forwardTargetConvo); toast.success(t("messages.forwarded", "Message forwarded")); setForwardingMessage(null); setForwardTargetConvo(null); }
+    catch { toast.error(t("messages.forward_failed", "Failed to forward message")); }
+  };
+
+  // умный поиск: токенизация, нормализация, ранжирование, подсветка
+  const normalize = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const highlightMatch = (text, q) => {
+    if (!q || !text) return text;
+    const nq = normalize(q);
+    const nt = normalize(text);
+    const idx = nt.indexOf(nq);
+    if (idx === -1) return text;
+    const before = text.slice(0, idx);
+    const match = text.slice(idx, idx + q.length);
+    const after = text.slice(idx + q.length);
+    return <>{before}<mark className="tg-highlight">{match}</mark>{after}</>;
+  };
+  const filtered = useMemo(() => {
+    const byType = filter === "all" ? conversations : conversations.filter((c) => c.type === filter);
+    const q = normalize(query);
+    if (!q) {
+      // сортировка: непрочитанные наверху, затем по дате
+      return [...byType].sort((a, b) => {
+        const ua = Number(a.unread_count) > 0 ? 1 : 0;
+        const ub = Number(b.unread_count) > 0 ? 1 : 0;
+        if (ua !== ub) return ub - ua;
+        return (b.updated_at || "").localeCompare(a.updated_at || "");
+      });
+    }
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const scored = byType.map((c) => {
+      const name = normalize(c.counterpart_name || c.name || "");
+      const preview = normalize(c.last_message?.body || c.last_message?.text || previewText(c, t) || "");
+      const status = normalize(c.ticket_status || "");
+      const hay = `${name} ${preview} ${status}`;
+      let score = 0;
+      for (const tok of tokens) {
+        if (name === tok) score += 10;
+        else if (name.startsWith(tok)) score += 8;
+        else if (name.includes(tok)) score += 5;
+        else if (preview.includes(tok)) score += 3;
+        else if (hay.includes(tok)) score += 1;
+        else score -= 1;
+      }
+      // бонус за непрочитанные и свежие
+      if (Number(c.unread_count) > 0) score += 2;
+      return { c, score, matched: tokens.every((tok) => hay.includes(tok)) };
+    }).filter((x) => x.matched);
+    scored.sort((a, b) => b.score - a.score || (b.c.updated_at || "").localeCompare(a.c.updated_at || ""));
+    return scored.map((x) => x.c);
+  }, [conversations, filter, query, t]);
+
+  const filteredMessages = useMemo(() => {
+    if (!query.trim()) return messages;
+    const q = normalize(query);
+    return messages.filter((m) => {
+      const body = normalize(m.body || m.text || "");
+      const sender = normalize(m.sender_name || "");
+      return body.includes(q) || sender.includes(q);
+    });
+  }, [messages, query]);
+
+  // close attach menu on outside click
+  useEffect(() => {
+    const onDoc = (e) => { if (showAttachMenu && !e.target.closest(".tg-attach-wrap")) setShowAttachMenu(false); };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [showAttachMenu]);
 
   return (
-      <div className="messages-page">
-        <aside className={`messages-list${activeConvo ? " hidden-mobile" : ""}`} aria-label={t("navbar.messages", "Сообщения")}>
-          <div className="messages-filters">
-            <button
-              className={`messages-filter-btn ${filter === "all" ? "active" : ""}`}
-              onClick={() => setFilter("all")}
-            >
-              {t("messages.all", "All")}
-            </button>
-            <button
-              className={`messages-filter-btn ${filter === CONVERSATION_TYPES.DIRECT ? "active" : ""}`}
-              onClick={() => setFilter(CONVERSATION_TYPES.DIRECT)}
-            >
-              {t("messages.direct", "Messages")}
-            </button>
-            <button
-              className={`messages-filter-btn ${filter === CONVERSATION_TYPES.SUPPORT ? "active" : ""}`}
-              onClick={() => setFilter(CONVERSATION_TYPES.SUPPORT)}
-            >
-              {t("messages.support", "Support")}
-            </button>
-            <button
-              type="button"
-              className="messages-new-ticket"
-              onClick={() => setNewTicketOpen(true)}
-            >
-              + {t("messages.new_ticket", "New ticket")}
-            </button>
+    <div className="tg-page">
+      {/* SIDEBAR */}
+      <aside className={`tg-sidebar ${activeConvo ? "tg-sidebar--hidden-mobile" : ""}`}>
+        <div className="tg-sidebar__header">
+          <div className="tg-search">
+            <Search size={16} className="tg-search__icon" />
+            <input className="tg-search__input" placeholder={t("messages.search_placeholder", "Search")} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={t("messages.search_placeholder", "Search")} />
+            {query && <button type="button" className="tg-search__clear" onClick={() => setQuery("")} aria-label={t("common.clear", "Clear")}><X size={14} /></button>}
           </div>
+          <div className="tg-filters">
+            <button type="button" className={`tg-chip ${filter === "all" ? "tg-chip--active" : ""}`} onClick={() => setFilter("all")}>{t("messages.all", "All")}</button>
+            <button type="button" className={`tg-chip ${filter === CONVERSATION_TYPES.DIRECT ? "tg-chip--active" : ""}`} onClick={() => setFilter(CONVERSATION_TYPES.DIRECT)}>{t("messages.direct", "Chat")}</button>
+            <button type="button" className={`tg-chip ${filter === CONVERSATION_TYPES.SUPPORT ? "tg-chip--active" : ""}`} onClick={() => setFilter(CONVERSATION_TYPES.SUPPORT)}>{t("messages.support", "Support")}</button>
+            <button type="button" className="tg-new-ticket" onClick={() => setNewTicketOpen(true)} title={t("messages.new_ticket", "New ticket")}>+</button>
+          </div>
+        </div>
 
-          {loading ? (
-            <Spinner label={t("common.loading")} />
-          ) : error ? (
-            <ErrorState message={error} onRetry={loadConversations} />
-          ) : filtered.length === 0 ? (
-            <EmptyState
-              icon="💬"
-              title={t("messages.no_conversations", "No conversations yet")}
-              hint={
-                <p className="empty-state-hint">
-                  {t("messages.start_hint", "Conversations with tutors and support will appear here.")}
-                </p>
-              }
-            />
-          ) : (
-            filtered.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                className={`conversation-item ${activeConvo?.id === c.id ? "active" : ""} conversation-${c.type?.toLowerCase() || "direct"}`}
-                onClick={() => setActiveConvo(c)}
-              >
-                <span className="conversation-icon">{conversationIcon(c.type)}</span>
-                <div className="conversation-info">
-                  <span className="conversation-name">
-                    {safeDisplayName(c.counterpart_name || c.name || `#${c.id}`, t)}
+        <div className="tg-convo-list" role="list">
+          {loading ? <div className="tg-center"><Spinner label={t("common.loading")} /></div>
+          : error ? <div className="tg-center"><ErrorState message={error} onRetry={loadConversations} /></div>
+          : filtered.length === 0 ? <div className="tg-center"><EmptyState icon="💬" title={t("messages.no_conversations", "No chats yet")} hint={<p className="tg-hint">{t("messages.start_hint", "Chats with tutors and support will appear here.")}</p>} /></div>
+          : filtered.length === 0 && query.trim() ? <div className="tg-center"><EmptyState icon="🔍" title={t("messages.no_search_results", "No results")} hint={<p className="tg-hint">{t("messages.no_search_hint", "Try another keywords")}</p>} /></div>
+          : filtered.map((c) => {
+              const rawName = safeDisplayName(c.counterpart_name || c.name || `#${c.id}`, t);
+              const name = query.trim() ? highlightMatch(rawName, query.trim()) : rawName;
+              const active = activeConvo?.id === c.id;
+              const unread = Number(c.unread_count) || 0;
+              const time = c.updated_at ? formatChatTime(c.updated_at, i18n.language) : "";
+              const rawPreview = previewText(c, t);
+              const preview = query.trim() ? highlightMatch(rawPreview, query.trim()) : rawPreview;
+              return (
+                <button key={c.id} type="button" role="listitem" className={`tg-convo ${active ? "tg-convo--active" : ""} ${c.type === CONVERSATION_TYPES.SUPPORT ? "tg-convo--support" : ""}`} onClick={() => setActiveConvo(c)}>
+                  <TgAvatar name={rawName} size={48} />
+                  <span className={`tg-convo__dot ${c.type === CONVERSATION_TYPES.SUPPORT ? "tg-convo__dot--support" : isUnread(c) ? "tg-convo__dot--unread" : ""}`} aria-hidden="true" />
+                  <span className="tg-convo__main">
+                    <span className="tg-convo__top">
+                      <span className="tg-convo__name">{name}</span>
+                      {time && <span className="tg-convo__time">{time}</span>}
+                    </span>
+                    <span className="tg-convo__bottom">
+                      <span className="tg-convo__preview">{preview}</span>
+                      {unread > 0 && <span className="tg-badge">{unread > 99 ? "99+" : unread}</span>}
+                    </span>
                   </span>
-                  <span className="conversation-preview">{conversationSubtitle(c)}</span>
-                </div>
-                {Number(c.unread_count) > 0 && (
-                  <span className="unread-badge">{c.unread_count}</span>
-                )}
-              </button>
-            ))
-          )}
-        </aside>
+                </button>
+              );
+            })}
+        </div>
+      </aside>
 
-        <section className={`messages-thread${activeConvo ? " visible-mobile" : " hidden-mobile"}`} aria-live="polite">
-          {/* Кнопка назад на мобиле */}
-          {activeConvo && (
-            <button
-              className="messages-back-btn"
-              onClick={() => setActiveConvo(null)}
-              aria-label={t("a11y.back_to_list", "Back to list")}
-            >
-              ← {t("common.back", "Назад")}
-            </button>
-          )}
-          {!activeConvo ? (
-            <EmptyState icon="✉️" title={t("messages.pick_conversation", "Select a conversation")} />
-          ) : (
-            <>
-              {activeConvo.type === CONVERSATION_TYPES.SUPPORT ? (
-                <SupportThreadHeader
-                  conversation={activeConvo}
-                  onClose={() => setConfirmAction("close")}
-                  onReopen={() => setConfirmAction("reopen")}
-                  busy={busy}
-                />
-              ) : (
-                <div className="thread-header">
-                  <span className="thread-counterpart">{safeDisplayName(activeConvo.counterpart_name || activeConvo.name || "", t)}</span>
+      {/* CHAT */}
+      <section className={`tg-chat ${activeConvo ? "tg-chat--visible-mobile" : "tg-chat--hidden-mobile"}`}>
+        {!activeConvo ? (
+          <div className="tg-empty-chat"><EmptyState icon="✉️" title={t("messages.pick_conversation", "Select a chat")} hint={<span className="tg-hint">{t("messages.pick_hint", "Choose a conversation from the list")}</span>} /></div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="tg-chat-header">
+              <button type="button" className="tg-icon-btn tg-icon-btn--ghost tg-only-mobile" onClick={() => setActiveConvo(null)} aria-label={t("a11y.back_to_list", "Back")}><ArrowLeft size={20} /></button>
+              <TgAvatar name={safeDisplayName(activeConvo.counterpart_name || activeConvo.name, t)} size={36} />
+              <div className="tg-chat-header__info" onClick={() => { /* future: open profile */ }}>
+                <div className="tg-chat-header__name">{safeDisplayName(activeConvo.counterpart_name || activeConvo.name, t)}</div>
+                <div className="tg-chat-header__status">
+                  {activeConvo.type === CONVERSATION_TYPES.SUPPORT
+                    ? (OPEN_STATUSES.includes(activeConvo.ticket_status) ? t("support.status_open", "Open") : t("support.status_closed", "Closed"))
+                    : t("messages.tap_to_info", "tap to view info")}
                 </div>
-              )}
-              <div className="thread-messages" ref={threadRef} role="log" aria-live="polite" aria-label={t("messages.chat_log", "Chat messages")}>
-                {threadLoading && messages.length === 0 ? (
-                  <Spinner />
-                ) : messages.length === 0 ? (
-                  <EmptyState title={t("messages.no_messages_yet", "No messages yet")} />
-                ) : (
-                  messages.map((m, idx) => {
-                    const prev = messages[idx - 1];
-                    const isOwn = m.own || m.is_own || (user?.id && String(m.sender_id) === String(user.id));
-                    const showDay = !prev || !dayLabel(prev.created_at, i18n.language, t) || dayLabel(prev.created_at, i18n.language, t) !== dayLabel(m.created_at, i18n.language, t);
-                    return (
-                      <Fragment key={m.id}>
-                        {m.created_at && showDay && (
-                          <div className="message-day-separator">
-                            <span>{dayLabel(m.created_at, i18n.language, t)}</span>
+              </div>
+              <div className="tg-chat-header__actions">
+                {activeConvo.type === CONVERSATION_TYPES.SUPPORT ? (
+                  OPEN_STATUSES.includes(activeConvo.ticket_status) ? (
+                    <button type="button" className="tg-icon-btn" onClick={() => setConfirmAction("close")} disabled={busy} title={t("support.close_ticket", "Close")}><X size={18} /></button>
+                  ) : (
+                    <button type="button" className="tg-btn tg-btn--primary tg-btn--sm" onClick={() => setConfirmAction("reopen")} disabled={busy}>{t("support.reopen_ticket", "Reopen")}</button>
+                  )
+                ) : <button type="button" className="tg-icon-btn" aria-label={t("common.more", "More")}><MoreVertical size={18} /></button>}
+              </div>
+            </div>
+
+            {activeConvo.type === CONVERSATION_TYPES.SUPPORT && (
+              <div className="tg-support-strip">
+                {CATEGORY_I18N[activeConvo.ticket_category] && <span className="tg-support-strip__cat">{t(CATEGORY_I18N[activeConvo.ticket_category])}</span>}
+                <Badge status={OPEN_STATUSES.includes(activeConvo.ticket_status) ? "active" : "completed"}>{STATUS_I18N[activeConvo.ticket_status] ? t(STATUS_I18N[activeConvo.ticket_status]) : activeConvo.ticket_status}</Badge>
+                {PRIORITY_I18N[activeConvo.ticket_priority] && <Badge status={activeConvo.ticket_priority === "HIGH" || activeConvo.ticket_priority === "URGENT" ? "cancelled" : "active"}>{t(PRIORITY_I18N[activeConvo.ticket_priority])}</Badge>}
+              </div>
+            )}
+
+            {/* Messages — с умным поиском внутри чата */}
+            {query.trim() && filteredMessages.length !== messages.length && (
+              <div className="tg-search-banner">
+                <span>{t("messages.search_results", "Found {{count}} messages").replace("{{count}}", String(filteredMessages.length))}</span>
+                <button type="button" className="tg-search-banner__clear" onClick={() => setQuery("")}>{t("common.clear", "Clear")}</button>
+              </div>
+            )}
+            <div className="tg-messages" ref={threadRef} role="log" aria-live="polite" aria-label={t("messages.chat_log", "Chat messages")}>
+              {threadLoading && messages.length === 0 ? <div className="tg-center"><Spinner /></div>
+              : messages.length === 0 ? <div className="tg-center"><EmptyState title={t("messages.no_messages_yet", "No messages yet")} hint={<span className="tg-hint">{t("messages.say_hi", "Say hi 👋")}</span>} /></div>
+              : filteredMessages.length === 0 && query.trim() ? <div className="tg-center"><EmptyState icon="🔍" title={t("messages.no_search_results", "No results")} hint={<span className="tg-hint">{t("messages.no_search_in_chat", "No messages match your search")}</span>} /></div>
+              : filteredMessages.map((m, idx) => {
+                  const prev = messages[idx - 1];
+                  const isOwn = m.own || m.is_own || (user?.id && String(m.sender_id) === String(user.id));
+                  const showDay = !prev || dayLabel(prev.created_at, i18n.language, t) !== dayLabel(m.created_at, i18n.language, t);
+                  const msgReactions = reactions[m.id];
+                  const replySource = m.reply_to ? messages.find((x) => String(x.id) === String(m.reply_to)) : null;
+                  return (
+                    <Fragment key={m.id}>
+                      {m.created_at && showDay && (
+                        <div className="tg-day"><span>{dayLabel(m.created_at, i18n.language, t)}</span></div>
+                      )}
+                      <div className={`tg-msg ${isOwn ? "tg-msg--own" : "tg-msg--other"} ${m.failed ? "tg-msg--failed" : ""}`}>
+                        {!isOwn && m.sender_name && <div className="tg-msg__sender">{safeDisplayName(m.sender_name, t)}</div>}
+                        {replySource && (
+                          <div className="tg-reply-quote">
+                            <span className="tg-reply-quote__bar" />
+                            <span className="tg-reply-quote__text">{replySource.body || replySource.text || t("messages.attachment", "Attachment")}</span>
                           </div>
                         )}
-                        <div className={`message-bubble ${isOwn ? "own" : ""} ${m.failed ? "failed" : ""}`}>
-                          {!isOwn && m.sender_name && (
-                            <span className="message-sender">{safeDisplayName(m.sender_name, t)}</span>
-                          )}
-                          {(m.attachment || (Array.isArray(m.attachments) && m.attachments.length > 0)) && (
-                            <div className="message-attachments">
-                              {m.attachment ? (
-                                <AttachmentRenderer attachment={m.attachment} />
-                              ) : (
-                                m.attachments.map((a, ai) => (
-                                  <AttachmentRenderer key={a.id || ai} attachment={a} />
-                                ))
-                              )}
-                            </div>
-                          )}
-                          <p>{m.body || m.text}</p>
-                          <div className="message-meta">
-                            {m.created_at && (
-                              <time>{formatChatTime(m.created_at, i18n.language)}</time>
-                            )}
-                            {isOwn && m.sending && (
-                              <span className="message-status" aria-live="polite">{t("messages.sending", "Sending…")}</span>
-                            )}
-                            {isOwn && !m.sending && m.failed && (
-                              <button type="button" className="message-retry" onClick={() => retrySend(m)}>
-                                {t("messages.retry", "Retry")}
-                              </button>
-                            )}
-                            {isOwn && !m.sending && !m.failed && m.read_at && (
-                              <span className="message-status read" title={t("messages.read", "Read")}>✓✓</span>
-                            )}
+                        {(m.attachment || (Array.isArray(m.attachments) && m.attachments.length > 0)) && (
+                          <div className="tg-msg__attachments">
+                            {m.attachment ? <AttachmentRenderer attachment={m.attachment} /> : m.attachments.map((a, ai) => <AttachmentRenderer key={a.id || ai} attachment={a} />)}
                           </div>
+                        )}
+                        {editingMessage?.id === m.id ? (
+                          <div className="tg-edit-inline">
+                            <textarea className="tg-edit-inline__area" value={editDraft} onChange={(e) => setEditDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleEditSave(); } if (e.key === "Escape") cancelEdit(); }} autoFocus rows={2} />
+                            <div className="tg-edit-inline__actions">
+                              <button type="button" className="tg-btn tg-btn--ghost tg-btn--sm" onClick={cancelEdit}>{t("common.cancel", "Cancel")}</button>
+                              <button type="button" className="tg-btn tg-btn--primary tg-btn--sm" onClick={handleEditSave}>{t("common.save", "Save")}</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="tg-msg__text">{query.trim() ? highlightMatch(m.body || m.text || "", query.trim()) : (m.body || m.text)}</div>
+                        )}
+                        {msgReactions && Object.keys(msgReactions.emoji).length > 0 && (
+                          <div className="tg-reactions">
+                            {Object.entries(msgReactions.emoji).filter(([,c])=>c>0).map(([emoji, count]) => (
+                              <button key={emoji} type="button" className={`tg-reaction ${msgReactions.userReacted?.[emoji] ? "tg-reaction--reacted" : ""}`} onClick={() => handleToggleReaction(m.id, emoji)}>{emoji} {count}</button>
+                            ))}
+                          </div>
+                        )}
+                        <div className="tg-msg__meta">
+                          <span className="tg-msg__time">{m.created_at ? formatChatTime(m.created_at, i18n.language) : ""}{m.edited ? ` · ${t("messages.edited", "edited")}` : ""}</span>
+                          {isOwn && (
+                            <span className="tg-msg__ticks">
+                              {m.sending ? <Clock3 size={12} className="tg-tick tg-tick--sending" /> : m.failed ? <AlertCircle size={12} className="tg-tick tg-tick--failed" /> : m.read_at ? <CheckCheck size={14} className="tg-tick tg-tick--read" /> : <Check size={14} className="tg-tick tg-tick--sent" />}
+                            </span>
+                          )}
                         </div>
-                      </Fragment>
-                    );
-                  })
-                )}
+                        {/* hover actions */}
+                        <div className="tg-msg__actions">
+                          <button type="button" className="tg-msg-action" onClick={() => setShowReactionPicker(m.id)} title={t("messages.add_reaction", "React")}><Heart size={14} /></button>
+                          <button type="button" className="tg-msg-action" onClick={() => startReply(m)} title={t("messages.reply", "Reply")}><Reply size={14} /></button>
+                          <button type="button" className="tg-msg-action" onClick={() => startForward(m)} title={t("messages.forward", "Forward")}><Forward size={14} /></button>
+                          {isOwn && !m.sending && !m.failed && (
+                            <>
+                              <button type="button" className="tg-msg-action" onClick={() => startEdit(m)} title={t("messages.edit", "Edit")}><Edit2 size={14} /></button>
+                              <button type="button" className="tg-msg-action tg-msg-action--danger" onClick={() => handleDelete(m.id)} title={t("messages.delete", "Delete")}><Trash2 size={14} /></button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {m.failed && isOwn && (
+                        <div className="tg-failed-row">
+                          <span className="tg-failed-row__label">{t("messages.not_delivered", "Not delivered")}</span>
+                          <button type="button" className="tg-btn tg-btn--ghost tg-btn--sm" onClick={() => retrySend(m)}>{t("messages.retry", "Retry")}</button>
+                        </div>
+                      )}
+                    </Fragment>
+                  );
+                })}
+            </div>
+
+            {/* Reply / Edit bars */}
+            {replyingTo && (
+              <div className="tg-reply-bar">
+                <div className="tg-reply-bar__line" />
+                <div className="tg-reply-bar__content">
+                  <div className="tg-reply-bar__title">{t("messages.replying_to", "Replying to")} {safeDisplayName(replyingTo.sender_name, t)}</div>
+                  <div className="tg-reply-bar__text">{replyingTo.body || replyingTo.text || t("messages.attachment", "Attachment")}</div>
+                </div>
+                <button type="button" className="tg-icon-btn tg-icon-btn--ghost" onClick={cancelReply} aria-label={t("common.cancel", "Cancel")}><X size={16} /></button>
               </div>
-              <form className="message-composer" onSubmit={handleSend}>
-                {pendingFile && (
-                  <div className="composer-attachment">
-                    {pendingFile.file.type?.startsWith("image/") && pendingFile.objectUrl ? (
-                      <img className="composer-attachment-thumb" src={pendingFile.objectUrl} alt={pendingFile.file.name} />
-                    ) : (
-                      <span className="composer-attachment-icon" aria-hidden="true">📄</span>
-                    )}
-                    <div className="composer-attachment-info">
-                      <span className="composer-attachment-name">{pendingFile.file.name}</span>
-                      {typeof pendingFile.progress === "number" && pendingFile.progress < 100 && sending && (
-                        <div className="composer-attachment-progress" role="progressbar" aria-valuenow={pendingFile.progress} aria-valuemin={0} aria-valuemax={100}>
-                          <i style={{ width: `${pendingFile.progress}%` }} />
-                          <span>{pendingFile.progress}%</span>
-                        </div>
-                      )}
-                      {sending && pendingFile.progress >= 100 && (
-                        <span className="composer-attachment-uploading">{t("attachments.uploading", "Uploading…")}</span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="composer-attachment-remove"
-                      onClick={clearPendingFile}
-                      disabled={sending}
-                      aria-label={t("attachments.remove_file", "Remove file")}
-                    >
-                      ✕
-                    </button>
+            )}
+            {editingMessage && (
+              <div className="tg-reply-bar tg-reply-bar--edit">
+                <div className="tg-reply-bar__line tg-reply-bar__line--edit" />
+                <div className="tg-reply-bar__content">
+                  <div className="tg-reply-bar__title">{t("messages.editing", "Editing")}</div>
+                  <div className="tg-reply-bar__text">{editingMessage.body || editingMessage.text}</div>
+                </div>
+                <button type="button" className="tg-icon-btn tg-icon-btn--ghost" onClick={cancelEdit} aria-label={t("common.cancel", "Cancel")}><X size={16} /></button>
+              </div>
+            )}
+
+            {/* Attachment preview */}
+            {pendingFile && (
+              <div className="tg-attach-preview">
+                {pendingFile.file.type?.startsWith("image/") && pendingFile.objectUrl ? (
+                  <img className="tg-attach-preview__thumb" src={pendingFile.objectUrl} alt={pendingFile.file.name} />
+                ) : (
+                  <span className="tg-attach-preview__icon">📄</span>
+                )}
+                <span className="tg-attach-preview__info">
+                  <span className="tg-attach-preview__name">{pendingFile.file.name}</span>
+                  {typeof pendingFile.progress === "number" && pendingFile.progress < 100 && sending ? (
+                    <span className="tg-attach-preview__progress"><i style={{ width: `${pendingFile.progress}%` }} /><span>{pendingFile.progress}%</span></span>
+                  ) : sending && pendingFile.progress >= 100 ? (
+                    <span className="tg-hint">{t("attachments.uploading", "Uploading…")}</span>
+                  ) : (
+                    <span className="tg-hint">{pendingFile.file.type || "file"} · {(pendingFile.file.size / 1024).toFixed(1)} KB</span>
+                  )}
+                </span>
+                <button type="button" className="tg-icon-btn tg-icon-btn--ghost" onClick={clearPendingFile} disabled={sending} aria-label={t("attachments.remove_file", "Remove file")}><X size={16} /></button>
+              </div>
+            )}
+
+            {/* Composer */}
+            <form className="tg-composer" onSubmit={editingMessage ? (e) => { e.preventDefault(); handleEditSave(); } : handleSend} ref={composerRef}>
+              <div className="tg-attach-wrap">
+                <button type="button" className="tg-icon-btn tg-icon-btn--ghost" onClick={() => setShowAttachMenu((v) => !v)} disabled={sending} aria-label={t("attachments.attach_file", "Attach")}>
+                  <Paperclip size={18} />
+                </button>
+                {showAttachMenu && (
+                  <div className="tg-attach-menu">
+                    <button type="button" className="tg-attach-menu__item" onClick={() => photoInputRef.current?.click()} disabled={!!pendingFile}><ImageIcon size={16} /> {t("attachments.photo", "Photo")}</button>
+                    <button type="button" className="tg-attach-menu__item" onClick={() => fileInputRef.current?.click()} disabled={!!pendingFile}><Paperclip size={16} /> {t("attachments.file", "File")}</button>
                   </div>
                 )}
-                <div className="composer-row">
-                  <>
-                    <input
-                      ref={photoInputRef}
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      onChange={handleFileSelect}
-                      data-testid="photo-input"
-                    />
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      hidden
-                      onChange={handleFileSelect}
-                      data-testid="file-input"
-                    />
-                    <button
-                      type="button"
-                      className="composer-attach-btn"
-                      onClick={() => photoInputRef.current?.click()}
-                      disabled={sending || !!pendingFile}
-                      aria-label={t("attachments.attach_photo", "Attach photo")}
-                    >
-                      📷
-                    </button>
-                    <button
-                      type="button"
-                      className="composer-attach-btn"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={sending || !!pendingFile}
-                      aria-label={t("attachments.attach_file", "Attach file")}
-                    >
-                      📎
-                    </button>
-                  </>
-                  <input
-                    type="text"
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.form.requestSubmit(); }}
-                    placeholder={t("messages.type_message", "Type a message...")}
-                    aria-label={t("messages.type_message", "Type a message...")}
-                    disabled={sending}
-                  />
-                  <button type="submit" className="btn-primary" disabled={sending || (!draft.trim() && !pendingFile)}>
-                    {sending ? t("messages.sending", "Sending…") : t("messages.send", "Send")}
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-        </section>
+                <input ref={photoInputRef} type="file" accept="image/*" hidden onChange={handleFileSelect} data-testid="photo-input" />
+                <input ref={fileInputRef} type="file" hidden onChange={handleFileSelect} data-testid="file-input" />
+              </div>
 
-        {newTicketOpen && <NewTicketModal onClose={() => setNewTicketOpen(false)} onCreated={handleTicketCreated} />}
+              <div className="tg-composer__input-wrap">
+                <input
+                  className="tg-composer__input"
+                  type="text"
+                  value={editingMessage ? editDraft : draft}
+                  onChange={(e) => editingMessage ? setEditDraft(e.target.value) : setDraft(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Escape") { cancelReply(); cancelEdit(); } }}
+                  placeholder={editingMessage ? t("messages.edit_placeholder", "Edit message...") : replyingTo ? t("messages.reply_placeholder", "Write a reply...") : t("messages.type_message", "Write a message...")}
+                  disabled={sending}
+                  aria-label={t("messages.type_message", "Write a message...")}
+                />
+                <button type="button" className="tg-icon-btn tg-icon-btn--ghost tg-composer__emoji" aria-label="Emoji" onClick={() => setShowReactionPicker(showReactionPicker ? null : "__composer")}>
+                  <Smile size={18} />
+                </button>
+              </div>
 
-        <ConfirmDialog
-          open={confirmAction === "close"}
-          title={t("support.close_confirm_title", "Close this ticket?")}
-          message={t("support.close_confirm_text", "This will mark the ticket as closed. You can reopen it later.")}
-          confirmLabel={t("support.close_ticket", "Close ticket")}
-          loading={busy}
-          onConfirm={closeTicket}
-          onCancel={() => setConfirmAction(null)}
-        />
-        <ConfirmDialog
-          open={confirmAction === "reopen"}
-          title={t("support.reopen_confirm_title", "Reopen this ticket?")}
-          message={t("support.reopen_confirm_text", "The ticket status will change back to open.")}
-          confirmLabel={t("support.reopen_ticket", "Reopen")}
-          tone="active"
-          loading={busy}
-          onConfirm={reopenTicket}
-          onCancel={() => setConfirmAction(null)}
-        />
-      </div>
+              {editingMessage ? (
+                <>
+                  <button type="button" className="tg-btn tg-btn--ghost" onClick={cancelEdit}>{t("common.cancel", "Cancel")}</button>
+                  <button type="submit" className="tg-btn tg-btn--primary tg-btn--icon" disabled={!editDraft.trim()} aria-label={t("common.save", "Save")}><Check size={18} /></button>
+                </>
+              ) : (
+                <button type="submit" className="tg-btn tg-btn--primary tg-btn--icon tg-btn--send" disabled={sending || (!draft.trim() && !pendingFile && !replyingTo)} aria-label={t("messages.send", "Send")}>
+                  {sending ? <Clock3 size={18} className="tg-spin" /> : <Send size={18} />}
+                </button>
+              )}
+            </form>
+
+            {/* quick emoji for composer */}
+            {showReactionPicker === "__composer" && (
+              <div className="tg-emoji-bar">
+                {["😀","😂","❤️","🔥","👍","🎉","😮","😢","🙏","👏"].map((e) => (
+                  <button key={e} type="button" className="tg-emoji" onClick={() => { setDraft((d) => d + e); setShowReactionPicker(null); }}>{e}</button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      {newTicketOpen && <NewTicketModal onClose={() => setNewTicketOpen(false)} onCreated={handleTicketCreated} />}
+
+      {showReactionPicker && showReactionPicker !== "__composer" && (
+        <div className="tg-reaction-picker" role="dialog" aria-modal="true" onClick={() => setShowReactionPicker(null)}>
+          <div className="tg-reaction-picker__panel" onClick={(e) => e.stopPropagation()}>
+            {["👍","❤️","😂","😮","😢","😡","🎉","🔥","👏","🤔"].map((emoji) => (
+              <button key={emoji} type="button" className="tg-emoji" onClick={() => { handleAddReaction(showReactionPicker, emoji); setShowReactionPicker(null); }} aria-label={emoji}>{emoji}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {forwardingMessage && (
+        <div className="tg-modal" onClick={cancelForward}>
+          <div className="tg-modal__panel" onClick={(e) => e.stopPropagation()}>
+            <div className="tg-modal__header">
+              <h3 className="tg-modal__title">{t("messages.forward_to", "Forward to")}</h3>
+              <button type="button" className="tg-icon-btn tg-icon-btn--ghost" onClick={cancelForward}><X size={16} /></button>
+            </div>
+            <div className="tg-modal__preview">{forwardingMessage.body?.slice(0,120) || forwardingMessage.text?.slice(0,120) || t("messages.attachment", "Attachment")}</div>
+            <div className="tg-forward-list">
+              {filtered.map((c) => (
+                <button key={c.id} type="button" className={`tg-forward-item ${forwardTargetConvo === c.id ? "tg-forward-item--active" : ""}`} onClick={() => setForwardTargetConvo(c.id)}>
+                  <TgAvatar name={safeDisplayName(c.counterpart_name || c.name, t)} size={36} />
+                  <span className="tg-forward-item__name">{safeDisplayName(c.counterpart_name || c.name, t)}</span>
+                  <span className="tg-forward-item__type">{c.type === CONVERSATION_TYPES.SUPPORT ? "Support" : "Chat"}</span>
+                </button>
+              ))}
+            </div>
+            <div className="tg-modal__actions">
+              <button type="button" className="tg-btn tg-btn--ghost" onClick={cancelForward}>{t("common.cancel", "Cancel")}</button>
+              <button type="button" className="tg-btn tg-btn--primary" onClick={handleForward} disabled={!forwardTargetConvo}>{t("messages.forward", "Forward")}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ConfirmDialog open={confirmAction === "close"} title={t("support.close_confirm_title", "Close this ticket?")} message={t("support.close_confirm_text", "This will mark the ticket as closed.")} confirmLabel={t("support.close_ticket", "Close ticket")} loading={busy} onConfirm={closeTicket} onCancel={() => setConfirmAction(null)} />
+      <ConfirmDialog open={confirmAction === "reopen"} title={t("support.reopen_confirm_title", "Reopen this ticket?")} message={t("support.reopen_confirm_text", "The ticket status will change back to open.")} confirmLabel={t("support.reopen_ticket", "Reopen")} tone="active" loading={busy} onConfirm={reopenTicket} onCancel={() => setConfirmAction(null)} />
+    </div>
   );
 }

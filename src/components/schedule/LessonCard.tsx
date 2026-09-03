@@ -10,6 +10,7 @@ interface LessonCardProps {
   onJoin?: (lesson: LessonDTO | LessonMinimal) => void;
   compact?: boolean;
   showDate?: boolean;
+  showJoin?: boolean;
 }
 
 export const LessonCard = memo(function LessonCard({
@@ -18,6 +19,7 @@ export const LessonCard = memo(function LessonCard({
   onJoin,
   compact = false,
   showDate = false,
+  showJoin = false,
 }: LessonCardProps) {
   const { t } = useTranslation();
   const isLessonDTO = "courseId" in lesson && "tutorId" in lesson;
@@ -33,7 +35,7 @@ export const LessonCard = memo(function LessonCard({
     month: "short",
   });
 
-  const statusClass = `status-${lesson.status.toLowerCase().replace("_", "-")}`;
+  const statusClass = `status-${String(lesson.status || "").toLowerCase().replace("_", "-") || "scheduled"}`;
 
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
@@ -57,7 +59,7 @@ export const LessonCard = memo(function LessonCard({
       >
         <span className="lesson-card-time">{timeStr}</span>
         <span className="lesson-card-title">{lesson.courseTitle}</span>
-        {canJoin && (
+        {showJoin && canJoin && (
           <span className="lesson-card-join">{t("schedule.join", "Войти")}</span>
         )}
       </button>
@@ -93,15 +95,15 @@ export const LessonCard = memo(function LessonCard({
         )}
 
         {isLessonDTO && lesson.format && (
-          <span className={`lesson-card-format format-${lesson.format.toLowerCase()}`}>
-            {lesson.format === "ONLINE" ? t("schedule.online", "Онлайн") : t("schedule.offline", "Офлайн")}
+          <span className={`lesson-card-format format-${String(lesson.format || "").toLowerCase()}`}>
+            {String(lesson.format).toUpperCase() === "ONLINE" ? t("schedule.online", "Онлайн") : t("schedule.offline", "Офлайн")}
           </span>
         )}
       </div>
 
       <div className="lesson-card-actions">
-        <span className={`status-badge ${statusClass}`}>{t(`statuses.${lesson.status.toLowerCase().replace("_", "-")}`, lesson.status)}</span>
-        {canJoin && (
+        <span className={`status-badge ${statusClass}`}>{t(`statuses.${String(lesson.status || "").toLowerCase().replace("_", "-")}`, String(lesson.status || "SCHEDULED"))}</span>
+        {showJoin && canJoin && (
           <button
             type="button"
             className="btn-primary lesson-card-join-btn"

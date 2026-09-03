@@ -9,6 +9,20 @@ export const messagesApi = {
   send: (payload) => apiClient.post(endpoints.messages.send, payload),
   uploadAttachment: (file, onProgress) =>
     uploadFile({ endpoint: endpoints.messages.attachments, file, onProgress }),
+  // Reactions
+  addReaction: (messageId, emoji) => apiClient.post(endpoints.messages.reaction(messageId), { emoji }),
+  removeReaction: (messageId, emoji) => apiClient.delete(`${endpoints.messages.reaction(messageId)}?emoji=${encodeURIComponent(emoji)}`),
+  getReactions: (messageId) => apiClient.get(endpoints.messages.reactions(messageId)),
+  // Replies
+  reply: (messageId, body, attachmentId) => apiClient.post(endpoints.messages.reply(messageId), { body, attachment_id: attachmentId }),
+  // Edit message
+  edit: (messageId, body) => apiClient.patch(endpoints.messages.edit(messageId), { body }),
+  // Delete message
+  delete: (messageId) => apiClient.delete(endpoints.messages.delete(messageId)),
+  // Forward message
+  forward: (messageId, conversationId) => apiClient.post(endpoints.messages.forward(messageId), { conversation_id: conversationId }),
+  // Mark conversation as read
+  markConversationRead: (conversationId) => apiClient.post(endpoints.messages.markRead(conversationId)),
 };
 
 export const notificationsApi = {

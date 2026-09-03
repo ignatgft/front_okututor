@@ -5,11 +5,14 @@ import { CalendarPicker } from "../ui/CalendarPicker";
 import { LocationPicker, isValidLocation } from "../LocationPicker";
 import { MutualAvailability } from "./MutualAvailability";
 import { CalendarWeekOverlay } from "../calendar/CalendarWeekOverlay";
+import ManualTimePicker from "./ManualTimePicker";
+import "../../styles/ManualTimePicker.css";
 import { generateSlotTimes } from "../../utils/slots";
 import { getUserTimezone } from "../../utils/timezone";
 import { enrollmentsApi } from "../../api/enrollments.api";
 import { scheduleApi, buildProposePayload } from "../../api/schedule.api";
 import { getErrorMessage } from "../../utils/errorMessage";
+import useAuthStore from "../../store/authStore";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_KEY = {
@@ -60,12 +63,15 @@ export function ScheduleWizard({
   const [location, setLocation] = useState(null);
   const [days, setDays] = useState([]);
   const [time, setTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [timeValid, setTimeValid] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [count, setCount] = useState(4);
   const [duration, setDuration] = useState(60);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const tutorId = useAuthStore((s) => s.user?.id) || enrollment?.tutor_id || enrollment?.tutor?.id || course?.teacher?.id || course?.teacher_id || null;
 
   useEffect(() => {
     if (studentInput?.days?.length && days.length === 0) {
@@ -89,6 +95,16 @@ export function ScheduleWizard({
     if (!startDate) return [];
     return generateSlotTimes(tutorAvailability, new Date(`${startDate}T00:00:00`), { step: 15 });
   }, [startDate, tutorAvailability]);
+
+  // keep endTime in sync with time+duration when duration changes after picking time
+  useEffect(() => {
+    if (time && duration && /^(\d{2}):(\d{2})$/.test(time)) {
+      const [h, m] = time.split(":").map(Number);
+      const tot = h * 60 + m + Number(duration);
+      const e = `${String(Math.floor(tot / 60) % 24).padStart(2, "0")}:${String(tot % 60).padStart(2, "0")}`;
+      if (e !== endTime) setEndTime(e);
+    }
+  }, [duration, time, endTime]);
 
   const toggleDay = (d) => {
     setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
@@ -117,6 +133,7 @@ export function ScheduleWizard({
         return true;
       case 4:
         if (!time) { setError(t("booking.select_time", "Select a time")); return false; }
+        if (!timeValid) { setError(t("schedule.manual.not_available", "Выбранное время недоступно — проверьте статус")); return false; }
         return true;
       default:
         return true;
@@ -295,7 +312,7 @@ export function ScheduleWizard({
                 value={startDate}
                 minDate={today.toISOString().split("T")[0]}
                 days={days}
-                onSelect={(d) => { setStartDate(d); setTime(""); }}
+                onSelect={(d) => { setStartDate(d); setTime(""); setEndTime(""); setTimeValid(false); }}
                 ariaLabel={t("schedule_wizard.start_date", "Start date")}
               />
             </div>
@@ -303,36 +320,31 @@ export function ScheduleWizard({
 
           {step === 4 && (
             <div className="time-group">
-              <p className="wizard-hint">
-                {t("schedule_wizard.start_date", "Start date")}:{" "}
-                <strong>{startDate || t("schedule_wizard.no_date", "not chosen yet")}</strong>
-              </p>
-              <MutualAvailability
-                tutorAvailability={tutorAvailability}
-                studentInput={studentInput}
-                onPick={(s) => setTime(s.start)}
-              />
-              <details className="calendar-overlay-details">
-                <summary>{t("schedule_wizard.view_availability", "View weekly availability")}</summary>
-                <CalendarWeekOverlay availability={tutorAvailability} />
-              </details>
-              <p className="wizard-hint">{t("schedule_wizard.pick_time", "Pick a time from the available slots.")}</p>
-              <div className="slot-grid">
-                {!startDate && <p className="wizard-hint">{t("schedule_wizard.pick_date_first", "Choose a start date first")}</p>}
-                {startDate && availableTimes.length === 0 && (
-                  <p className="wizard-hint">{t("schedule_wizard.no_slots_for_date", "No available slots for this date.")}</p>
-                )}
-                {availableTimes.map((tm) => (
-                  <button
-                    key={tm}
-                    type="button"
-                    className={`slot-chip ${time === tm ? "slot-chip-active" : ""}`}
-                    onClick={() => setTime(tm)}
-                  >
-                    {tm}
-                  </button>
-                ))}
-              </div>
+              {!startDate ? (
+                <p className="wizard-hint">{t("schedule_wizard.pick_date_first", "Choose a start date first")}</p>
+              ) : (
+                <>
+                  <MutualAvailability
+                    tutorAvailability={tutorAvailability}
+                    studentInput={studentInput}
+                    onPick={(s) => { setTime(s.start); const e = s.end || (()=>{const [h,m]=s.start.split(":").map(Number); const tot=h*60+m+duration; return `${String(Math.floor(tot/60)%24).padStart(2,"0")}:${String(tot%60).padStart(2,"0")}`})(); setEndTime(e); }}
+                  />
+                  <ManualTimePicker
+                    tutorId={tutorId}
+                    date={startDate}
+                    initialStart={time || "18:00"}
+                    initialEnd={endTime}
+                    duration={duration}
+                    quickSlots={availableTimes}
+                    onChange={({ start, end, duration: d }) => { setTime(start); setEndTime(end); if (d && [30,45,60,90,120].includes(d)) setDuration(d); }}
+                    onValidityChange={setTimeValid}
+                  />
+                  <details className="calendar-overlay-details">
+                    <summary>{t("schedule_wizard.view_availability", "View weekly availability")}</summary>
+                    <CalendarWeekOverlay availability={tutorAvailability} />
+                  </details>
+                </>
+              )}
             </div>
           )}
 
@@ -365,7 +377,7 @@ export function ScheduleWizard({
                 <p><strong>{t("location.address", "Address")}:</strong> {location.address} {location.details && `(${location.details})`}</p>
               )}
               <p><strong>{t("schedule_wizard.days", "Days")}:</strong> {days.map((d) => t(DAY_KEY[d] || d)).join(", ")}</p>
-              <p><strong>{t("schedule_wizard.time", "Time")}:</strong> {time} ({startDate})</p>
+              <p><strong>{t("schedule_wizard.time", "Time")}:</strong> {time}{endTime ? ` — ${endTime}` : ""} ({startDate})</p>
               <p><strong>{t("schedule_wizard.count", "Lessons")}:</strong> {count}</p>
               <p><strong>{t("schedule_agreement.options", "Duration")}:</strong> {duration} {t("schedule.minutes_short", "min")}</p>
             </div>

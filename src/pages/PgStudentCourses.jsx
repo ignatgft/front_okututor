@@ -41,33 +41,46 @@ export default function PgStudentCourses() {
     items.length === 0 ? (
       <EmptyState title={emptyTitle} hint={emptyHint} />
     ) : (
-      <div className="bookings-list">
+      <div className="courses-grid">
         {items.map((e2) => {
           const courseId = e2.course_id || e2.course?.id;
-          const content = (
-            <div className="booking-card">
-              <div className="booking-info">
+          const card = (
+            <div className="course-card-admin">
+              <div className="course-card-admin-header">
                 <h3>{e2.course_title || e2.course?.title}</h3>
-                <p>{e2.teacher_name || e2.course?.teacher_name || e2.tutor?.full_name}</p>
+                <Badge status={e2.status}>{t(statusKey(e2.status), e2.status)}</Badge>
               </div>
-              <Badge status={e2.status}>{t(statusKey(e2.status), e2.status)}</Badge>
+              <p className="course-card-admin-desc">{e2.teacher_name || e2.course?.teacher_name || e2.tutor?.full_name || t("course.instructor_placeholder", "Instructor")}</p>
+              <div className="course-card-admin-actions">
+                <Link to={courseId ? `/course/${courseId}` : "#"} className="btn btn-secondary btn-sm">
+                  {t("common.view", "View")}
+                </Link>
+                <Link to={`/student/requests/${e2.id}`} className="btn btn-ghost btn-sm">
+                  {t("request_detail.view_schedule", "Details")}
+                </Link>
+              </div>
             </div>
           );
           return courseId ? (
-            <Link key={e2.id} to={`/course/${courseId}`} className="booking-card-link">
-              {content}
+            <Link key={e2.id} to={`/course/${courseId}`} className="booking-card-link" style={{ textDecoration: "none" }}>
+              {card}
             </Link>
           ) : (
-            <div key={e2.id}>{content}</div>
+            <div key={e2.id}>{card}</div>
           );
         })}
       </div>
     );
 
-  const active = enrollments.filter(
-    (e2) => e2.status === ENROLLMENT_STATUS.ACCEPTED || e2.status === ENROLLMENT_STATUS.COMPLETED
+  const active = enrollments.filter((e2) =>
+    [ENROLLMENT_STATUS.ACCEPTED, ENROLLMENT_STATUS.SCHEDULED, ENROLLMENT_STATUS.SCHEDULE_PENDING, ENROLLMENT_STATUS.SCHEDULE_PROPOSED].includes(e2.status)
   );
-  const pending = enrollments.filter((e2) => e2.status === ENROLLMENT_STATUS.PENDING);
+  const pending = enrollments.filter((e2) =>
+    [ENROLLMENT_STATUS.PENDING, ENROLLMENT_STATUS.NEEDS_INFO].includes(e2.status)
+  );
+  const hasActive = active.length > 0;
+  const hasPending = pending.length > 0;
+  const hasAnyRelevant = hasActive || hasPending;
 
   const findTutorHint = (
     <Link to="/search" className="btn-primary">
@@ -84,22 +97,27 @@ export default function PgStudentCourses() {
         </>
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
-      ) : enrollments.length === 0 ? (
-        <EmptyState
-          icon="📚"
-          title={t("student_courses.empty", "No courses yet")}
-          hint={findTutorHint}
-        />
+      ) : !hasAnyRelevant && enrollments.length === 0 ? (
+        <EmptyState icon="📚" title={t("student_courses.empty", "No courses yet")} hint={findTutorHint} />
+      ) : !hasAnyRelevant ? (
+        <EmptyState icon="📭" title={t("student_courses.empty_relevant", "No active requests")} hint={findTutorHint} />
       ) : (
         <>
-          <section>
-            <h2>{t("student_courses.active", "Active")} ({active.length})</h2>
-            {renderList(active, t("student_courses.no_active", "No active courses"))}
-          </section>
-          <section style={{ marginTop: 24 }}>
-            <h2>{t("student_courses.pending", "Pending requests")} ({pending.length})</h2>
-            {renderList(pending, t("student_courses.no_pending", "No pending requests"), findTutorHint)}
-          </section>
+          {hasActive && (
+            <section>
+              <h2>{t("student_courses.active", "Active")}</h2>
+              {renderList(active, t("student_courses.no_active", "No active courses"))}
+            </section>
+          )}
+          {hasPending && (
+            <section style={{ marginTop: hasActive ? 24 : 0 }}>
+              <h2>{t("student_courses.pending", "Pending requests")}</h2>
+              {renderList(pending, t("student_courses.no_pending", "No pending requests"), findTutorHint)}
+            </section>
+          )}
+          {!hasActive && !hasPending && (
+            <EmptyState icon="📭" title={t("student_courses.empty_relevant", "No active requests")} hint={findTutorHint} />
+          )}
         </>
       )}
     </>

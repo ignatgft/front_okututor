@@ -31,30 +31,36 @@ export const NextLessonCard = memo(function NextLessonCard({ lesson, onJoin, onV
     );
   }
 
-  const start = new Date(lesson.startAt);
-  const end = new Date(lesson.endAt);
-  const dateStr = formatInTimezone(lesson.startAt, lesson.timezone, "ru", {
+  const start = lesson.startAt ? new Date(lesson.startAt) : null;
+  const end = lesson.endAt ? new Date(lesson.endAt) : null;
+  const dateStr = lesson.startAt ? formatInTimezone(lesson.startAt, lesson.timezone || "UTC", "ru", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
-  });
-  const timeStr = `${formatTimeInTimezone(lesson.startAt, lesson.timezone)}–${formatTimeInTimezone(lesson.endAt, lesson.timezone)}`;
-  const tzLabel = timezoneLabel(lesson.timezone);
+  }) : "—";
+  const timeStr = lesson.startAt && lesson.endAt
+    ? `${formatTimeInTimezone(lesson.startAt, lesson.timezone || "UTC")}–${formatTimeInTimezone(lesson.endAt, lesson.timezone || "UTC")}`
+    : lesson.startAt ? formatTimeInTimezone(lesson.startAt, lesson.timezone || "UTC") : "—";
+  const tzLabel = timezoneLabel(lesson.timezone || "UTC");
 
-  // Format countdown
+  // Format countdown — используем готовые ключи с интерполяцией
   let countdownText = "";
   if (countdown.isPast) {
     countdownText = isInProgress ? t("schedule.lesson_in_progress", "Идёт сейчас") : t("schedule.lesson_ended", "Урок завершился");
   } else if (countdown.days > 0) {
-    countdownText = `${countdown.days} ${t("plural.day", "д")} ${countdown.hours} ${t("plural.hour", "ч")}`;
+    countdownText = t("schedule.countdown_days", "{{days}} д {{hours}} ч", { days: countdown.days, hours: countdown.hours } as any).replace("{{days}}", String(countdown.days)).replace("{{hours}}", String(countdown.hours));
+    // fallback если ключ не найден — ручная сборка
+    if (countdownText.includes("{{")) countdownText = `${countdown.days} д ${countdown.hours} ч`;
   } else if (countdown.hours > 0) {
-    countdownText = `${countdown.hours} ${t("plural.hour", "ч")} ${countdown.minutes} ${t("plural.minute", "мин")}`;
+    countdownText = t("schedule.countdown_hours", "{{hours}} ч {{minutes}} мин", { hours: countdown.hours, minutes: countdown.minutes } as any);
+    if (countdownText.includes("{{")) countdownText = `${countdown.hours} ч ${countdown.minutes} мин`;
   } else {
-    countdownText = `${countdown.minutes} ${t("plural.minute", "мин")} ${countdown.seconds} ${t("plural.second", "с")}`;
+    countdownText = t("schedule.countdown_minutes", "{{minutes}} мин", { minutes: countdown.minutes } as any);
+    if (countdownText.includes("{{")) countdownText = `${countdown.minutes} мин`;
   }
 
-  const statusClass = `status-${lesson.status.toLowerCase().replace("_", "-")}`;
+  const statusClass = `status-${String(lesson.status || "").toLowerCase().replace("_", "-") || "scheduled"}`;
 
   return (
     <div className={`next-lesson-card ${statusClass} ${isInProgress ? "in-progress" : ""}`}>

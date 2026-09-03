@@ -50,6 +50,71 @@ export function normalizeUser(raw = {}) {
   };
 }
 
+export function normalizeLesson(raw = {}) {
+  if (!raw) return null;
+  return {
+    id: raw.id ?? raw._id ?? null,
+    courseId: raw.course_id ?? raw.courseId ?? null,
+    courseTitle: raw.course_title ?? raw.courseTitle ?? raw.title ?? "",
+    tutorId: raw.tutor_id ?? raw.tutorId ?? null,
+    tutorName: raw.tutor_name ?? raw.tutorName ?? "",
+    tutorAvatar: raw.tutor_avatar ?? raw.tutorAvatar ?? null,
+    studentId: raw.student_id ?? raw.studentId ?? null,
+    studentName: raw.student_name ?? raw.studentName ?? "",
+    startAt: raw.start_at ?? raw.startAt ?? null,
+    endAt: raw.end_at ?? raw.endAt ?? null,
+    timezone: raw.timezone ?? "UTC",
+    status: raw.status ?? "SCHEDULED",
+    statusLabel: raw.status_label ?? raw.statusLabel ?? raw.status ?? "",
+    format: raw.format ?? "ONLINE",
+    meetingRoomId: raw.meeting_room_id ?? raw.meetingRoomId ?? null,
+    meetingUrl: raw.meeting_url ?? raw.meetingUrl ?? null,
+    location: raw.location ?? raw.location_address ?? null,
+    locationType: raw.location_type ?? raw.locationType ?? null,
+    locationAddress: raw.location_address ?? raw.locationAddress ?? null,
+    locationDetails: raw.location_details ?? raw.locationDetails ?? null,
+    canJoin: raw.can_join ?? raw.canJoin ?? false,
+    canCancel: raw.can_cancel ?? raw.canCancel ?? false,
+    canReschedule: raw.can_reschedule ?? raw.canReschedule ?? false,
+    canReview: raw.can_review ?? raw.canReview ?? false,
+    canStart: raw.can_start ?? raw.canStart ?? false,
+    canComplete: raw.can_complete ?? raw.canComplete ?? false,
+    canMarkStudentNoShow: raw.can_mark_student_no_show ?? raw.canMarkStudentNoShow ?? false,
+    canMarkTutorNoShow: raw.can_mark_tutor_no_show ?? raw.canMarkTutorNoShow ?? false,
+    canReportIssue: raw.can_report_issue ?? raw.canReportIssue ?? false,
+    cancelledBy: raw.cancelled_by ?? raw.cancelledBy ?? null,
+    cancelReason: raw.cancel_reason ?? raw.cancelReason ?? null,
+    actualStart: raw.actual_start ?? raw.actualStart ?? null,
+    actualEnd: raw.actual_end ?? raw.actualEnd ?? null,
+    durationMinutes: raw.duration_minutes ?? raw.durationMinutes ?? null,
+    startedBy: raw.started_by ?? raw.startedBy ?? null,
+    completedBy: raw.completed_by ?? raw.completedBy ?? null,
+    topic: raw.topic ?? null,
+    notes: raw.notes ?? null,
+    homework: raw.homework ?? null,
+    materials: raw.materials ?? null,
+    links: raw.links ?? null,
+    attendance: raw.attendance ?? null,
+    pendingStartAt: raw.pending_start_at ?? raw.pendingStartAt ?? null,
+    pendingEndAt: raw.pending_end_at ?? raw.pendingEndAt ?? null,
+    pendingReason: raw.pending_reason ?? raw.pendingReason ?? null,
+    pendingFormat: raw.pending_format ?? raw.pendingFormat ?? null,
+    pendingLocationType: raw.pending_location_type ?? raw.pendingLocationType ?? null,
+    pendingLocationAddress: raw.pending_location_address ?? raw.pendingLocationAddress ?? null,
+    pendingLocationDetails: raw.pending_location_details ?? raw.pendingLocationDetails ?? null,
+    pendingDurationMinutes: raw.pending_duration_minutes ?? raw.pendingDurationMinutes ?? null,
+    pendingScope: raw.pending_scope ?? raw.pendingScope ?? null,
+    pendingProposedBy: raw.pending_proposed_by ?? raw.pendingProposedBy ?? null,
+    pendingProposedAt: raw.pending_proposed_at ?? raw.pendingProposedAt ?? null,
+    sequenceNumber: raw.sequence_number ?? raw.sequenceNumber ?? null,
+    scheduleId: raw.schedule_id ?? raw.scheduleId ?? null,
+    bookingId: raw.booking_id ?? raw.bookingId ?? null,
+    createdAt: raw.created_at ?? raw.createdAt ?? null,
+    updatedAt: raw.updated_at ?? raw.updatedAt ?? null,
+    raw,
+  };
+}
+
 /**
  * Normalize notification message from backend raw format to i18n-ready format.
  * Backend sends raw strings like "MESSAGENew message from John" or
@@ -61,8 +126,12 @@ export function normalizeNotification(raw = {}) {
   const message = raw.message || raw.text || "";
   const payload = raw.payload || {};
 
-  // If message already looks localized (contains spaces, not concatenated), return as-is
-  const looksLocalized = /^[A-Z_]+[a-z\s]/.test(message) || message.includes(" ");
+  // Detect raw backend messages: they typically have format "TYPERAWMESSAGE" (no space after type)
+  // e.g., "MESSAGENew message from John", "BOOKING_COMPLETEDYour booking..."
+  // Localized messages have proper spacing/punctuation
+  const isRawBackendMessage = /^[A-Z_]+[A-Z]/.test(message) || /^[A-Z_]{3,}[a-z]/.test(message);
+
+  const params = extractNotificationParams(type, message, payload);
 
   return {
     id: raw.id ?? raw._id ?? null,
@@ -72,9 +141,9 @@ export function normalizeNotification(raw = {}) {
     link: raw.link ?? null,
     payload,
     // Extract structured data for i18n
-    params: extractNotificationParams(type, message, payload),
-    // Fallback to raw message if we can't parse
-    rawMessage: looksLocalized ? message : null,
+    params,
+    // Only use raw message as fallback if it's NOT a raw backend message
+    rawMessage: isRawBackendMessage ? null : (message || null),
   };
 }
 
@@ -88,6 +157,9 @@ function extractNotificationParams(type, message, payload) {
       // "MESSAGENew message from John" -> { senderName: "John" }
       const msgMatch = message.match(/MESSAGE\s*New message from\s+(.+)/i);
       if (msgMatch) params.senderName = msgMatch[1].trim();
+      // Also try to extract preview from message
+      const previewMatch = message.match(/New message from\s+.+?[:：]\s*(.+)/i);
+      if (previewMatch) params.preview = previewMatch[1].trim();
       break;
     }
 
@@ -112,6 +184,7 @@ function extractNotificationParams(type, message, payload) {
 
     case "BOOKING_CONFIRMED":
     case "BOOKING_CANCELLED":
+    case "BOOKING_COMPLETED":
       if (payload.course_title) params.courseTitle = payload.course_title;
       if (payload.tutor_name) params.tutorName = payload.tutor_name;
       if (payload.start_at) params.startAt = payload.start_at;
@@ -139,7 +212,10 @@ function extractNotificationParams(type, message, payload) {
       break;
 
     case "SYSTEM":
-      // System notifications might have custom messages
+      // System notifications might have custom messages - try to use message as-is
+      if (message && !message.startsWith("SYSTEM")) {
+        params.message = message;
+      }
       break;
   }
 

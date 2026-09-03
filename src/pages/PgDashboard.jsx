@@ -12,7 +12,7 @@ import { useToast } from "../components/ui/Toast";
 import { studentsApi } from "../api/students.api";
 import { ENROLLMENT_STATUS } from "../constants/enums";
 import { enrollmentStatusLabel } from "../utils/statusLabels";
-import { NextLessonCard, ActionRequiredBlock } from "../components/schedule";
+import { NextLessonCard, ActionRequiredBlock, LessonDetailsModal } from "../components/schedule";
 import "../styles/Dashboard.css";
 
 export default function PgDashboard() {
@@ -29,6 +29,7 @@ export default function PgDashboard() {
   const [reviewTarget, setReviewTarget] = useState(null);
   const [reviewedIds, setReviewedIds] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
+  const [selectedLesson, setSelectedLesson] = useState(null);
   const setPageTitle = usePageTitle();
   useEffect(() => { setPageTitle(t("dashboard.title") || "Главная"); }, [setPageTitle, t]);
 
@@ -223,7 +224,7 @@ export default function PgDashboard() {
       <NextLessonCard
         lesson={nextLesson}
         onJoin={joinLesson}
-        onViewDetails={(lesson) => navigate(`/lesson/${lesson.id}`)}
+        onViewDetails={(lesson) => setSelectedLesson(lesson)}
       />
 
       {/* ACTION REQUIRED BLOCK */}
@@ -390,6 +391,15 @@ export default function PgDashboard() {
         booking={reviewTarget}
         onClose={() => setReviewTarget(null)}
         onSubmitted={(b) => setReviewedIds((prev) => [...prev, b.id])}
+      />
+
+      <LessonDetailsModal
+        lesson={selectedLesson}
+        isOpen={!!selectedLesson}
+        onClose={() => setSelectedLesson(null)}
+        onChanged={() => {
+          loadBookings();
+        }}
       />
     </>
   );

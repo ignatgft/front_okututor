@@ -570,6 +570,7 @@
     "overview": "Обзор",
     "courses": "Курстар",
     "bookings": "Жазылуулар",
+    "requests": "Өтүнмөлөр",
     "total_courses": "Курстар",
     "pending_bookings": "Күтүлүүдө",
     "confirmed_bookings": "Тастыкталган",
@@ -774,9 +775,10 @@
     "types": {
       "COURSE_APPLICATION": "Курска өтүнмө",
       "APPLICATION_ACCEPTED": "Өтүнмө кабыл алынды",
-      "APPLICATION_REJECTED": "Өтүнмө четке кагылды",
+      "APPLICATION_REJECTED": "Өтүнмө чекке кагылды",
       "BOOKING_CONFIRMED": "Жазылуу ырасталды",
       "BOOKING_CANCELLED": "Жазылуу жокко чыгарылды",
+      "BOOKING_COMPLETED": "Жазылуу аякталды",
       "LESSON_REMINDER": "Сабак тууралуу эскеритирүү",
       "LESSON_CANCELLED": "Сабак жокко чыгарылды",
       "NEW_MESSAGE": "Жаңы месеж",
@@ -786,6 +788,7 @@
       "COURSE_APPROVED": "Курс жарыялды",
       "COURSE_REJECTED": "Курс чекке кагылды",
       "APPLICATION_CANCELLED": "Өтүнмө жокко чыгарылды",
+      "SUPPORT": "Колдоо",
       "SYSTEM": "Системалык билдирүү"
     },
     "messages": {
@@ -794,6 +797,7 @@
       "APPLICATION_REJECTED": "Сиздин «{{courseTitle}}» курска өтүнүңүз чекке кагылды",
       "BOOKING_CONFIRMED": "«{{courseTitle}}» курска жазылуу ырасталды",
       "BOOKING_CANCELLED": "«{{courseTitle}}» курска жазылуу жокко чыгарылды",
+      "BOOKING_COMPLETED": "«{{courseTitle}}» курска жазылуу аякталды",
       "LESSON_REMINDER": "«{{courseTitle}}» сабагы {{tutorName}} билан 15 мүнөт ичинде башталат",
       "LESSON_CANCELLED": "«{{courseTitle}}» сабагы {{tutorName}} билан жокко чыгарылды",
       "NEW_MESSAGE": "{{senderName}}: {{preview}}",
@@ -803,6 +807,7 @@
       "COURSE_APPROVED": "«{{courseTitle}}» курсу жарыялды",
       "COURSE_REJECTED": "«{{courseTitle}}» курсу чекке кагылды",
       "APPLICATION_CANCELLED": "{{studentName}} «{{courseTitle}}» курска өтүнү жокко чыгарды",
+      "SUPPORT": "{{message}}",
       "SYSTEM": "{{message}}"
     }
   },

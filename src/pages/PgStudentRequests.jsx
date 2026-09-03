@@ -46,18 +46,11 @@ export default function PgStudentRequests() {
     load();
   }, [load]);
 
-  const counts = {
-    awaiting: enrollments.filter((e) => STUDENT_TABS.awaiting.includes(e.status)).length,
-    action: enrollments.filter((e) => STUDENT_TABS.action.includes(e.status)).length,
-    active: enrollments.filter((e) => STUDENT_TABS.active.includes(e.status)).length,
-    archive: enrollments.filter((e) => STUDENT_TABS.archive.includes(e.status)).length,
-  };
-
   const tabs = [
-    { value: "awaiting", label: `${t("student_requests.tab_awaiting", "Awaiting")} (${counts.awaiting})` },
-    { value: "action", label: `${t("student_requests.tab_action", "Action needed")} (${counts.action})` },
-    { value: "active", label: `${t("student_requests.tab_active", "Active")} (${counts.active})` },
-    { value: "archive", label: `${t("student_requests.tab_archive", "Archive")} (${counts.archive})` },
+    { value: "awaiting", label: t("student_requests.tab_awaiting", "Awaiting") },
+    { value: "action", label: t("student_requests.tab_action", "Action needed") },
+    { value: "active", label: t("student_requests.tab_active", "Active") },
+    { value: "archive", label: t("student_requests.tab_archive", "Archive") },
   ];
 
   const visible = enrollments.filter((e) => (STUDENT_TABS[tab] || []).includes(e.status));

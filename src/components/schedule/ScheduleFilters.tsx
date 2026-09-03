@@ -94,28 +94,22 @@ export const ScheduleFilters = memo(function ScheduleFilters({
 
         {courseOpen && (
           <div className="filter-dropdown" role="listbox" aria-label={t("schedule.filter_courses", "Фильтр по курсам")}>
-            <label className="filter-option">
-              <input
-                type="checkbox"
-                checked={filters.courseIds.length === 0}
-                onChange={() => onChange({ ...filters, courseIds: [] })}
-                disabled={disabled}
-              />
-              <span>{t("schedule.all_courses", "Все курсы")}</span>
-            </label>
-            <div className="filter-divider" />
-            {courses.map((course) => (
-              <label key={course.id} className="filter-option">
-                <input
-                  type="checkbox"
-                  checked={filters.courseIds.includes(course.id)}
-                  onChange={() => handleCourseChange(course.id)}
-                  disabled={disabled}
-                />
-                <span>{course.title}</span>
-                {course.tutorName && <span className="filter-option-tutor">{course.tutorName}</span>}
-              </label>
-            ))}
+            {courses.length === 0 ? (
+              <div className="filter-empty">{t("schedule.no_courses", "Курсов нет")}</div>
+            ) : (
+              courses.map((course) => (
+                <label key={course.id} className="filter-option">
+                  <input
+                    type="checkbox"
+                    checked={filters.courseIds.includes(course.id)}
+                    onChange={() => handleCourseChange(course.id)}
+                    disabled={disabled}
+                  />
+                  <span>{course.title}</span>
+                  {course.tutorName && <span className="filter-option-tutor">{course.tutorName}</span>}
+                </label>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -146,16 +140,6 @@ export const ScheduleFilters = memo(function ScheduleFilters({
 
         {statusOpen && (
           <div className="filter-dropdown" role="listbox" aria-label={t("schedule.filter_status", "Фильтр по статусу")}>
-            <label className="filter-option">
-              <input
-                type="checkbox"
-                checked={filters.statuses.length === 0}
-                onChange={() => onChange({ ...filters, statuses: [] })}
-                disabled={disabled}
-              />
-              <span>{t("schedule.all_statuses", "Все статусы")}</span>
-            </label>
-            <div className="filter-divider" />
             {STATUS_OPTIONS.map((status) => (
               <label key={status.value} className="filter-option">
                 <input

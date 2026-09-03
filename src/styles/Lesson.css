@@ -1,10 +1,10 @@
 /* Lesson — Video call page (always dark UI) — Mobile-first
    base:     mobile — compact header, 1-col video, small controls
    ≥768px:   tablet+ — standard layout, multi-col video
-*/
+   Uses new dark theme palette (--color-bg, --color-surface, etc.) */
 .lesson-page {
   min-height: 100dvh;
-  background: #0f172a;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
 }
@@ -14,7 +14,8 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-3) var(--space-4);
-  background: #162034;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: var(--space-2);
 }
@@ -22,7 +23,7 @@
 .lesson-title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: #f9fafb;
+  color: var(--color-text);
 }
 
 .lesson-timer {
@@ -46,26 +47,26 @@
 
 .connection-connecting,
 .connection-reconnecting {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
 }
 
 .connection-connected {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .connection-lost {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--color-danger-soft);
   color: var(--color-danger);
 }
 
 .lesson-permission-warning {
   margin: var(--space-2) var(--space-4) 0;
   padding: var(--space-2) var(--space-3);
-  background: rgba(245, 158, 11, 0.12);
+  background: var(--color-warning-soft);
   border-radius: var(--radius-lg);
-  color: #f59e0b;
+  color: var(--color-warning);
   font-size: var(--font-size-xs);
 }
 
@@ -88,7 +89,8 @@
 
 .video-participant {
   position: relative;
-  background: #1a2942;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   overflow: hidden;
   aspect-ratio: 16/9;
@@ -140,16 +142,17 @@
   justify-content: center;
   gap: var(--space-3);
   padding: var(--space-4);
-  background: #162034;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
 }
 
 .control-btn {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-full);
-  background: #233956;
-  color: #f9fafb;
-  border: none;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -159,13 +162,16 @@
 }
 
 .control-btn:hover {
-  background: #293d5e;
+  background: var(--color-surface-hover);
+  border-color: var(--color-primary);
   transform: none;
 }
 
 .control-btn.active,
 .control-btn.leave {
   background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: white;
 }
 
 .lesson-error {
@@ -174,7 +180,7 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  color: #f9fafb;
+  color: var(--color-text);
   text-align: center;
   gap: var(--space-4);
   padding: var(--space-4);

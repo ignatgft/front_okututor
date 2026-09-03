@@ -33,7 +33,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
+  flex: 1 1 0;
   height: 100%;
   background: none;
   border: none;
@@ -44,7 +44,7 @@
   gap: var(--space-1);
   border-radius: 0;
   min-height: var(--touch-target);
-  min-width: var(--touch-target);
+  min-width: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -91,6 +91,10 @@
   line-height: 1.2;
   text-align: center;
   color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* Mobile only — show BottomNav */

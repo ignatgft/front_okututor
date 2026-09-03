@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "./ui/Toast";
 import { Spinner, Skeleton, EmptyState, ErrorState } from "../components/ui/Primitives";
 import ConfirmModal from "../components/ui/ConfirmModal";
+import { Modal } from "./ui/Overlay";
 import { tutorsApi } from "../api/tutors.api";
 import AvatarUploader from "./avatar/AvatarUploader";
 import { isStudent } from "../constants/roles";
@@ -53,12 +54,12 @@ const Profile = () => {
     experience_years: 0,
     experience_description: "",
     education: "",
-    subjects: [],
     languages: [],
+    subjects: [],
     bio: "",
-    id_document_name: "",
   });
   const [appSubmitting, setAppSubmitting] = useState(false);
+  const [showTutorModal, setShowTutorModal] = useState(false);
 
   const displayedCourses = showAllCourses ? courses : courses.slice(0, 2);
   const locations = [t("profile.choose_location"), "Нарын", "Иссык-Кол", "Ош", "Талас", "Чуй", "Джалал-Абад", "Баткен"];
@@ -113,10 +114,9 @@ const Profile = () => {
           experience_years: data.experience_years || 0,
           experience_description: data.experience_description || "",
           education: data.education || "",
-          subjects: (data.subjects ? String(data.subjects).split(",").filter(Boolean) : []),
           languages: (data.languages ? String(data.languages).split(",").filter(Boolean) : []),
+          subjects: (data.subjects ? String(data.subjects).split(",").filter(Boolean) : Array.isArray(data.subject_list) ? data.subject_list : []),
           bio: data.bio || "",
-          id_document_name: data.id_document_name || "",
         }));
       } else {
         setTutorApp(null);
@@ -264,22 +264,20 @@ const Profile = () => {
     </div>
   );
 
-  const toggleAppValue = (field, value) =>
-    setAppForm((prev) => ({
-      ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter((v) => v !== value)
-        : [...prev[field], value],
-    }));
+  const _toggleAppValue = (field, value) =>
+    setAppForm((prev) => {
+      const arr = Array.isArray(prev[field]) ? prev[field] : [];
+      return {
+        ...prev,
+        [field]: arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value],
+      };
+    });
+  void _toggleAppValue;
 
   const submitTutorApplication = async (e) => {
     e.preventDefault();
     if (!appForm.full_name.trim()) {
       toast.error(t("become_tutor.error_name", "Name is required"));
-      return;
-    }
-    if (appForm.subjects.length === 0) {
-      toast.error(t("become_tutor.error_subjects", "Select at least one subject"));
       return;
     }
     if (appForm.languages.length === 0) {
@@ -290,8 +288,8 @@ const Profile = () => {
     try {
       await tutorsApi.submitApplication({
         ...appForm,
-        subjects: appForm.subjects.join(","),
-        languages: appForm.languages.join(","),
+        languages: Array.isArray(appForm.languages) ? appForm.languages.join(",") : "",
+        subjects: Array.isArray(appForm.subjects) ? appForm.subjects.join(",") : "",
       });
       toast.success(t("success.action_completed", "Action completed"));
       setTutorApp({ status: TUTOR_STATUS.PENDING, created_at: new Date().toISOString() });
@@ -418,15 +416,18 @@ const Profile = () => {
 
     if (tutorApp?.status === TUTOR_STATUS.REJECTED) {
       return (
-        <form className="courses-section app-form-wrapper" onSubmit={submitTutorApplication}>
+        <div className="courses-section app-form-wrapper">
           <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
           {tutorApp.rejection_reason && (
             <p className="rejection-reason">
               <strong>{t("tutor_application.rejection_reason", "Reason")}:</strong> {tutorApp.rejection_reason}
             </p>
           )}
-          {renderAppForm()}
-        </form>
+          <p className="empty-state-hint" style={{ marginBottom: 16 }}>{t("tutor_application.rejected", "Заявка отклонена — попробуйте снова")}</p>
+          <button type="button" className="btn-primary" onClick={() => setShowTutorModal(true)}>
+            {t("tutor_application.apply_again", "Подать снова")}
+          </button>
+        </div>
       );
     }
 
@@ -447,12 +448,15 @@ const Profile = () => {
       );
     }
 
-    // NOT_REQUESTED or no application -> show form
+    // NOT_REQUESTED — показываем кнопку, которая открывает модалку
     return (
-      <form className="courses-section app-form-wrapper" onSubmit={submitTutorApplication}>
+      <div className="courses-section app-form-wrapper">
         <h2>{t("profile.become_tutor", "Become a tutor")}</h2>
-        {renderAppForm()}
-      </form>
+        <p className="empty-state-hint" style={{ marginBottom: 16 }}>{t("become_tutor.verification_hint", "Your application will be reviewed by our team.")}</p>
+        <button type="button" className="btn-primary" onClick={() => setShowTutorModal(true)}>
+          {t("profile.apply", "Apply")} — {t("become_tutor.title", "Стать репетитором")}
+        </button>
+      </div>
     );
   };
 
@@ -461,76 +465,29 @@ const Profile = () => {
       <p className="empty-state-hint">{t("become_tutor.verification_hint", "Your application will be reviewed by our team.")}</p>
       {appField(t("profile.full_name", "Full name"), "full_name", "text", { required: true })}
       {appField(t("profile.phone", "Phone"), "phone", "tel")}
-      {appField(t("profile.location", "Location"), "location")}
       {appField(t("cr_course.experience_label", "Years of experience"), "experience_years", "number", { min: 0 })}
       <div className="auth-form-field">
-        <label htmlFor="app-exp-desc">{t("become_tutor.experience_desc", "Describe your teaching experience")}</label>
+        <label htmlFor="app-exp-desc">{t("become_tutor.experience_desc", "Опишите свой преподавательский опыт")}</label>
         <textarea
           id="app-exp-desc"
-          rows={3}
+          rows={4}
           value={appForm.experience_description || ""}
           onChange={(e) => setAppForm((prev) => ({ ...prev, experience_description: e.target.value }))}
           className="app-textarea"
+          placeholder={t("become_tutor.experience_desc_placeholder", "Например: 5 лет преподаю математику, готовлю к ОРТ...")}
         />
       </div>
       <div className="auth-form-field">
-        <label htmlFor="app-education">{t("become_tutor.education", "University / degrees / certificates")}</label>
-        <textarea
-          id="app-education"
-          rows={2}
-          value={appForm.education || ""}
-          onChange={(e) => setAppForm((prev) => ({ ...prev, education: e.target.value }))}
-          className="app-textarea"
-        />
-      </div>
-      <div className="auth-form-field">
-        <label>{t("become_tutor.step_subjects", "Subjects")}</label>
-        <div className="multi-select">
-          {SUBJECTS.map((s) => (
-            <div key={s.value} className="select-item">
-              <input
-                type="checkbox"
-                id={`app-subj-${s.value}`}
-                checked={appForm.subjects.includes(s.value)}
-                onChange={() => toggleAppValue("subjects", s.value)}
-              />
-              <label htmlFor={`app-subj-${s.value}`}>{t(s.labelKey, s.value)}</label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="auth-form-field">
-        <label>{t("become_tutor.step_languages", "Languages")}</label>
-        <div className="multi-select">
-          {LANGUAGES.map((l) => (
-            <div key={l.value} className="select-item">
-              <input
-                type="checkbox"
-                id={`app-lang-${l.value}`}
-                checked={appForm.languages.includes(l.value)}
-                onChange={() => toggleAppValue("languages", l.value)}
-              />
-              <label htmlFor={`app-lang-${l.value}`}>{t(l.labelKey, l.value)}</label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="auth-form-field">
-        <label htmlFor="app-bio">{t("become_tutor.bio", "Short bio for students")}</label>
+        <label htmlFor="app-bio">{t("become_tutor.bio", "Кратко о себе / Описание")}</label>
         <textarea
           id="app-bio"
-          rows={4}
+          rows={3}
           value={appForm.bio || ""}
           onChange={(e) => setAppForm((prev) => ({ ...prev, bio: e.target.value }))}
           className="app-textarea"
+          placeholder={t("become_tutor.bio_placeholder", "Расскажите ученикам о себе...")}
         />
       </div>
-      {appField(
-        t("become_tutor.id_document", "ID document number"),
-        "id_document_name",
-        "text",
-        { placeholder: t("become_tutor.id_document_hint", "Passport / ID series and number") }
-      )}
       <button type="submit" className="btn-primary" disabled={appSubmitting}>
         {appSubmitting ? t("common.sending", "Sending...") : t("profile.apply", "Apply")}
       </button>
@@ -680,6 +637,12 @@ const Profile = () => {
         onCancel={() => setShowLogoutConfirm(false)}
         onConfirm={handleLogout}
       />
+
+      <Modal open={showTutorModal} onClose={() => setShowTutorModal(false)} title={t("become_tutor.title", "Стать репетитором")} size="md">
+        <form onSubmit={(e) => { e.preventDefault(); submitTutorApplication(e).then(() => { if (!tutorAppError) setShowTutorModal(false); }); }}>
+          {renderAppForm()}
+        </form>
+      </Modal>
     </div>
   );
 };

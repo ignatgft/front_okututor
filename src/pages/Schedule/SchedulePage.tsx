@@ -123,11 +123,15 @@ export default function SchedulePage() {
     return { from: date, to: addDays(date, 1) };
   }, [view, selectedDate]);
 
-  // Queries
+  // Queries — week uses Monday as start for consistent display
+  const weekStartStr = useMemo(() => {
+    if (view !== "week" || !selectedDate) return "";
+    try { return toLocalInput(startOfWeek(new Date(selectedDate + "T00:00:00"))); } catch { return selectedDate; }
+  }, [view, selectedDate]);
   const nextLessonQuery = useNextLesson();
   const actionsQuery = useScheduleActions();
   const dayQuery = useScheduleDay(view === "day" ? selectedDate : "");
-  const weekQuery = useScheduleWeek(view === "week" ? selectedDate : "");
+  const weekQuery = useScheduleWeek(weekStartStr);
   const monthQuery = useScheduleMonth(view === "month" ? dateRange.from.getFullYear() : 0, view === "month" ? dateRange.from.getMonth() + 1 : 0);
   const coursesQuery = useCoursesForFilter();
 
@@ -150,13 +154,11 @@ export default function SchedulePage() {
     handleDateChange(toLocalInput(new Date()));
   }, [handleDateChange]);
 
-  const loading = nextLessonQuery.isLoading || actionsQuery.isLoading ||
-    (view === "day" && dayQuery.isLoading) ||
-    (view === "week" && weekQuery.isLoading) ||
-    (view === "month" && monthQuery.isLoading);
-
-  const error = nextLessonQuery.error || actionsQuery.error ||
-    dayQuery.error || weekQuery.error || monthQuery.error;
+  // Показываем скелет только для активных вьюх, ошибку — только для текущего view
+  const viewLoading = view === "day" ? dayQuery.isLoading : view === "week" ? weekQuery.isLoading : monthQuery.isLoading;
+  const viewError = view === "day" ? dayQuery.error : view === "week" ? weekQuery.error : monthQuery.error;
+  const loading = nextLessonQuery.isLoading || actionsQuery.isLoading || viewLoading;
+  const error = viewError as Error | null;
 
   return (
     <div className="schedule-page">
@@ -183,78 +185,32 @@ export default function SchedulePage() {
         </button>
       </nav>
 
-      {loading ? (
+      {nextLessonQuery.isLoading || actionsQuery.isLoading ? (
         <ScheduleSkeleton compact={view === "month"} />
-      ) : error ? (
-        <div className="schedule-error" role="alert">
-          <p>{t("schedule.load_error", "Не удалось загрузить расписание")}</p>
-          <button type="button" className="btn-primary" onClick={() => window.location.reload()}>
-            {t("common.retry", "Повторить")}
-          </button>
-        </div>
       ) : (
         <>
-          {/* NEXT LESSON */}
-          <NextLessonCard
-            lesson={nextLessonQuery.data || null}
-            onJoin={handleJoinLesson}
-            onViewDetails={handleLessonClick}
-          />
-
-          {/* ACTION REQUIRED */}
-          <ActionRequiredBlock
-            actions={actionsQuery.data || []}
-            onActionClick={handleActionClick}
-          />
-
-          {/* FILTERS */}
-          <ScheduleFilters
-            filters={filters}
-            onChange={handleFilterChange}
-            courses={coursesQuery.data || []}
-            disabled={coursesQuery.isLoading}
-          />
-
-          {/* CALENDAR VIEW */}
-          {view === "day" && (
-            <DayView
-              date={selectedDate}
-              data={dayQuery.data}
-              loading={dayQuery.isLoading}
-              error={dayQuery.error as Error | null}
-              onLessonClick={handleLessonClick}
-              onJoinLesson={handleJoinLesson}
-              locale={locale}
-            />
+          {/* NEXT LESSON — показываем даже если календарь упал */}
+          {nextLessonQuery.error ? (
+            <div className="schedule-error" role="alert"><p>{t("schedule.load_error", "Не удалось загрузить расписание")}: {(nextLessonQuery.error as Error).message}</p></div>
+          ) : (
+            <NextLessonCard lesson={nextLessonQuery.data || null} onJoin={handleJoinLesson} onViewDetails={handleLessonClick} />
           )}
-
-          {view === "week" && (
-            <WeekView
-              weekStart={selectedDate}
-              data={weekQuery.data}
-              loading={weekQuery.isLoading}
-              error={weekQuery.error as Error | null}
-              selectedDate={selectedDate}
-              onLessonClick={handleLessonClick}
-              onJoinLesson={handleJoinLesson}
-              onDateSelect={handleDateChange}
-              locale={locale}
-            />
+          {actionsQuery.error ? null : (
+            <ActionRequiredBlock actions={actionsQuery.data || []} onActionClick={handleActionClick} />
           )}
-
-          {view === "month" && (
-            <MonthView
-              year={dateRange.from.getFullYear()}
-              month={dateRange.from.getMonth() + 1}
-              data={monthQuery.data}
-              loading={monthQuery.isLoading}
-              error={monthQuery.error as Error | null}
-              selectedDate={selectedDate}
-              onLessonClick={handleLessonClick}
-              onJoinLesson={handleJoinLesson}
-              onDateSelect={handleDateChange}
-              locale={locale}
-            />
+          {viewError ? (
+            <div className="schedule-error" role="alert">
+              <p>{t("schedule.load_error", "Не удалось загрузить расписание")}: {(viewError as Error).message}</p>
+              <button type="button" className="btn-primary" onClick={() => { if (view === "day") dayQuery.refetch(); if (view === "week") weekQuery.refetch(); if (view === "month") monthQuery.refetch(); }}>
+                {t("common.retry", "Повторить")}
+              </button>
+            </div>
+          ) : view === "day" ? (
+            <DayView date={selectedDate} data={dayQuery.data} loading={dayQuery.isLoading} error={dayQuery.error as Error | null} onLessonClick={handleLessonClick} onJoinLesson={handleJoinLesson} locale={locale} />
+          ) : view === "week" ? (
+            <WeekView weekStart={weekStartStr} data={weekQuery.data} loading={weekQuery.isLoading} error={weekQuery.error as Error | null} selectedDate={selectedDate} onLessonClick={handleLessonClick} onJoinLesson={handleJoinLesson} onDateSelect={handleDateChange} locale={locale} />
+          ) : (
+            <MonthView year={dateRange.from.getFullYear()} month={dateRange.from.getMonth() + 1} data={monthQuery.data} loading={monthQuery.isLoading} error={monthQuery.error as Error | null} selectedDate={selectedDate} onLessonClick={handleLessonClick} onJoinLesson={handleJoinLesson} onDateSelect={handleDateChange} locale={locale} />
           )}
         </>
       )}

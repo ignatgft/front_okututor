@@ -583,6 +583,7 @@
     "overview": "Overview",
     "courses": "Courses",
     "bookings": "Bookings",
+    "requests": "Requests",
     "total_courses": "Courses",
     "pending_bookings": "Pending Bookings",
     "confirmed_bookings": "Confirmed",
@@ -784,6 +785,7 @@
       "APPLICATION_REJECTED": "Application rejected",
       "BOOKING_CONFIRMED": "Booking confirmed",
       "BOOKING_CANCELLED": "Booking cancelled",
+      "BOOKING_COMPLETED": "Booking completed",
       "LESSON_REMINDER": "Lesson reminder",
       "LESSON_CANCELLED": "Lesson cancelled",
       "NEW_MESSAGE": "New message",
@@ -793,6 +795,7 @@
       "COURSE_APPROVED": "Course approved",
       "COURSE_REJECTED": "Course rejected",
       "APPLICATION_CANCELLED": "Application cancelled",
+      "SUPPORT": "Support",
       "SYSTEM": "System notification"
     },
     "messages": {
@@ -801,6 +804,7 @@
       "APPLICATION_REJECTED": "Your application to «{{courseTitle}}» was rejected",
       "BOOKING_CONFIRMED": "Booking for «{{courseTitle}}» confirmed",
       "BOOKING_CANCELLED": "Booking for «{{courseTitle}}» cancelled",
+      "BOOKING_COMPLETED": "Booking for «{{courseTitle}}» completed",
       "LESSON_REMINDER": "Lesson «{{courseTitle}}» with {{tutorName}} starts in 15 minutes",
       "LESSON_CANCELLED": "Lesson «{{courseTitle}}» with {{tutorName}} cancelled",
       "NEW_MESSAGE": "{{senderName}}: {{preview}}",
@@ -810,6 +814,7 @@
       "COURSE_APPROVED": "Course «{{courseTitle}}» published",
       "COURSE_REJECTED": "Course «{{courseTitle}}» rejected",
       "APPLICATION_CANCELLED": "{{studentName}} cancelled application to «{{courseTitle}}»",
+      "SUPPORT": "{{message}}",
       "SYSTEM": "{{message}}"
     }
   },
@@ -1239,8 +1244,19 @@
     "IN_PROGRESS": "In progress",
     "DRAFT": "Draft",
     "PUBLISHED": "Published",
-    "ARCHIVED": "Archived"
-  },
+    "ARCHIVED": "Archived",
+      "APPROVED": "Approved",
+      "CLOSED": "Closed",
+      "LOW": "Low",
+      "HIGH": "High",
+      "URGENT": "Urgent",
+      "NORMAL": "Normal",
+      "OPEN": "Open",
+      "IN_REVIEW": "Under review",
+      "WAITING_FOR_USER": "Waiting for user",
+      "WAITING_FOR_SUPPORT": "Waiting for support",
+      "RESOLVED": "Resolved"
+    },
   "enrollment_status": {
     "not_requested": "Send a request",
     "pending": "Your tutor is reviewing the request",

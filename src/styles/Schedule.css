@@ -430,3 +430,34 @@
     flex-wrap: nowrap;
   }
 }
+
+/* Dark theme — fix white backgrounds */
+[data-theme="dark"] .schedule-view-toggle,
+[data-theme="dark"] .schedule-nav-btn,
+[data-theme="dark"] .schedule-week-bar,
+[data-theme="dark"] .schedule-event,
+[data-theme="dark"] .schedule-date-field input,
+[data-theme="dark"] .availability-form select,
+[data-theme="dark"] .availability-form input[type="time"] {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .calendar-cell {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .calendar-cell:hover {
+  background: var(--color-surface-hover);
+}
+
+[data-theme="dark"] .schedule-day {
+  color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .schedule-day.selected {
+  background: var(--color-primary);
+  color: #fff;
+}

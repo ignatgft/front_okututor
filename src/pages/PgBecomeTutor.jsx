@@ -4,11 +4,11 @@ import { useTranslation } from "react-i18next";
 import useAuthStore from "../store/authStore";
 import DashboardLayout from "../components/DashboardLayout";
 import { tutorsApi } from "../api/tutors.api";
-import { COURSE_SUBJECTS as SUBJECTS, TUTOR_LANGUAGES as LANGUAGES } from "../constants/course";
+import { TUTOR_LANGUAGES as LANGUAGES } from "../constants/course";
 import "../styles/Dashboard.css";
 import "../styles/AuthForms.css";
 
-const STEPS = ["personal", "experience", "education", "subjects", "languages", "about", "verification", "preview"];
+const STEPS = ["personal", "experience", "education", "languages", "about", "verification", "preview"];
 
 export default function PgBecomeTutor() {
   const { t } = useTranslation();
@@ -25,10 +25,8 @@ export default function PgBecomeTutor() {
     experience_years: 0,
     experience_description: "",
     education: "",
-    subjects: [],
     languages: [],
     bio: "",
-    id_document_name: "",
   });
 
   const set = (patch) => setForm((prev) => ({ ...prev, ...patch }));
@@ -44,8 +42,6 @@ export default function PgBecomeTutor() {
     switch (STEPS[step]) {
       case "personal":
         return form.full_name.trim() ? "" : t("become_tutor.error_name", "Name is required");
-      case "subjects":
-        return form.subjects.length > 0 ? "" : t("become_tutor.error_subjects", "Select at least one subject");
       case "languages":
         return form.languages.length > 0 ? "" : t("become_tutor.error_languages", "Select at least one language");
       default:
@@ -75,7 +71,6 @@ export default function PgBecomeTutor() {
       await tutorsApi.submitApplication({
         ...form,
         languages: form.languages.join(","),
-        subjects: form.subjects.join(","),
       });
       navigate("/tutor/application");
     } catch (e) {
@@ -137,24 +132,7 @@ export default function PgBecomeTutor() {
         </div>
       </>
     ),
-    subjects: (
-      <>
-        <h2>{t("become_tutor.step_subjects", "Subjects")}</h2>
-        <div className="multi-select">
-          {SUBJECTS.map((s) => (
-            <div key={s.value} className="select-item">
-              <input
-                type="checkbox"
-                id={`subj-${s.value}`}
-                checked={form.subjects.includes(s.value)}
-                onChange={() => toggleIn("subjects", s.value)}
-              />
-              <label htmlFor={`subj-${s.value}`}>{t(s.labelKey, s.value)}</label>
-            </div>
-          ))}
-        </div>
-      </>
-    ),
+    
     languages: (
       <>
         <h2>{t("become_tutor.step_languages", "Languages")}</h2>
@@ -191,12 +169,6 @@ export default function PgBecomeTutor() {
     verification: (
       <>
         <h2>{t("become_tutor.step_verification", "Verification")}</h2>
-        {field(
-          t("become_tutor.id_document", "ID document number"),
-          "id_document_name",
-          "text",
-          { placeholder: t("become_tutor.id_document_hint", "Passport / ID series and number") }
-        )}
         <p className="auth-form-hint">{t("become_tutor.verification_hint", "Your application will be reviewed by our team.")}</p>
       </>
     ),

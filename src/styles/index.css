@@ -746,6 +746,20 @@ input[type="checkbox"]:focus-visible {
   margin-top: var(--space-1);
 }
 
+.error-state {
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  color: var(--color-danger);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.error-state .empty-state-icon {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-2);
+}
+
 /* ===== EMPTY STATE ===== */
 .empty-state {
   display: flex;

@@ -245,6 +245,12 @@
   --color-danger: #EF4444;
   --color-info: #38BDF8;
 
+  /* STATUS SOFT VARIANTS (for error states, badges, etc.) */
+  --color-success-soft: #14532d;
+  --color-warning-soft: #713f12;
+  --color-danger-soft: #7f1d1d;
+  --color-info-soft: #1e3a5f;
+
   /* ACCENT / SEMANTIC */
   --color-accent: #3B82F6;
   --color-primary-soft: #1E3A8A;

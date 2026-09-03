@@ -25,7 +25,14 @@ export type LessonStatus =
   | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
-  | "RESCHEDULED";
+  | "RESCHEDULED"
+  | "RESCHEDULE_PENDING"
+  | "FORMAT_CHANGE_PENDING"
+  | "LOCATION_CHANGE_PENDING"
+  | "DURATION_CHANGE_PENDING"
+  | "STUDENT_NO_SHOW"
+  | "TUTOR_NO_SHOW"
+  | "ISSUE";
 
 /** Localized label for status display */
 export const LessonStatusLabel: Record<LessonStatus, string> = {
@@ -37,18 +44,32 @@ export const LessonStatusLabel: Record<LessonStatus, string> = {
   COMPLETED: "Завершено",
   CANCELLED: "Отменено",
   RESCHEDULED: "Перенесено",
+  RESCHEDULE_PENDING: "Ожидает переноса",
+  FORMAT_CHANGE_PENDING: "Ожидает смены формата",
+  LOCATION_CHANGE_PENDING: "Ожидает смены места",
+  DURATION_CHANGE_PENDING: "Ожидает смены длительности",
+  STUDENT_NO_SHOW: "Ученик не пришёл",
+  TUTOR_NO_SHOW: "Тьютор не пришёл",
+  ISSUE: "Проблема",
 };
 
 /** Status color mapping (uses design tokens) */
 export const LessonStatusColor: Record<LessonStatus, string> = {
-  APPLICATION: "var(--color-status-application, #8b5cf6)",       // purple
-  SCHEDULE_NEGOTIATION: "var(--color-status-negotiation, #a855f7)", // purple
-  PENDING_CONFIRMATION: "var(--color-status-pending, #eab308)",    // yellow
-  SCHEDULED: "var(--color-status-confirmed, #22c55e)",             // green
-  IN_PROGRESS: "var(--color-status-in-progress, #3b82f6)",         // blue
-  COMPLETED: "var(--color-status-completed, #71717a)",             // neutral
-  CANCELLED: "var(--color-status-cancelled, #ef4444)",             // red
-  RESCHEDULED: "var(--color-status-rescheduled, #06b6d4)",         // cyan
+  APPLICATION: "var(--color-status-application, #8b5cf6)",
+  SCHEDULE_NEGOTIATION: "var(--color-status-negotiation, #a855f7)",
+  PENDING_CONFIRMATION: "var(--color-status-pending, #eab308)",
+  SCHEDULED: "var(--color-status-confirmed, #22c55e)",
+  IN_PROGRESS: "var(--color-status-in-progress, #3b82f6)",
+  COMPLETED: "var(--color-status-completed, #71717a)",
+  CANCELLED: "var(--color-status-cancelled, #ef4444)",
+  RESCHEDULED: "var(--color-status-rescheduled, #06b6d4)",
+  RESCHEDULE_PENDING: "var(--color-status-pending, #eab308)",
+  FORMAT_CHANGE_PENDING: "var(--color-status-pending, #eab308)",
+  LOCATION_CHANGE_PENDING: "var(--color-status-pending, #eab308)",
+  DURATION_CHANGE_PENDING: "var(--color-status-pending, #eab308)",
+  STUDENT_NO_SHOW: "var(--color-status-cancelled, #ef4444)",
+  TUTOR_NO_SHOW: "var(--color-status-cancelled, #ef4444)",
+  ISSUE: "var(--color-status-cancelled, #ef4444)",
 };
 
 // ============================================
@@ -63,21 +84,54 @@ export interface LessonDTO {
   tutorName: string;
   tutorAvatar?: string;
   studentId: string;
-  startAt: string;           // UTC ISO 8601
-  endAt: string;             // UTC ISO 8601
-  timezone: string;          // IANA timezone (e.g., "Asia/Bishkek")
+  startAt: string;
+  endAt: string;
+  timezone: string;
   status: LessonStatus;
-  statusLabel: string;       // Localized label from backend
+  statusLabel: string;
   format: "ONLINE" | "OFFLINE";
   meetingRoomId?: string;
   meetingUrl?: string;
   location?: string;
-  // Permissions — backend is source of truth
+  locationType?: string;
+  locationAddress?: string;
+  locationDetails?: string;
   canJoin: boolean;
   canCancel: boolean;
   canReschedule: boolean;
   canReview: boolean;
+  canStart: boolean;
+  canComplete: boolean;
+  canMarkStudentNoShow: boolean;
+  canMarkTutorNoShow: boolean;
+  canReportIssue: boolean;
   cancellationReason?: string;
+  cancelReason?: string;
+  actualStart?: string;
+  actualEnd?: string;
+  durationMinutes?: number;
+  startedBy?: string;
+  completedBy?: string;
+  topic?: string;
+  notes?: string;
+  homework?: string;
+  materials?: string;
+  links?: string;
+  attendance?: string;
+  pendingStartAt?: string;
+  pendingEndAt?: string;
+  pendingReason?: string;
+  pendingFormat?: string;
+  pendingLocationType?: string;
+  pendingLocationAddress?: string;
+  pendingLocationDetails?: string;
+  pendingDurationMinutes?: number;
+  pendingScope?: string;
+  pendingProposedBy?: string;
+  pendingProposedAt?: string;
+  sequenceNumber?: number;
+  scheduleId?: string;
+  bookingId?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -97,11 +97,10 @@ export default function PgNotifications() {
       return t(messageKey, n.params);
     }
 
-    // Fallback: show type label + raw message if available
+    // Fallback: show clean type label only (no raw message)
     return (
       <>
         <span className="notification-type">{t(typeKey, n.type)}</span>
-        {n.rawMessage && <span className="notification-message">{n.rawMessage}</span>}
         {n.payload?.scheduled_at && (
           <span className="notification-date">{formatDate(n.payload.scheduled_at)}</span>
         )}

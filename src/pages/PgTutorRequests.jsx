@@ -54,11 +54,11 @@ export default function PgTutorRequests() {
   };
 
   const tabs = [
-    { value: "new", label: `${t("tutor_request.tab_new", "New")} (${counts.new})` },
-    { value: "waiting", label: `${t("tutor_request.tab_waiting", "Awaiting")} (${counts.waiting})` },
-    { value: "schedule", label: `${t("tutor_request.tab_schedule", "Needs schedule")} (${counts.schedule})` },
-    { value: "active", label: `${t("tutor_request.tab_active", "Active")} (${counts.active})` },
-    { value: "archive", label: `${t("tutor_request.tab_archive", "Archive")} (${counts.archive})` },
+    { value: "new", label: t("tutor_request.tab_new", "New") },
+    { value: "waiting", label: t("tutor_request.tab_waiting", "Awaiting") },
+    { value: "schedule", label: t("tutor_request.tab_schedule", "Needs schedule") },
+    { value: "active", label: t("tutor_request.tab_active", "Active") },
+    { value: "archive", label: t("tutor_request.tab_archive", "Archive") },
   ];
 
   const visible = requests.filter((r) => (TUTOR_TABS[tab] || []).includes(r.status));

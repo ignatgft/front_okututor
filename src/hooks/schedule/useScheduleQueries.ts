@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { scheduleApi } from "../../api/schedule.api";
+import { normalizeLesson } from "../../utils/normalize";
 import type { LessonDTO, ScheduleAction, DayScheduleResponse, WeekScheduleResponse, MonthScheduleResponse } from "../../types/schedule";
 
 // Query keys for React Query caching and invalidation
@@ -24,7 +25,9 @@ export function useNextLesson() {
     queryFn: async () => {
       const { response, data } = await scheduleApi.nextLesson();
       if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load next lesson");
-      return data as LessonDTO | null;
+      const raw = (data as any)?.lesson ?? data;
+      if (!raw || (typeof raw === "object" && Object.keys(raw).length === 0)) return null;
+      return normalizeLesson(raw) as LessonDTO;
     },
     staleTime: 30_000, // 30 seconds
     refetchInterval: 60_000, // Refetch every minute for countdown accuracy
@@ -55,7 +58,9 @@ export function useScheduleDay(date: string) {
     queryFn: async () => {
       const { response, data } = await scheduleApi.day(date);
       if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load day schedule");
-      return data as DayScheduleResponse;
+      const raw = data as any;
+      if (raw?.lessons) raw.lessons = raw.lessons.map((l: any) => normalizeLesson(l));
+      return raw as DayScheduleResponse;
     },
     enabled: !!date,
     staleTime: 60_000,
@@ -71,7 +76,9 @@ export function useScheduleWeek(startDate: string) {
     queryFn: async () => {
       const { response, data } = await scheduleApi.week(startDate);
       if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load week schedule");
-      return data as WeekScheduleResponse;
+      const raw = data as any;
+      if (raw?.days) raw.days.forEach((d: any) => { if (d.lessons) d.lessons = d.lessons.map((l: any) => normalizeLesson(l)); });
+      return raw as WeekScheduleResponse;
     },
     enabled: !!startDate,
     staleTime: 60_000,
@@ -87,7 +94,9 @@ export function useScheduleMonth(year: number, month: number) {
     queryFn: async () => {
       const { response, data } = await scheduleApi.month(year, month);
       if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load month schedule");
-      return data as MonthScheduleResponse;
+      const raw = data as any;
+      if (raw?.days) raw.days.forEach((d: any) => { if (d.lessons) d.lessons = d.lessons.map((l: any) => normalizeLesson(l)); });
+      return raw as MonthScheduleResponse;
     },
     enabled: year > 0 && month > 0 && month <= 12,
     staleTime: 60_000,

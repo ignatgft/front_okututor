@@ -204,7 +204,11 @@
   background: linear-gradient(90deg, var(--color-status-in-progress, #3b82f6) 0.3%, transparent 1%);
 }
 
-.lesson-card.status-pending-confirmation {
+.lesson-card.status-pending-confirmation,
+.lesson-card.status-reschedule-pending,
+.lesson-card.status-format-change-pending,
+.lesson-card.status-location-change-pending,
+.lesson-card.status-duration-change-pending {
   border-left: 4px solid var(--color-status-pending, #eab308);
 }
 
@@ -217,7 +221,10 @@
   opacity: 0.8;
 }
 
-.lesson-card.status-cancelled {
+.lesson-card.status-cancelled,
+.lesson-card.status-student-no-show,
+.lesson-card.status-tutor-no-show,
+.lesson-card.status-issue {
   border-left: 4px solid var(--color-status-cancelled, #ef4444);
   opacity: 0.6;
 }

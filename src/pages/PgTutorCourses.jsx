@@ -83,25 +83,27 @@ export default function PgTutorCourses() {
               <div className="courses-grid">
             {courses.map((c) => (
               <div key={c.id} className="course-card-admin">
-                <h3>{c.title}</h3>
-                {c.status && (
-                  <span className={`status-badge status-${String(c.status).toLowerCase()}`}>{c.status}</span>
-                )}
-                <p>{c.description?.substring(0, 100)}...</p>
-                <div className="course-meta">
-                  <span>{c.price_per_hour} {c.currency || "KGS"}</span>
-                  <span>{Number(c.average_rating || 0).toFixed(1)} ★</span>
+                <div className="course-card-admin-header">
+                  <h3>{c.title}</h3>
+                  {c.status && (
+                    <span className={`status-badge status-${String(c.status).toLowerCase()}`}>{c.status}</span>
+                  )}
                 </div>
-                <div className="booking-actions">
-                  <Link to={`/tutor/courses/edit/${c.id}`} className="btn-link">
+                <p className="course-card-admin-desc">{c.description ? `${c.description.slice(0, 120)}${c.description.length > 120 ? "…" : ""}` : t("course.no_description", "No description")}</p>
+                <div className="course-meta">
+                  <span className="course-price">{c.price_per_hour} {c.currency || "KGS"}</span>
+                  <span className="course-rating">{Number(c.average_rating || 0).toFixed(1)} ★</span>
+                </div>
+                <div className="course-card-admin-actions">
+                  <Link to={`/tutor/courses/edit/${c.id}`} className="btn btn-secondary btn-sm">
                     {t("common.edit", "Edit")}
                   </Link>
-                  <Link to={`/course/${c.id}`} className="btn-link">
+                  <Link to={`/course/${c.id}`} className="btn btn-ghost btn-sm">
                     {t("cw.preview_as_student", "Preview as student")}
                   </Link>
                   <button
                     type="button"
-                    className="btn-link course-delete-link"
+                    className="btn btn-danger btn-sm"
                     onClick={() => setDeleteTarget(c)}
                   >
                     {t("common.delete", "Delete")}
