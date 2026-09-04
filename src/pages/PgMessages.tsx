@@ -1,10 +1,9 @@
 // migrated to TSX — minimal strict types (controlled)
 import { useState, useEffect, useRef, useCallback, Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../components/pageTitleContext";
 import useAuthStore from "../store/authStore";
-import { loadUnifiedConversations, loadSupportThread, sendSupportMessage, messagesApi } from "../api/messages.api";
+import { loadSupportThread, sendSupportMessage, messagesApi } from "../api/messages.api";
 import { supportApi } from "../api/support.api";
 import { CONVERSATION_TYPES } from "../constants/roles";
 import { STATUS_I18N, PRIORITY_I18N, CATEGORY_I18N, OPEN_STATUSES } from "../constants/support";
@@ -16,6 +15,7 @@ import AttachmentRenderer from "../components/attachments/AttachmentRenderer";
 import { Search, Paperclip, Image as ImageIcon, Send, Smile, ArrowLeft, MoreVertical, Reply, Heart, Forward, Trash2, Edit2, X, Check, CheckCheck, Clock3, AlertCircle } from "lucide-react";
 import "../styles/Messages.css";
 import { safeDisplayName, initials, avatarColor, formatChatTime, dayLabel, previewText, isUnread, MAX_ATTACHMENT_SIZE, POLL_INTERVAL } from "../features/messaging/utils/messageHelpers";
+import { useConversations } from "../features/messaging/hooks/useConversations";
 
 function TgAvatar({ name, size = 44 }: { name: unknown; size?: number }): JSX.Element {
   const bg = avatarColor(name);
@@ -60,59 +60,25 @@ export default function PgMessages() {
   const toast = useToast();
   const setPageTitle = usePageTitle();
   const { user } = useAuthStore();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => { setPageTitle(t("navbar.messages", "Сообщения")); }, [setPageTitle, t]);
 
-  const [conversations, setConversations] = useState([]);
-  const [activeConvo, setActiveConvo] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [draft, setDraft] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [threadLoading, setThreadLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [sending, setSending] = useState(false);
-  const [filter, setFilter] = useState(() => {
-    const param = searchParams.get("filter");
-    if (param === "support") return CONVERSATION_TYPES.SUPPORT;
-    if (param === "direct") return CONVERSATION_TYPES.DIRECT;
-    return "all";
-  });
-  const [query, setQuery] = useState("");
-  const threadRef = useRef(null);
-  const composerRef = useRef(null);
+  const { conversations, activeConvo, setActiveConvo, filter, setFilter, query, setQuery, loading, error, reload: loadConversations } = useConversations();
+  const [messages, setMessages] = useState<Record<string, unknown>[]>([]);
+  const [draft, setDraft] = useState<string>("");
+  const [threadLoading, setThreadLoading] = useState<boolean>(false);
+  const [sending, setSending] = useState<boolean>(false);
+  const threadRef = useRef<HTMLDivElement | null>(null);
+  const composerRef = useRef<HTMLDivElement | null>(null);
 
-  const [reactions, setReactions] = useState({});
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [editingMessage, setEditingMessage] = useState(null);
-  const [editDraft, setEditDraft] = useState("");
-  const [showReactionPicker, setShowReactionPicker] = useState(null);
-  const [forwardingMessage, setForwardingMessage] = useState(null);
-  const [forwardTargetConvo, setForwardTargetConvo] = useState(null);
-  const [showAttachMenu, setShowAttachMenu] = useState(false);
-
-  const loadConversations = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const all = await loadUnifiedConversations();
-      setConversations(all);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { loadConversations(); }, [loadConversations]);
-
-  useEffect(() => {
-    const ticketId = searchParams.get("ticket");
-    if (ticketId && conversations.length > 0) {
-      const match = conversations.find((c) => c.type === CONVERSATION_TYPES.SUPPORT && c.ticket_id === ticketId);
-      if (match) setActiveConvo(match);
-    }
-  }, [searchParams, conversations]);
+  const [reactions, setReactions] = useState<Record<string, unknown>>({});
+  const [replyingTo, setReplyingTo] = useState<Record<string, unknown> | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Record<string, unknown> | null>(null);
+  const [editDraft, setEditDraft] = useState<string>("");
+  const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
+  const [forwardingMessage, setForwardingMessage] = useState<Record<string, unknown> | null>(null);
+  const [forwardTargetConvo, setForwardTargetConvo] = useState<Record<string, unknown> | null>(null);
+  const [showAttachMenu, setShowAttachMenu] = useState<boolean>(false);
 
   useEffect(() => {
     if (!activeConvo) { setMessages([]); return undefined; }
