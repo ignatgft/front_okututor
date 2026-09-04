@@ -82,7 +82,7 @@ export default function PgTutorRequestDetail() {
   const handleRequestInfo = async () => {
     setInfoSending(true);
     try {
-      await enrollmentsApi.requestInfo(enrollment.id, { question: infoQuestion });
+      await enrollmentsApi.requestInfo(enrollment.id, infoQuestion);
       toast.success(t("needs_info.request_sent", "Request sent to the student"));
       setShowInfo(false);
       setInfoQuestion("");

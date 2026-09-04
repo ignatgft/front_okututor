@@ -41,12 +41,12 @@ describe("enrollmentsApi", () => {
     expect(apiClient.post).toHaveBeenLastCalledWith("/api/v1/enrollments/1/reject", {});
   });
 
-  it("requestInfo and provideInfo", async () => {
-    await enrollmentsApi.requestInfo("1", { question: "?" });
-    expect(apiClient.post).toHaveBeenCalledWith("/api/v1/applications/1/request-info", { request: "?" });
-    await enrollmentsApi.requestInfo("1", { request: "hello" });
-    expect(apiClient.post).toHaveBeenCalledWith("/api/v1/applications/1/request-info", { request: "hello" });
-    await enrollmentsApi.provideInfo("1", { message: "ans" });
+  it("requestInfo and provideInfo send fixed { message } contract", async () => {
+    await enrollmentsApi.requestInfo("1", "What time works for you?");
+    expect(apiClient.post).toHaveBeenCalledWith("/api/v1/applications/1/request-info", {
+      message: "What time works for you?",
+    });
+    await enrollmentsApi.provideInfo("1", "ans");
     expect(apiClient.post).toHaveBeenCalledWith("/api/v1/applications/1/submit-info", { message: "ans" });
   });
 
