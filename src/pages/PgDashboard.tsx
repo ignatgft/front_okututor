@@ -23,15 +23,16 @@ export default function PgDashboard(): JSX.Element {
   const [filter, setFilter] = useState<string>("upcoming");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const { enrollments } = useDashboardEnrollments();
+  const setPageTitle = usePageTitle();
+
+  useEffect(() => { setPageTitle(t("dashboard.title") as string || "Главная"); }, [setPageTitle, t]);
+
   const [cancelTarget, setCancelTarget] = useState<Record<string, unknown> | null>(null);
   const [cancelling, setCancelling] = useState<boolean>(false);
   const [reviewTarget, setReviewTarget] = useState<Record<string, unknown> | null>(null);
   const [reviewedIds, setReviewedIds] = useState<(string | number)[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<unknown>(null);
-  const { enrollments } = useDashboardEnrollments();
-  const setPageTitle = usePageTitle();
-
-  useEffect(() => { setPageTitle(t("dashboard.title") as string || "Главная"); }, [setPageTitle, t]);
 
   const loadBookings = useCallback(async (): Promise<void> => {
     setLoading(true);
