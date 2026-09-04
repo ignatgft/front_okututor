@@ -49,4 +49,16 @@ export const adminApi = {
 
   updateReport: (id: string | number, payload: Record<string, unknown>): Promise<HttpResult<unknown>> =>
     apiClient.put(endpoints.admin.updateReport(id), payload),
+
+  // ---- metrics (admin-only) ----
+  metricsOverview: (): Promise<HttpResult<unknown>> => apiClient.get(endpoints.adminMetrics.overview),
+
+  metricsUsers: (days = 30): Promise<HttpResult<unknown>> =>
+    apiClient.get(`${endpoints.adminMetrics.users}?days=${days}`),
+
+  metricsLessons: (days = 30): Promise<HttpResult<unknown>> =>
+    apiClient.get(`${endpoints.adminMetrics.lessons}?days=${days}`),
+
+  metricsRevenue: (days = 30): Promise<HttpResult<unknown>> =>
+    apiClient.get(`${endpoints.adminMetrics.revenue}?days=${days}`),
 };

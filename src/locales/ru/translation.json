@@ -880,6 +880,12 @@
   "admin": {
     "title": "Панель администратора",
     "dashboard": "Дашборд",
+    "metrics": "Метрики",
+    "metrics.students": "Студенты",
+    "metrics.tutors": "Тьюторы",
+    "metrics.lessons": "Занятия",
+    "metrics.active_users": "Активные (24ч)",
+    "metrics.revenue": "Выручка",
     "users": "Пользователи",
     "manage_users": "Управление пользователями",
     "quick_actions": "Быстрые действия",

@@ -1,10 +1,12 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Suspense, lazy, useEffect } from "react";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import RoleRedirect from "../../components/routes/RoleRedirect";
 import SupportTicketRedirect from "../../components/routes/SupportTicketRedirect";
 import ErrorBoundary from "../../components/ErrorBoundary";
+import SeoNoindex from "../../components/SeoNoindex";
 import i18n from "../../i18n";
+import { initAnalytics, trackPageView } from "../../utils/analytics";
 import { StudentRoutes } from "./StudentRoutes";
 import { TutorRoutes } from "./TutorRoutes";
 import { AdminRoutes } from "./AdminRoutes";
@@ -30,8 +32,21 @@ const CourseEditRedirect = lazy(() => import("../../components/routes/CourseEdit
 const PageLoader = (): JSX.Element => <div className="loading-screen" role="status" aria-live="polite">{i18n.t("common.loading", "Loading...")}</div>;
 
 export function AppRouter(): JSX.Element {
+  const location = useLocation();
+
+  // GA4: report public page views only (private areas are filtered inside trackPageView)
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search, document.title);
+  }, [location.pathname, location.search]);
+
   return (
-    <Suspense fallback={<PageLoader />}>
+    <>
+      <SeoNoindex />
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={withBoundary(<PgMain />)} />
         <Route path="/login" element={<Login />} />
@@ -46,12 +61,12 @@ export function AppRouter(): JSX.Element {
         <Route path="/course/:courseId" element={withBoundary(<PgCourseView />)} />
         <Route path="/tutor/:tutorId" element={<PgTutorProfile />} />
         <Route path="/403" element={<PgForbidden />} />
-        <Route path="/dashboard" element={<RoleRedirect student="/student/dashboard" tutor="/tutor/dashboard" />} />
-        <Route path="/profile" element={<RoleRedirect student="/student/profile" tutor="/tutor/profile" />} />
-        <Route path="/schedule" element={<RoleRedirect student="/student/schedule" tutor="/tutor/schedule" />} />
-        <Route path="/messages" element={<RoleRedirect student="/student/messages" tutor="/tutor/messages" />} />
-        <Route path="/progress" element={<RoleRedirect student="/student/progress" tutor="/tutor/progress" />} />
-        <Route path="/settings" element={<RoleRedirect student="/student/settings" tutor="/tutor/settings" />} />
+        <Route path="/dashboard" element={<RoleRedirect student="/student/dashboard" tutor="/tutor/dashboard" admin="/admin" />} />
+        <Route path="/profile" element={<RoleRedirect student="/student/profile" tutor="/tutor/profile" admin="/admin/profile" />} />
+        <Route path="/schedule" element={<RoleRedirect student="/student/schedule" tutor="/tutor/schedule" admin="/admin" />} />
+        <Route path="/messages" element={<RoleRedirect student="/student/messages" tutor="/tutor/messages" admin="/admin/support" />} />
+        <Route path="/progress" element={<RoleRedirect student="/student/progress" tutor="/tutor/progress" admin="/admin/metrics" />} />
+        <Route path="/settings" element={<RoleRedirect student="/student/settings" tutor="/tutor/settings" admin="/admin/settings" />} />
         <Route path="/course" element={<Navigate to="/tutor/courses/create" replace />} />
         <Route path="/course/edit/:courseId" element={<CourseEditRedirect />} />
         {StudentRoutes()}
@@ -72,7 +87,8 @@ export function AppRouter(): JSX.Element {
 
         <Route path="*" element={withBoundary(<LazyNotFound />)} />
       </Routes>
-    </Suspense>
+      </Suspense>
+    </>
   );
 }
 

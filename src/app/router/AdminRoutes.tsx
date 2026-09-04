@@ -13,6 +13,7 @@ const PgAdminTutors = lazy(() => import("../../pages/PgAdminTutors"));
 const PgAdminCourses = lazy(() => import("../../pages/PgAdminCourses"));
 const PgAdminReviews = lazy(() => import("../../pages/PgAdminReviews"));
 const PgAdminReports = lazy(() => import("../../pages/PgAdminReports"));
+const PgAdminMetrics = lazy(() => import("../../pages/PgAdminMetrics"));
 const PgAdminSupport = lazy(() => import("../../pages/PgAdminSupport"));
 const PgAdminSupportTicket = lazy(() => import("../../pages/PgAdminSupportTicket"));
 const PgProfile = lazy(() => import("../../pages/PgProfile"));
@@ -28,6 +29,7 @@ export function AdminRoutes(): React.ReactNode {
         <Route path="/admin/courses" element={<PgAdminCourses />} />
         <Route path="/admin/reviews" element={<PgAdminReviews />} />
         <Route path="/admin/reports" element={<PgAdminReports />} />
+        <Route path="/admin/metrics" element={<PgAdminMetrics />} />
         <Route path="/admin/support" element={<PgAdminSupport />} />
         <Route path="/admin/support/tickets/:id" element={<PgAdminSupportTicket />} />
         <Route path="/admin/profile" element={withBoundary(<PgProfile />)} />

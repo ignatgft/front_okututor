@@ -814,6 +814,12 @@
   "admin": {
     "title": "Админ панели",
     "dashboard": "Дашборд",
+    "metrics": "Метрикалар",
+    "metrics.students": "Студенттер",
+    "metrics.tutors": "Тьюторлор",
+    "metrics.lessons": "Сабактар",
+    "metrics.active_users": "Активдүү (24с)",
+    "metrics.revenue": "Киреше",
     "users": "Колдонуучулар",
     "manage_users": "Колдонуучуларды башкаруу",
     "quick_actions": "Тез аракеттер",

@@ -821,6 +821,12 @@
   "admin": {
     "title": "Admin Panel",
     "dashboard": "Dashboard",
+    "metrics": "Metrics",
+    "metrics.students": "Students",
+    "metrics.tutors": "Tutors",
+    "metrics.lessons": "Lessons",
+    "metrics.active_users": "Active (24h)",
+    "metrics.revenue": "Revenue",
     "users": "Users",
     "manage_users": "Manage users",
     "quick_actions": "Quick actions",

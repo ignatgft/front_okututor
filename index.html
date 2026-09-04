@@ -1,23 +1,64 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="ru" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Okututor — Calm Academic educational platform. Find tutors and learn from experienced educators." />
+
+    <!-- Primary SEO -->
+    <title>OkuTutor — найдите репетитора онлайн | Занятия с тьюторами</title>
+    <meta name="description" content="OkuTutor — образовательная платформа: найдите репетитора по математике, языкам и IT, записывайтесь на онлайн-занятия и учитесь с опытными педагогами." />
+    <meta name="keywords" content="репетитор, тьютор, онлайн занятия, обучение, OkuTutor" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://okututor.com/" />
     <meta name="theme-color" content="#426e5b" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#14171a" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
-    <title>Okututor — Educational Platform</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OkuTutor" />
+    <meta property="og:title" content="OkuTutor — найдите репетитора онлайн" />
+    <meta property="og:description" content="Образовательная платформа: репетиторы по математике, языкам и IT. Онлайн-занятия с опытными педагогами." />
+    <meta property="og:url" content="https://okututor.com/" />
+    <meta property="og:image" content="https://okututor.com/og-cover.png" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OkuTutor — найдите репетитора онлайн" />
+    <meta name="twitter:description" content="Образовательная платформа: репетиторы по математике, языкам и IT." />
+    <meta name="twitter:image" content="https://okututor.com/og-cover.png" />
+
+    <!-- Fonts: preconnect + preload, trimmed to actually used weights -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+    />
+
     <!-- Optimization -->
     <link rel="dns-prefetch" href="https://api.okututor.local" />
-    
+
+    <!-- Structured data: platform identity for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "OkuTutor",
+      "url": "https://okututor.com/",
+      "description": "Образовательная платформа для поиска репетиторов и онлайн-занятий.",
+      "inLanguage": ["ru", "en", "kg"]
+    }
+    </script>
+
     <!-- Theme initialization (inline to prevent FOUC) -->
     <script>
       (function() {

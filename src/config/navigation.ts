@@ -54,6 +54,7 @@ export const SIDEBAR_ITEMS: Record<RoleKey, NavItem[]> = {
   ],
   admin: [
     { id: "admin_dashboard", labelKey: "admin.dashboard", icon: Home, path: "/admin" },
+    { id: "admin_metrics", labelKey: "admin.metrics", icon: BarChart3, path: "/admin/metrics" },
     { id: "admin_users", labelKey: "admin.users", icon: Users, path: "/admin/users" },
     { id: "admin_tutors", labelKey: "admin.tutor_applications", icon: BookOpen, path: "/admin/tutors" },
     { id: "admin_courses", labelKey: "admin.course_moderation", icon: BarChart3, path: "/admin/courses" },
@@ -123,6 +124,7 @@ export const PAGE_TITLES: Record<RoleKey, Record<string, string>> = {
   },
   admin: {
     "/admin": "admin.dashboard",
+    "/admin/metrics": "admin.metrics",
     "/admin/users": "admin.users",
     "/admin/tutors": "admin.tutor_applications",
     "/admin/courses": "admin.course_moderation",

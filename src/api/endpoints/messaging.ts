@@ -63,3 +63,10 @@ export const admin = {
   reports: "/api/v1/admin/reports",
   updateReport: (id: string | number): string => `/api/v1/admin/reports/${id}`,
 } as const;
+
+export const adminMetrics = {
+  overview: "/api/v1/admin/metrics/overview",
+  users: "/api/v1/admin/metrics/users",
+  lessons: "/api/v1/admin/metrics/lessons",
+  revenue: "/api/v1/admin/metrics/revenue",
+} as const;

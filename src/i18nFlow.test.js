@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import i18n from "./i18n";
+import i18n, { loadLocale } from "./i18n";
 import { getErrorMessage } from "./utils/errorMessage";
 import { applicationStatusLabel, applicationStatusKey } from "./utils/statusLabels";
 
@@ -11,8 +11,9 @@ function en() {
 }
 
 describe("Russian pluralization (spec §41, §69)", () => {
-  beforeEach(() => {
-    i18n.changeLanguage("ru");
+  beforeEach(async () => {
+    await loadLocale("ru");
+    await i18n.changeLanguage("ru");
   });
 
   const cases = [
