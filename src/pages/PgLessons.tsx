@@ -16,6 +16,8 @@ export default function PgLessons() {
   const { user } = useAuthStore();
   const setPageTitle = usePageTitle();
   const [lessons, setLessons] = useState([]);
+  // "scheduled" = rows from /lessons (regular schedule), "booking" = fallback from /bookings (one-off lessons)
+  const [source, setSource] = useState<"scheduled" | "booking">("scheduled");
 
   useEffect(() => { setPageTitle(t("lessons.title", "Lessons")); }, [setPageTitle, t]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +61,7 @@ export default function PgLessons() {
         end_at: b.end_at,
         status: bookingToLessonStatus(b.status),
         joinable: joinableWithinWindow,
+        source: "booking",
       };
     });
     setLessons(rows);
@@ -79,12 +82,15 @@ export default function PgLessons() {
               : Array.isArray(data?.items)
                 ? data.items
                 : [];
-        setLessons(list);
+        setLessons(list.map((row) => ({ ...row, source: "scheduled" })));
+        setSource("scheduled");
       } else {
         await loadFromBookings();
+        setSource("booking");
       }
     } catch {
       await loadFromBookings();
+      setSource("booking");
     } finally {
       setLoading(false);
     }
@@ -132,10 +138,22 @@ export default function PgLessons() {
         <EmptyState icon="🎓" title={t("lessons.empty", "No lessons yet")} />
       ) : (
         <div className="bookings-list">
+          {source === "booking" && (
+            <p className="booking-time" style={{ margin: "0 0 8px" }}>
+              {t("lessons.one_off_hint", "Разовые занятия (без регулярного расписания)")}
+            </p>
+          )}
           {sorted.map((l) => (
             <div key={l.id} className="booking-card">
               <div className="booking-info">
-                <h3>{l.title}</h3>
+                <h3>
+                  {l.title}
+                  {l.source === "booking" && (
+                    <span className="tag" style={{ marginLeft: 8, fontSize: 12 }}>
+                      {t("lessons.one_off_badge", "Разовое")}
+                    </span>
+                  )}
+                </h3>
                 <p>{l.counterpart}</p>
                 <p className="booking-time">
                   {fmtDate(l.start_at)} · {fmtTime(l.start_at)}

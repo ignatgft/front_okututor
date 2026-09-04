@@ -702,7 +702,9 @@
   "lessons": {
     "title": "Lessons",
     "empty": "No lessons yet",
-    "join": "Join"
+    "join": "Join",
+    "one_off_badge": "One-off",
+    "one_off_hint": "One-off lessons (no recurring schedule)"
   },
   "become_tutor": {
     "title": "Become a tutor",
