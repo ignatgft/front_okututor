@@ -9,18 +9,23 @@ import type { CountdownResult } from "../../types/schedule";
  * @returns CountdownResult with days, hours, minutes, seconds
  */
 export function useCountdown(targetDate: string | null): CountdownResult {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState<number>(() => Date.now());
 
   useEffect(() => {
     if (!targetDate) return;
-
-    let animationId: number;
-    const tick = () => {
-      setNow(Date.now());
-      animationId = requestAnimationFrame(tick);
+    // Throttled to 1s — rAF 60fps would cause 60 rerenders/sec per NextLessonCard
+    // 1s is enough for countdown text and respects visibility
+    const tick = (): void => setNow(Date.now());
+    tick();
+    const id = window.setInterval(tick, 1000);
+    const handleVisibility = (): void => {
+      if (document.visibilityState === "visible") tick();
     };
-    animationId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animationId);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [targetDate]);
 
   const result = useCallback((): CountdownResult => {

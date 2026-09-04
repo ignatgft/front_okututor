@@ -26,8 +26,6 @@ export const LessonCard = memo(function LessonCard({
   const canJoin = isLessonDTO ? lesson.canJoin && (lesson.status === "SCHEDULED" || lesson.status === "IN_PROGRESS") : false;
   const isInProgress = lesson.status === "IN_PROGRESS";
 
-  const start = new Date(lesson.startAt);
-  const end = new Date(lesson.endAt);
   const timeStr = `${formatTimeInTimezone(lesson.startAt, lesson.timezone)}–${formatTimeInTimezone(lesson.endAt, lesson.timezone)}`;
   const dateStr = formatInTimezone(lesson.startAt, lesson.timezone, "ru", {
     weekday: "short",

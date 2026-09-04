@@ -31,8 +31,6 @@ export const NextLessonCard = memo(function NextLessonCard({ lesson, onJoin, onV
     );
   }
 
-  const start = lesson.startAt ? new Date(lesson.startAt) : null;
-  const end = lesson.endAt ? new Date(lesson.endAt) : null;
   const dateStr = lesson.startAt ? formatInTimezone(lesson.startAt, lesson.timezone || "UTC", "ru", {
     weekday: "long",
     day: "numeric",
@@ -49,14 +47,14 @@ export const NextLessonCard = memo(function NextLessonCard({ lesson, onJoin, onV
   if (countdown.isPast) {
     countdownText = isInProgress ? t("schedule.lesson_in_progress", "Идёт сейчас") : t("schedule.lesson_ended", "Урок завершился");
   } else if (countdown.days > 0) {
-    countdownText = t("schedule.countdown_days", "{{days}} д {{hours}} ч", { days: countdown.days, hours: countdown.hours } as any).replace("{{days}}", String(countdown.days)).replace("{{hours}}", String(countdown.hours));
+    countdownText = t("schedule.countdown_days", "{{days}} д {{hours}} ч", { days: countdown.days, hours: countdown.hours } as unknown as Record<string, unknown>).replace("{{days}}", String(countdown.days)).replace("{{hours}}", String(countdown.hours));
     // fallback если ключ не найден — ручная сборка
     if (countdownText.includes("{{")) countdownText = `${countdown.days} д ${countdown.hours} ч`;
   } else if (countdown.hours > 0) {
-    countdownText = t("schedule.countdown_hours", "{{hours}} ч {{minutes}} мин", { hours: countdown.hours, minutes: countdown.minutes } as any);
+    countdownText = t("schedule.countdown_hours", "{{hours}} ч {{minutes}} мин", { hours: countdown.hours, minutes: countdown.minutes } as unknown as Record<string, unknown>);
     if (countdownText.includes("{{")) countdownText = `${countdown.hours} ч ${countdown.minutes} мин`;
   } else {
-    countdownText = t("schedule.countdown_minutes", "{{minutes}} мин", { minutes: countdown.minutes } as any);
+    countdownText = t("schedule.countdown_minutes", "{{minutes}} мин", { minutes: countdown.minutes } as unknown as Record<string, unknown>);
     if (countdownText.includes("{{")) countdownText = `${countdown.minutes} мин`;
   }
 

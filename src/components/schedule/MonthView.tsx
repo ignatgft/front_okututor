@@ -1,6 +1,6 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { monthGridFor, isToday, isSameDay, formatInTimezone, eventDaysKey } from "../../utils/calendar";
+import { monthGridFor, isToday, isSameDay } from "../../utils/calendar";
 import { LessonCard } from "./LessonCard";
 import { ScheduleSkeleton } from "./ScheduleSkeleton";
 import type { LessonDTO, MonthScheduleResponse } from "../../types/schedule";
@@ -56,7 +56,7 @@ export const MonthView = memo(function MonthView({
 
   const monthLabel = useMemo(
     () => `${t(MONTH_NAMES[month - 1], monthDate.toLocaleDateString(locale, { month: "long" }))} ${year}`,
-    [month, year, locale]
+    [month, year, locale, monthDate, t]
   );
 
   if (loading) {

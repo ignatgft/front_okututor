@@ -1,6 +1,5 @@
 import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { formatInTimezone, formatTimeInTimezone } from "../../utils/timezone";
 import { LessonCard } from "./LessonCard";
 import { ScheduleSkeleton } from "./ScheduleSkeleton";
 import type { LessonDTO, DayScheduleResponse } from "../../types/schedule";

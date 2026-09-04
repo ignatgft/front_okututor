@@ -3,7 +3,6 @@ import { scheduleApi } from "../../api/schedule.api";
 import { normalizeLesson } from "../../utils/normalize";
 import type { LessonDTO, ScheduleAction, DayScheduleResponse, WeekScheduleResponse, MonthScheduleResponse } from "../../types/schedule";
 
-// Query keys for React Query caching and invalidation
 export const scheduleKeys = {
   all: ["schedule"] as const,
   mySchedule: () => [...scheduleKeys.all, "my"] as const,
@@ -15,103 +14,114 @@ export const scheduleKeys = {
   lesson: (id: string) => [...scheduleKeys.all, "lesson", id] as const,
 };
 
-/**
- * Hook for next upcoming lesson
- * Used in NextLessonCard component
- */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function extractError(data: unknown): string | undefined {
+  if (!isRecord(data)) return undefined;
+  const m = data["message"];
+  const e = data["error"];
+  if (typeof m === "string" && m) return m;
+  if (typeof e === "string" && e) return e;
+  return undefined;
+}
+
 export function useNextLesson() {
-  return useQuery({
+  return useQuery<LessonDTO | null, Error>({
     queryKey: scheduleKeys.nextLesson(),
     queryFn: async () => {
       const { response, data } = await scheduleApi.nextLesson();
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load next lesson");
-      const raw = (data as any)?.lesson ?? data;
-      if (!raw || (typeof raw === "object" && Object.keys(raw).length === 0)) return null;
-      return normalizeLesson(raw) as LessonDTO;
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load next lesson");
+      const rec = isRecord(data) ? (data as Record<string, unknown>) : null;
+      const raw: unknown = rec && "lesson" in rec ? rec["lesson"] : data;
+      if (!raw || (isRecord(raw) && Object.keys(raw).length === 0)) return null;
+      return normalizeLesson(raw as Record<string, unknown>) as LessonDTO;
     },
-    staleTime: 30_000, // 30 seconds
-    refetchInterval: 60_000, // Refetch every minute for countdown accuracy
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }
 
-/**
- * Hook for actions required (ActionRequiredBlock)
- */
 export function useScheduleActions() {
-  return useQuery({
+  return useQuery<ScheduleAction[], Error>({
     queryKey: scheduleKeys.actions(),
     queryFn: async () => {
       const { response, data } = await scheduleApi.actions();
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load actions");
-      return (data as ScheduleAction[]) || [];
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load actions");
+      if (Array.isArray(data)) return data as ScheduleAction[];
+      if (isRecord(data) && Array.isArray(data["content"])) return data["content"] as ScheduleAction[];
+      return [];
     },
     staleTime: 60_000,
   });
 }
 
-/**
- * Hook for day view lessons
- */
 export function useScheduleDay(date: string) {
-  return useQuery({
+  return useQuery<DayScheduleResponse, Error>({
     queryKey: scheduleKeys.day(date),
     queryFn: async () => {
       const { response, data } = await scheduleApi.day(date);
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load day schedule");
-      const raw = data as any;
-      if (raw?.lessons) raw.lessons = raw.lessons.map((l: any) => normalizeLesson(l));
-      return raw as DayScheduleResponse;
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load day schedule");
+      const rec = (data ?? {}) as Record<string, unknown>;
+      if (Array.isArray(rec["lessons"])) {
+        rec["lessons"] = (rec["lessons"] as unknown[]).map((l) => normalizeLesson(l as Record<string, unknown>));
+      }
+      return rec as unknown as DayScheduleResponse;
     },
     enabled: !!date,
     staleTime: 60_000,
   });
 }
 
-/**
- * Hook for week view lessons
- */
 export function useScheduleWeek(startDate: string) {
-  return useQuery({
+  return useQuery<WeekScheduleResponse, Error>({
     queryKey: scheduleKeys.week(startDate),
     queryFn: async () => {
       const { response, data } = await scheduleApi.week(startDate);
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load week schedule");
-      const raw = data as any;
-      if (raw?.days) raw.days.forEach((d: any) => { if (d.lessons) d.lessons = d.lessons.map((l: any) => normalizeLesson(l)); });
-      return raw as WeekScheduleResponse;
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load week schedule");
+      const rec = (data ?? {}) as Record<string, unknown>;
+      if (Array.isArray(rec["days"])) {
+        for (const d of rec["days"] as Record<string, unknown>[]) {
+          if (Array.isArray(d["lessons"])) {
+            d["lessons"] = (d["lessons"] as unknown[]).map((l) => normalizeLesson(l as Record<string, unknown>));
+          }
+        }
+      }
+      return rec as unknown as WeekScheduleResponse;
     },
     enabled: !!startDate,
     staleTime: 60_000,
   });
 }
 
-/**
- * Hook for month view lessons
- */
 export function useScheduleMonth(year: number, month: number) {
-  return useQuery({
+  return useQuery<MonthScheduleResponse, Error>({
     queryKey: scheduleKeys.month(year, month),
     queryFn: async () => {
       const { response, data } = await scheduleApi.month(year, month);
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load month schedule");
-      const raw = data as any;
-      if (raw?.days) raw.days.forEach((d: any) => { if (d.lessons) d.lessons = d.lessons.map((l: any) => normalizeLesson(l)); });
-      return raw as MonthScheduleResponse;
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load month schedule");
+      const rec = (data ?? {}) as Record<string, unknown>;
+      if (Array.isArray(rec["days"])) {
+        for (const d of rec["days"] as Record<string, unknown>[]) {
+          if (Array.isArray(d["lessons"])) {
+            d["lessons"] = (d["lessons"] as unknown[]).map((l) => normalizeLesson(l as Record<string, unknown>));
+          }
+        }
+      }
+      return rec as unknown as MonthScheduleResponse;
     },
     enabled: year > 0 && month > 0 && month <= 12,
     staleTime: 60_000,
   });
 }
 
-/**
- * Hook for lesson details (LessonDetailsModal)
- */
 export function useLesson(id: string) {
-  return useQuery({
+  return useQuery<LessonDTO, Error>({
     queryKey: scheduleKeys.lesson(id),
     queryFn: async () => {
       const { response, data } = await scheduleApi.lesson(id);
-      if (!response.ok) throw new Error(data?.error || data?.message || "Failed to load lesson");
+      if (!response.ok) throw new Error(extractError(data) ?? "Failed to load lesson");
       return data as LessonDTO;
     },
     enabled: !!id,

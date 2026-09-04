@@ -14,8 +14,10 @@ i18n
       en: { translation: translationEN },
       ru: { translation: translationRU },
       ky: { translation: translationKG },
-      kg: { translation: translationKG },
     },
+    // kg kept as alias via fallback — browser may return "kg" historically, map to "ky"
+    supportedLngs: ["en", "ru", "ky", "kg"],
+    nonExplicitSupportedLngs: true,
     fallbackLng: "en",
     pluralSeparator: "_",
     interpolation: {
@@ -27,6 +29,12 @@ i18n
       caches: ["localStorage"],
     },
   });
+
+// Alias legacy "kg" (non-standard) to "ky"
+if (typeof i18n.services?.languageUtils?.formatLanguageCode === "function") {
+  const orig = i18n.services.languageUtils.formatLanguageCode.bind(i18n.services.languageUtils);
+  i18n.services.languageUtils.formatLanguageCode = (code) => (code === "kg" ? "ky" : orig(code));
+}
 
 i18n.on("languageChanged", (lng) => {
   document.documentElement.setAttribute("lang", lng);

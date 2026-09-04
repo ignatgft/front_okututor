@@ -59,7 +59,7 @@ export default function SchedulePage() {
 
   useEffect(() => {
     if (selectedDate !== urlDate) setSelectedDate(urlDate);
-  }, [urlDate]);
+  }, [urlDate, selectedDate]);
 
   const updateURL = useCallback(
     (newView?: ScheduleView, newDate?: string) => {

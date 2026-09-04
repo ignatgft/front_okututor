@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { formatInTimezone, formatTimeInTimezone, timezoneLabel } from "../../utils/timezone";
 import {
   useJoinLesson,
   useCancelLesson,
-  useRescheduleLesson,
   useReviewLesson,
   useStartLesson,
   useCompleteLesson,
@@ -47,7 +45,6 @@ export const LessonDetailsModal = function LessonDetailsModal({
   onChanged,
 }: LessonDetailsModalProps) {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const toast = useToast();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -72,7 +69,6 @@ export const LessonDetailsModal = function LessonDetailsModal({
 
   const joinLesson = useJoinLesson();
   const cancelLesson = useCancelLesson();
-  const rescheduleLesson = useRescheduleLesson();
   const reviewLesson = useReviewLesson();
   const startLesson = useStartLesson();
   const completeLesson = useCompleteLesson();
@@ -86,6 +82,12 @@ export const LessonDetailsModal = function LessonDetailsModal({
   const proposeFormat = useProposeFormat();
   const proposeLocation = useProposeLocation();
   const proposeDuration = useProposeDuration();
+  const acceptFormat = useAcceptFormat();
+  const rejectFormat = useRejectFormat();
+  const acceptLocation = useAcceptLocation();
+  const rejectLocation = useRejectLocation();
+  const acceptDuration = useAcceptDuration();
+  const rejectDuration = useRejectDuration();
 
   useEffect(() => {
     if (!isOpen) {
@@ -125,7 +127,6 @@ export const LessonDetailsModal = function LessonDetailsModal({
   const isLocationPending = lesson.status === "LOCATION_CHANGE_PENDING";
   const isDurationPending = lesson.status === "DURATION_CHANGE_PENDING";
   const isNoShow = lesson.status === "STUDENT_NO_SHOW" || lesson.status === "TUTOR_NO_SHOW";
-  const isIssue = lesson.status === "ISSUE";
 
   const dateStr = lesson.startAt ? formatInTimezone(lesson.startAt, lesson.timezone || "UTC", i18n.language, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "—";
   const timeStr = lesson.startAt && lesson.endAt ? `${formatTimeInTimezone(lesson.startAt, lesson.timezone || "UTC", i18n.language)}–${formatTimeInTimezone(lesson.endAt, lesson.timezone || "UTC", i18n.language)}` : lesson.startAt ? formatTimeInTimezone(lesson.startAt, lesson.timezone || "UTC", i18n.language) : "—";
@@ -134,7 +135,6 @@ export const LessonDetailsModal = function LessonDetailsModal({
 
   const canJoin = lesson.canJoin && (lesson.status === "SCHEDULED" || lesson.status === "IN_PROGRESS");
   const canCancel = lesson.canCancel && !isCompleted && !isCancelled && !isNoShow;
-  const canReschedule = lesson.canReschedule && isScheduled;
   const canReview = lesson.canReview && isCompleted;
   const canStart = (lesson.canStart ?? isScheduled) && isScheduled;
   const canComplete = (lesson.canComplete ?? isInProgress) && isInProgress;
@@ -157,23 +157,17 @@ export const LessonDetailsModal = function LessonDetailsModal({
   };
   const handleStudentNoShow = async () => {
     setBusy(true);
-    try { await studentNoShow.mutateAsync(lesson.id); onChanged?.(); onClose(); } catch(e:any){ toast.error(e.message); } finally { setBusy(false); }
+    try { await studentNoShow.mutateAsync(lesson.id); onChanged?.(); onClose(); } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e)); } finally { setBusy(false); }
   };
   const handleTutorNoShow = async () => {
     setBusy(true);
-    try { await tutorNoShow.mutateAsync({ lessonId: lesson.id }); onChanged?.(); onClose(); } catch(e:any){ toast.error(e.message); } finally { setBusy(false); }
+    try { await tutorNoShow.mutateAsync({ lessonId: lesson.id }); onChanged?.(); onClose(); } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e)); } finally { setBusy(false); }
   };
   const handleIssue = async () => {
     if (!issueText.trim()) { toast.error(t("lesson.issue_required","Укажите описание проблемы")); return; }
     setBusy(true);
     try { await reportIssue.mutateAsync({ lessonId: lesson.id, reason: issueText }); onChanged?.(); setTab("main"); setIssueText(""); } catch {} finally { setBusy(false); }
   };
-  const acceptFormat = useAcceptFormat();
-  const rejectFormat = useRejectFormat();
-  const acceptLocation = useAcceptLocation();
-  const rejectLocation = useRejectLocation();
-  const acceptDuration = useAcceptDuration();
-  const rejectDuration = useRejectDuration();
 
   const handleProposeReschedule = async () => {
     if (!rescheduleDate || !rescheduleTime) { toast.error(t("schedule.date_required","Укажите дату и время")); return; }
@@ -183,36 +177,36 @@ export const LessonDetailsModal = function LessonDetailsModal({
       const isoEnd = new Date(new Date(isoStart).getTime() + durationChoice*60*1000).toISOString();
       await proposeReschedule.mutateAsync({ lessonId: lesson.id, payload: { newStartAt: isoStart, newEndAt: isoEnd, reason: rescheduleReason, scope } });
       onChanged?.(); setTab("main");
-    } catch(e:any){ toast.error(e.message);} finally { setBusy(false); }
+    } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally { setBusy(false); }
   };
-  const handleAcceptReschedule = async () => { setBusy(true); try{ await acceptReschedule.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleRejectReschedule = async () => { setBusy(true); try{ await rejectReschedule.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleAcceptFormat = async () => { setBusy(true); try{ await acceptFormat.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleRejectFormat = async () => { setBusy(true); try{ await rejectFormat.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleAcceptLocation = async () => { setBusy(true); try{ await acceptLocation.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleRejectLocation = async () => { setBusy(true); try{ await rejectLocation.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleAcceptDuration = async () => { setBusy(true); try{ await acceptDuration.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
-  const handleRejectDuration = async () => { setBusy(true); try{ await rejectDuration.mutateAsync(lesson.id); onChanged?.(); } catch(e:any){toast.error(e.message);} finally{ setBusy(false);} };
+  const handleAcceptReschedule = async () => { setBusy(true); try{ await acceptReschedule.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleRejectReschedule = async () => { setBusy(true); try{ await rejectReschedule.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleAcceptFormat = async () => { setBusy(true); try{ await acceptFormat.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleRejectFormat = async () => { setBusy(true); try{ await rejectFormat.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleAcceptLocation = async () => { setBusy(true); try{ await acceptLocation.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleRejectLocation = async () => { setBusy(true); try{ await rejectLocation.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleAcceptDuration = async () => { setBusy(true); try{ await acceptDuration.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
+  const handleRejectDuration = async () => { setBusy(true); try{ await rejectDuration.mutateAsync(lesson.id); onChanged?.(); } catch(e: unknown){toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false);} };
   const handleProposeFormat = async () => {
     setBusy(true);
     try {
       await proposeFormat.mutateAsync({ lessonId: lesson.id, payload:{ format: formatChoice, location_type: locationType, location_address: locationAddress, location_details: locationDetails, scope }});
       onChanged?.(); setTab("main");
-    } catch(e:any){ toast.error(e.message); } finally{ setBusy(false); }
+    } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e)); } finally{ setBusy(false); }
   };
   const handleProposeLocation = async () => {
     setBusy(true);
     try {
       await proposeLocation.mutateAsync({ lessonId: lesson.id, payload:{ location_type: locationType, location_address: locationAddress, location_details: locationDetails, scope }});
       onChanged?.(); setTab("main");
-    } catch(e:any){ toast.error(e.message);} finally{ setBusy(false); }
+    } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false); }
   };
   const handleProposeDuration = async () => {
     setBusy(true);
     try {
       await proposeDuration.mutateAsync({ lessonId: lesson.id, payload:{ duration_minutes: durationChoice, scope }});
       onChanged?.(); setTab("main");
-    } catch(e:any){ toast.error(e.message);} finally{ setBusy(false); }
+    } catch(e: unknown){ toast.error(e instanceof Error ? e.message : String((e as Record<string, unknown>)["message"] ?? e));} finally{ setBusy(false); }
   };
   const handleSaveDetails = async () => {
     setBusy(true);
@@ -421,7 +415,7 @@ export const LessonDetailsModal = function LessonDetailsModal({
   );
 };
 
-function ScopeSelector({scope, setScope, t}: {scope:Scope, setScope:(s:Scope)=>void, t:any}) {
+function ScopeSelector({scope, setScope, t}: {scope:Scope, setScope:(s:Scope)=>void, t: (key: string, fallback?: string) => string}) {
   return (
     <div className="form-field">
       <label>{t("lesson.scope","Применить")}</label>

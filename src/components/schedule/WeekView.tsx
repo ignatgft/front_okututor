@@ -1,6 +1,6 @@
-import { memo, useMemo, useState, useCallback } from "react";
+import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { startOfWeek, addDays, isToday, isSameDay, formatInTimezone, formatTimeInTimezone } from "../../utils/calendar";
+import { addDays, isToday, isSameDay } from "../../utils/calendar";
 import { LessonCard } from "./LessonCard";
 import { ScheduleSkeleton } from "./ScheduleSkeleton";
 import type { LessonDTO, WeekScheduleResponse } from "../../types/schedule";
@@ -90,7 +90,7 @@ export const WeekView = memo(function WeekView({
       <div className="week-view-grid" role="grid" aria-label={t("schedule.week_grid", "Неделя")}>
         {/* Weekday headers */}
         <div className="week-view-weekdays" role="row">
-          {DAYS.map((day, i) => (
+          {DAYS.map((day) => (
             <div key={day} className="week-view-weekday" role="columnheader">
               <span className="week-view-weekday-name">
                 {t(DAY_KEYS[day as keyof typeof DAY_KEYS], day.slice(0, 2).toUpperCase())}
