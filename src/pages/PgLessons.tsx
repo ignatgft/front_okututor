@@ -94,10 +94,30 @@ export default function PgLessons() {
     load();
   }, [load]);
 
-  const fmtDate = (iso) => new Date(iso).toLocaleDateString();
-  const fmtTime = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const fmtDate = (iso: string): string => new Date(iso).toLocaleDateString();
+  const fmtTime = (iso: string): string => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  const sorted = [...lessons].sort((a, b2) => new Date(b2.start_at) - new Date(a.start_at));
+  const sorted = [...lessons].sort((a, b2) => new Date(b2.start_at as string).getTime() - new Date(a.start_at as string).getTime());
+
+  // Только предстоящий урок — ближайший по времени среди joinable — получает кнопку "Войти"
+  const upcomingJoinableId = (() => {
+    const now = Date.now();
+    const candidates = lessons.filter((l: Record<string, unknown>) => {
+      const s = l["status"] as string | undefined;
+      const joinable = Boolean(l["joinable"] ?? (l as Record<string, unknown>)["canJoin"]);
+      if (!joinable) return false;
+      // Для SCHEDULED требуем окно 10 мин до начала (онлайн), для IN_PROGRESS — всегда
+      if (s === "IN_PROGRESS") return true;
+      if (s !== "SCHEDULED") return false;
+      const start = new Date(l["start_at"] as string).getTime();
+      if (Number.isNaN(start)) return false;
+      const diff = start - now;
+      return diff < 10 * 60 * 1000 && diff > -30 * 60 * 1000;
+    });
+    if (candidates.length === 0) return null;
+    candidates.sort((a, b) => new Date(a["start_at"] as string).getTime() - new Date(b["start_at"] as string).getTime());
+    return candidates[0]["id"] as string | number | null;
+  })();
 
   return (
     <>
@@ -123,7 +143,7 @@ export default function PgLessons() {
               </div>
               <div className="booking-actions">
                 <Badge status={l.status}>{l.status}</Badge>
-                {l.joinable && (
+                {Boolean(l.joinable ?? (l as Record<string, unknown>)["canJoin"]) && l.id === upcomingJoinableId && (
                   <button className="btn-primary" onClick={() => navigate(`/lesson/${l.id}`)}>
                     {t("lessons.join", "Join")}
                   </button>
