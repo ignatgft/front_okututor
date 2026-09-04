@@ -1,12 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useAuthStore from "../store/authStore";
 import { bookingApi } from "../api/booking.api";
 import { usePageTitle } from "../components/pageTitleContext";
 import ConfirmModal from "../components/ui/ConfirmModal";
 import ReviewModal from "../components/ui/ReviewModal";
-import { Spinner, Skeleton, ErrorState, EmptyState, Badge } from "../components/ui/Primitives";
 import { useToast } from "../components/ui/Toast";
 import { useDashboardEnrollments } from "../features/dashboard/hooks/useDashboardEnrollments";
 import { NextLessonWidget } from "../features/dashboard/components/NextLessonWidget";
@@ -14,13 +11,13 @@ import { MyTutorsWidget } from "../features/dashboard/components/MyTutorsWidget"
 import { MyCoursesWidget } from "../features/dashboard/components/MyCoursesWidget";
 import { ActionRequiredWidget } from "../features/dashboard/components/ActionRequiredWidget";
 import { SchedulePreviewWidget } from "../features/dashboard/components/SchedulePreviewWidget";
+import { DashboardGreeting } from "../features/dashboard/components/DashboardGreeting";
+import { BookingHistoryWidget } from "../features/dashboard/components/BookingHistoryWidget";
 import { LessonDetailsModal } from "../components/schedule";
 import "../styles/Dashboard.css";
 
 export default function PgDashboard(): JSX.Element {
-  const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { t } = useTranslation();
   const toast = useToast();
   const [bookings, setBookings] = useState<Record<string, unknown>[]>([]);
   const [filter, setFilter] = useState<string>("upcoming");
@@ -84,14 +81,9 @@ export default function PgDashboard(): JSX.Element {
     }
   };
 
-  const canReview = (b: Record<string, unknown>): boolean =>
-    b["status"] === "COMPLETED" && Boolean(b["course_id"]) && !reviewedIds.includes(b["id"] as string | number) && !b["has_review"];
-
   return (
     <>
-      <div className="dashboard-greeting">
-        <h2>{t("dashboard.greeting", "Hello, {{name}}", { name: ((user as Record<string, unknown> | null)?.["full_name"] as string | undefined)?.split(" ")[0] || "" })}</h2>
-      </div>
+      <DashboardGreeting />
 
       <NextLessonWidget />
 
@@ -103,62 +95,17 @@ export default function PgDashboard(): JSX.Element {
 
       <SchedulePreviewWidget bookings={bookings as never} />
 
-      <div className="dashboard-tabs">
-        {["upcoming", "past", "cancelled", "all"].map((f) => (
-          <button key={f} className={`tab ${filter === f ? "active" : ""}`} onClick={() => setFilter(f)}>
-            {t(`dashboard.${f}`) || f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      <div className="bookings-list">
-        {loading && (
-          <>
-            <Skeleton count={1} className="skeleton-card" />
-            <Skeleton count={1} className="skeleton-card" />
-            <Skeleton count={1} className="skeleton-card" />
-          </>
-        )}
-
-        {!loading && error && <ErrorState message={error} onRetry={loadBookings} />}
-
-        {!loading && !error && bookings.length === 0 && (
-          <EmptyState icon="📚" title={t("dashboard.no_bookings", "No bookings found") as string} hint={t("dashboard.find_tutors", "Find tutors and book a lesson.") as string} />
-        )}
-
-        {!loading && !error && bookings.map((b) => (
-          <div key={String(b["id"])} className="booking-card">
-            <div className="booking-info">
-              <h3>{b["course_title"] as string}</h3>
-              <p>{b["teacher_name"] as string}</p>
-              <p className="booking-time">
-                {new Date(b["start_at"] as string).toLocaleDateString(i18n.language, { day: "numeric", month: "long", year: "numeric" })}
-                {new Date(b["start_at"] as string).toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
-                {" - "}
-                {new Date(b["end_at"] as string).toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" })}
-              </p>
-              <span className={`status-badge status-${String(b["status"] ?? "").toLowerCase()}`}>{b["status"] as string}</span>
-            </div>
-            <div className="booking-actions">
-              {b["status"] === "CONFIRMED" && (
-                <button className="btn-primary" onClick={() => navigate(`/lesson/${b["id"]}`)}>
-                  {t("dashboard.join_lesson") || "Join Lesson"}
-                </button>
-              )}
-              {(b["status"] === "PENDING" || b["status"] === "CONFIRMED") && (
-                <button className="btn-secondary" onClick={() => setCancelTarget(b)}>
-                  {t("dashboard.cancel") || "Cancel"}
-                </button>
-              )}
-              {canReview(b) && (
-                <button className="btn-primary" onClick={() => setReviewTarget(b)}>
-                  {t("review.leave_review", "Leave review")}
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <BookingHistoryWidget
+        bookings={bookings as never}
+        filter={filter}
+        onFilterChange={setFilter}
+        onCancel={setCancelTarget}
+        onReview={setReviewTarget}
+        reviewedIds={reviewedIds}
+        loading={loading}
+        error={error}
+        onRetry={loadBookings}
+      />
 
       <ConfirmModal
         isOpen={!!cancelTarget}
