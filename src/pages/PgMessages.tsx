@@ -13,63 +13,11 @@ import { useToast } from "../components/ui/Toast";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
 import NewTicketModal from "../components/messages/NewTicketModal";
 import AttachmentRenderer from "../components/attachments/AttachmentRenderer";
-import { isSameDay, isToday } from "../utils/date";
 import { Search, Paperclip, Image as ImageIcon, Send, Smile, ArrowLeft, MoreVertical, Reply, Heart, Forward, Trash2, Edit2, X, Check, CheckCheck, Clock3, AlertCircle } from "lucide-react";
 import "../styles/Messages.css";
+import { safeDisplayName, initials, avatarColor, formatChatTime, dayLabel, previewText, isUnread, MAX_ATTACHMENT_SIZE, POLL_INTERVAL } from "../features/messaging/utils/messageHelpers";
 
-const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
-const POLL_INTERVAL = 5000;
-
-/* helpers */
-function safeDisplayName(name, t) {
-  const trimmed = (name || "").replace(/\s+/g, " ").trim();
-  if (!trimmed || trimmed.length < 2) return t("messages.unknown", "Unknown user");
-  return trimmed;
-}
-function initials(name) {
-  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-function avatarColor(name) {
-  const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FECA57", "#A29BFE", "#FD79A8", "#FDCB6E", "#6C5CE7", "#00B894"];
-  let hash = 0;
-  for (let i = 0; i < (name || "").length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return colors[hash % colors.length];
-}
-function formatChatTime(raw, locale = "ru") {
-  if (!raw) return "";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", hour12: false });
-}
-function dayLabel(raw, locale = "ru", t) {
-  if (!raw) return "";
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return "";
-  if (isToday(d)) return t ? t("messages.today", "Today") : "Today";
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (isSameDay(d, yesterday)) return t ? t("messages.yesterday", "Yesterday") : "Yesterday";
-  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d);
-}
-function previewText(c, t) {
-  if (c.type === CONVERSATION_TYPES.SUPPORT) {
-    if (c.ticket_status) {
-      const sk = STATUS_I18N[c.ticket_status] ? t(STATUS_I18N[c.ticket_status]) : c.ticket_status;
-      const pk = c.ticket_priority && PRIORITY_I18N[c.ticket_priority] ? ` · ${t(PRIORITY_I18N[c.ticket_priority])}` : "";
-      return `${sk}${pk}`;
-    }
-    return t("messages.support", "Support");
-  }
-  return c.last_message?.body || c.last_message?.text || "";
-}
-function isUnread(c) {
-  return Number(c.unread_count) > 0;
-}
-
-function TgAvatar({ name, size = 44 }) {
+function TgAvatar({ name, size = 44 }: { name: unknown; size?: number }): JSX.Element {
   const bg = avatarColor(name);
   return (
     <span className="tg-avatar" style={{ width: size, height: size, background: bg, fontSize: size * 0.38 }} aria-hidden="true">
