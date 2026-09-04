@@ -43,6 +43,7 @@
   --color-surface: #FFFFFF;
   --color-surface-hover: #F8FAFB;
   --color-surface-active: #F2F4F7;
+  --color-surface-alt: #F8FAFB;
   --color-bg-elevated: #FFFFFF;
 
   /* BORDERS */
@@ -232,6 +233,7 @@
   --color-surface: #141414;
   --color-surface-hover: #1A1A1A;
   --color-surface-active: #222222;
+  --color-surface-alt: #1E1E1E;
   --color-bg-elevated: #1A1A1A;
 
   /* BORDERS */

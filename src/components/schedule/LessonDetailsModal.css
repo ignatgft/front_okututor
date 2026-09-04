@@ -287,3 +287,39 @@
     font-size: var(--font-size-sm);
   }
 }
+
+/* Dark theme — fix white details (surface-alt fallback) */
+[data-theme="dark"] .lesson-modal-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+[data-theme="dark"] .lesson-modal-meta {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+}
+[data-theme="dark"] .lesson-modal-close {
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+[data-theme="dark"] .lesson-modal-close:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+[data-theme="dark"] .form-field input {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+[data-theme="dark"] .form-field input::placeholder {
+  color: var(--color-text-muted);
+}
+[data-theme="dark"] .lesson-modal-title,
+[data-theme="dark"] .form-field label,
+[data-theme="dark"] .lesson-modal-confirm h3,
+[data-theme="dark"] .meta-value {
+  color: var(--color-text);
+}
+[data-theme="dark"] .meta-label,
+[data-theme="dark"] .lesson-modal-confirm p {
+  color: var(--color-text-secondary);
+}
