@@ -16,6 +16,7 @@ import { Search, Paperclip, Image as ImageIcon, Send, Smile, ArrowLeft, MoreVert
 import "../styles/Messages.css";
 import { safeDisplayName, initials, avatarColor, formatChatTime, dayLabel, previewText, isUnread, MAX_ATTACHMENT_SIZE, POLL_INTERVAL } from "../features/messaging/utils/messageHelpers";
 import { useConversations } from "../features/messaging/hooks/useConversations";
+import { useMessagingThread } from "../features/messaging/hooks/useMessagingThread";
 
 function TgAvatar({ name, size = 44 }: { name: unknown; size?: number }): JSX.Element {
   const bg = avatarColor(name);
@@ -64,9 +65,8 @@ export default function PgMessages() {
   useEffect(() => { setPageTitle(t("navbar.messages", "Сообщения")); }, [setPageTitle, t]);
 
   const { conversations, activeConvo, setActiveConvo, filter, setFilter, query, setQuery, loading, error, reload: loadConversations } = useConversations();
-  const [messages, setMessages] = useState<Record<string, unknown>[]>([]);
+  const { messages, threadLoading, setMessages } = useMessagingThread(activeConvo);
   const [draft, setDraft] = useState<string>("");
-  const [threadLoading, setThreadLoading] = useState<boolean>(false);
   const [sending, setSending] = useState<boolean>(false);
   const threadRef = useRef<HTMLDivElement | null>(null);
   const composerRef = useRef<HTMLDivElement | null>(null);
@@ -79,31 +79,6 @@ export default function PgMessages() {
   const [forwardingMessage, setForwardingMessage] = useState<Record<string, unknown> | null>(null);
   const [forwardTargetConvo, setForwardTargetConvo] = useState<Record<string, unknown> | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!activeConvo) { setMessages([]); return undefined; }
-    let cancelled = false;
-    const loadThread = async () => {
-      try {
-        let msgs;
-        if (activeConvo.type === CONVERSATION_TYPES.SUPPORT) {
-          msgs = await loadSupportThread(activeConvo.ticket_id);
-        } else {
-          const { response, data } = await messagesApi.conversation(activeConvo.id);
-          msgs = response.ok ? (Array.isArray(data) ? data : data.messages || []) : [];
-        }
-        if (!cancelled) setMessages(msgs);
-        // mark read (best effort)
-        if (activeConvo.type !== CONVERSATION_TYPES.SUPPORT && activeConvo.id && !String(activeConvo.id).startsWith("support-")) {
-          messagesApi.markConversationRead(activeConvo.id).catch(() => {});
-        }
-      } catch { /* keep */ }
-    };
-    setThreadLoading(true);
-    loadThread().finally(() => !cancelled && setThreadLoading(false));
-    const timer = setInterval(loadThread, POLL_INTERVAL);
-    return () => { cancelled = true; clearInterval(timer); };
-  }, [activeConvo]);
 
   useEffect(() => {
     if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight;
