@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import CardCourse from "../components/CardCourse";
+import { genericPlaceholder } from "../utils/avatarPlaceholder";
 import useAuthStore from "../store/authStore";
 import { endpoints } from "../api/endpoints";
 import { apiClient } from "../api/http";
@@ -139,7 +140,7 @@ const Profile = () => {
     const initialData = {
       full_name: user.full_name || user.displayName || t("profile.not_provided"),
       email: user.email || t("profile.not_provided"),
-      photoURL: user.avatar || user.photoURL || "https://via.placeholder.com/150",
+      photoURL: user.avatar || user.photoURL || genericPlaceholder(150),
       phone: user.phone || "",
       location: user.location || t("profile.choose_location"),
       bio: user.bio || "",

@@ -16,6 +16,7 @@ import {
 import {
   useNextLesson,
   useScheduleActions,
+  useScheduleActionHandler,
   useScheduleDay,
   useScheduleWeek,
   useScheduleMonth,
@@ -95,9 +96,7 @@ export default function SchedulePage() {
     navigate(`/lesson/${lesson.id}`);
   }, [navigate]);
 
-  const handleActionClick = useCallback(async (_action: unknown, _scheduleAction: unknown) => {
-    // TODO: wire to schedule mutations when needed
-  }, []);
+  const { runAction: handleActionClick, pendingId: pendingActionId } = useScheduleActionHandler(navigate);
 
   // Page title
   useEffect(() => {
@@ -188,7 +187,7 @@ export default function SchedulePage() {
             <NextLessonCard lesson={nextLessonQuery.data || null} onJoin={handleJoinLesson} onViewDetails={handleLessonClick} />
           )}
           {actionsQuery.error ? null : (
-            <ActionRequiredBlock actions={actionsQuery.data || []} onActionClick={handleActionClick} />
+            <ActionRequiredBlock actions={actionsQuery.data || []} onActionClick={handleActionClick} pendingActionId={pendingActionId} />
           )}
           {viewError ? (
             <div className="schedule-error" role="alert">

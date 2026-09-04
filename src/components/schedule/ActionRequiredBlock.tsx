@@ -6,7 +6,8 @@ import "./ActionRequiredBlock.css";
 
 interface ActionRequiredBlockProps {
   actions: ScheduleAction[];
-  onActionClick: (action: ActionButton, scheduleAction: ScheduleAction) => void;
+  onActionClick: (action: ActionButton, scheduleAction: ScheduleAction) => void | Promise<void>;
+  pendingActionId?: string | null;
 }
 
 const ActionTypeLabels: Record<ScheduleAction["type"], string> = {
@@ -27,7 +28,7 @@ const ActionTypeIcons: Record<ScheduleAction["type"], string> = {
   LESSON_CONFIRMATION: "✅",
 };
 
-export const ActionRequiredBlock = memo(function ActionRequiredBlock({ actions, onActionClick }: ActionRequiredBlockProps) {
+export const ActionRequiredBlock = memo(function ActionRequiredBlock({ actions, onActionClick, pendingActionId }: ActionRequiredBlockProps) {
   const { t } = useTranslation();
 
   if (!actions.length) return null;
@@ -89,15 +90,17 @@ export const ActionRequiredBlock = memo(function ActionRequiredBlock({ actions, 
               <button
                 type="button"
                 className={`btn-${action.primaryAction.variant} action-btn-primary`}
-                onClick={() => onActionClick(action.primaryAction, action)}
+                disabled={pendingActionId === action.id}
+                onClick={() => void onActionClick(action.primaryAction, action)}
               >
-                {t(action.primaryAction.label, action.primaryAction.label)}
+                {pendingActionId === action.id ? t("common.loading", "Загрузка...") : t(action.primaryAction.label, action.primaryAction.label)}
               </button>
               {action.secondaryAction && (
                 <button
                   type="button"
                   className={`btn-${action.secondaryAction.variant} action-btn-secondary`}
-                  onClick={() => onActionClick(action.secondaryAction, action)}
+                  disabled={pendingActionId === action.id}
+                  onClick={() => void onActionClick(action.secondaryAction!, action)}
                 >
                   {t(action.secondaryAction.label, action.secondaryAction.label)}
                 </button>

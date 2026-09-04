@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { scheduleApi } from "../../api/schedule.api";
 import { normalizeLesson } from "../../utils/normalize";
+import { isRecord, extractError } from "../../utils/apiHelpers";
 import type { LessonDTO, ScheduleAction, DayScheduleResponse, WeekScheduleResponse, MonthScheduleResponse } from "../../types/schedule";
 
 export const scheduleKeys = {
@@ -13,19 +14,6 @@ export const scheduleKeys = {
   month: (year: number, month: number) => [...scheduleKeys.mySchedule(), "month", year, month] as const,
   lesson: (id: string) => [...scheduleKeys.all, "lesson", id] as const,
 };
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function extractError(data: unknown): string | undefined {
-  if (!isRecord(data)) return undefined;
-  const m = data["message"];
-  const e = data["error"];
-  if (typeof m === "string" && m) return m;
-  if (typeof e === "string" && e) return e;
-  return undefined;
-}
 
 export function useNextLesson() {
   return useQuery<LessonDTO | null, Error>({

@@ -3,12 +3,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Star, StarHalf } from "lucide-react";
+import { avatarPlaceholder } from "../utils/avatarPlaceholder";
 import "../styles/CardCourse.css";
 
-const getDefaultAvatar = (name) => {
-  if (!name) return "https://via.placeholder.com/150";
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=150`;
-};
+const getDefaultAvatar = (name?: string): string => avatarPlaceholder(name || "Instructor");
 
 const CardCourse = ({ course }) => {
   const { t } = useTranslation();

@@ -1,23 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { scheduleApi } from "../../api/schedule.api";
 import { lessonsApi } from "../../api/lessons.api";
-import { apiClient } from "../../api/http";
 import { scheduleKeys } from "./useScheduleQueries";
+import { extractError } from "../../utils/apiHelpers";
 import type { RescheduleLessonRequest, ReviewLessonRequest, JoinLessonResponse } from "../../types/schedule";
 import { useToast } from "../../components/ui/Toast";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function extractError(data: unknown): string | undefined {
-  if (!isRecord(data)) return undefined;
-  const msg = data["message"];
-  const err = data["error"];
-  if (typeof msg === "string" && msg) return msg;
-  if (typeof err === "string" && err) return err;
-  return undefined;
-}
 
 type GenericPayload = Record<string, unknown>;
 
@@ -404,43 +391,3 @@ export function useReviewLesson() {
   });
 }
 
-export function useAcceptAction() {
-  const queryClient = useQueryClient();
-  const toast = useToast();
-
-  return useMutation<void, Error, { actionId: string; endpoint: string }>({
-    mutationFn: async ({ endpoint }) => {
-      const { response, data } = await apiClient.post(endpoint);
-      if (!response.ok) throw new Error(extractError(data) ?? "Failed to accept action");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: scheduleKeys.actions() });
-      queryClient.invalidateQueries({ queryKey: scheduleKeys.nextLesson() });
-      queryClient.invalidateQueries({ queryKey: scheduleKeys.all });
-      toast.success("Действие подтверждено");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Не удалось выполнить действие");
-    },
-  });
-}
-
-export function useRejectAction() {
-  const queryClient = useQueryClient();
-  const toast = useToast();
-
-  return useMutation<void, Error, { actionId: string; endpoint: string }>({
-    mutationFn: async ({ endpoint }) => {
-      const { response, data } = await apiClient.post(endpoint);
-      if (!response.ok) throw new Error(extractError(data) ?? "Failed to reject action");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: scheduleKeys.actions() });
-      queryClient.invalidateQueries({ queryKey: scheduleKeys.all });
-      toast.success("Действие отклонено");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Не удалось выполнить действие");
-    },
-  });
-}

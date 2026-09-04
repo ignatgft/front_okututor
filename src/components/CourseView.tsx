@@ -11,6 +11,7 @@ import ConfirmModal from "./ui/ConfirmModal";
 import { Spinner, ErrorState, EmptyState } from "./ui/Primitives";
 import ApplicationWizard from "./course/ApplicationWizard";
 import { resolveCourseCta } from "./course/CourseCta";
+import { avatarPlaceholder } from "../utils/avatarPlaceholder";
 import { ENROLLMENT_STATUS } from "../constants/enums";
 import "../styles/CourseView.css";
 
@@ -224,10 +225,7 @@ const CourseView = () => {
     return <div className={isInteractive ? "star-rating interactive" : "star-rating"}>{stars}</div>;
   };
 
-  const getDefaultAvatar = (name) => {
-    if (!name) return "https://via.placeholder.com/150";
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=150`;
-  };
+  const getDefaultAvatar = (name?: string): string => avatarPlaceholder(name || "Instructor");
 
   const handleImageError = (e) => {
     e.target.src = getDefaultAvatar(teacherName || "Instructor");
