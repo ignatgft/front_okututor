@@ -68,7 +68,7 @@ export function useCountdown(targetDate: string | null): CountdownResult {
       seconds,
       totalMs: diff,
       isPast: false,
-      isSoon: diff < 15 * 60 * 1000, // Within 15 minutes
+      isSoon: diff < 10 * 60 * 1000, // Within 10 minutes — online lesson join window
     };
   }, [targetDate, now]);
 
@@ -94,10 +94,10 @@ export function formatCountdown(countdown: CountdownResult, t: (key: string, def
 
 /**
  * Check if join button should be enabled based on countdown
- * Join is enabled 15 minutes before start and during the lesson
+ * Join is enabled 10 minutes before start (online lessons) and during the lesson
  */
 export function canJoinFromCountdown(countdown: CountdownResult, lessonStatus: string): boolean {
   if (lessonStatus === "IN_PROGRESS") return true;
   if (lessonStatus !== "SCHEDULED") return false;
-  return countdown.isSoon && !countdown.isPast; // Within 15 minutes before start
+  return countdown.isSoon && !countdown.isPast; // Within 10 minutes before start
 }

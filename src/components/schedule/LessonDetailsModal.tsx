@@ -133,7 +133,14 @@ export const LessonDetailsModal = function LessonDetailsModal({
   const tzLabel = timezoneLabel(lesson.timezone || "UTC");
   const duration = start && end && !isNaN(start.getTime()) && !isNaN(end.getTime()) ? Math.round((end.getTime() - start.getTime()) / 60000) : (lesson.durationMinutes || 0);
 
-  const canJoin = lesson.canJoin && (lesson.status === "SCHEDULED" || lesson.status === "IN_PROGRESS");
+  const canJoin = (() => {
+    if (!lesson.canJoin) return false;
+    if (lesson.status === "IN_PROGRESS") return true;
+    if (lesson.status !== "SCHEDULED") return false;
+    const start = new Date(lesson.startAt).getTime();
+    const diff = start - Date.now();
+    return diff < 10 * 60 * 1000 && diff > -30 * 60 * 1000;
+  })();
   const canCancel = lesson.canCancel && !isCompleted && !isCancelled && !isNoShow;
   const canReview = lesson.canReview && isCompleted;
   const canStart = (lesson.canStart ?? isScheduled) && isScheduled;

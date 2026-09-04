@@ -79,7 +79,7 @@ export function canJoinLesson(startAt: string | null | undefined, now: number = 
   const start = new Date(startAt).getTime();
   if (Number.isNaN(start)) return false;
   const diff = start - now;
-  return diff < 15 * 60 * 1000 && diff > -30 * 60 * 1000;
+  return diff < 10 * 60 * 1000 && diff > -30 * 60 * 1000;
 }
 
 export function getNextStudentAction(status: string): string | null {

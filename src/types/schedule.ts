@@ -296,7 +296,7 @@ export interface CountdownResult {
   seconds: number;
   totalMs: number;
   isPast: boolean;
-  isSoon: boolean; // Within 15 minutes
+  isSoon: boolean; // Within 10 minutes — online lesson join window
 }
 
 export interface TimeDisplay {

@@ -59,7 +59,7 @@ export function normalizeCalendarEvents(data: unknown): BookingDTO[] {
 export function isJoinable(evt: BookingDTO | null | undefined, now: number = Date.now()): boolean {
   if (!evt?.status || evt.status !== BOOKING_STATUS.CONFIRMED) return false;
   const start = new Date(evt.start_at).getTime();
-  return start - now < 15 * 60 * 1000 && start > now - 30 * 60 * 1000;
+  return start - now < 10 * 60 * 1000 && start > now - 30 * 60 * 1000;
 }
 
 export async function loadCalendarRange(

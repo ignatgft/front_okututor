@@ -49,7 +49,7 @@ export default function PgLessons() {
       const start = new Date(b.start_at);
       const joinableWithinWindow =
         b.status === BOOKING_STATUS.CONFIRMED &&
-        start.getTime() - Date.now() < 15 * 60 * 1000 &&
+        start.getTime() - Date.now() < 10 * 60 * 1000 &&
         start.getTime() > Date.now() - 30 * 60 * 1000;
       return {
         id: b.id,

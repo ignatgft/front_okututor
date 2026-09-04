@@ -15,7 +15,12 @@ interface NextLessonCardProps {
 export const NextLessonCard = memo(function NextLessonCard({ lesson, onJoin, onViewDetails }: NextLessonCardProps) {
   const { t } = useTranslation();
   const countdown = useCountdown(lesson?.startAt || null);
-  const canJoin = lesson ? lesson.canJoin && (lesson.status === "SCHEDULED" || lesson.status === "IN_PROGRESS") : false;
+  const canJoin = (() => {
+    if (!lesson?.canJoin) return false;
+    if (lesson.status === "IN_PROGRESS") return true;
+    if (lesson.status === "SCHEDULED") return countdown.isSoon && !countdown.isPast;
+    return false;
+  })();
   const isInProgress = lesson?.status === "IN_PROGRESS";
 
   if (!lesson) {

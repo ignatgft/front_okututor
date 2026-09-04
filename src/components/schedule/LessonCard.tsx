@@ -23,7 +23,16 @@ export const LessonCard = memo(function LessonCard({
 }: LessonCardProps) {
   const { t } = useTranslation();
   const isLessonDTO = "courseId" in lesson && "tutorId" in lesson;
-  const canJoin = isLessonDTO ? lesson.canJoin && (lesson.status === "SCHEDULED" || lesson.status === "IN_PROGRESS") : false;
+  const canJoin = (() => {
+    if (!isLessonDTO || !lesson.canJoin) return false;
+    if (lesson.status === "IN_PROGRESS") return true;
+    if (lesson.status !== "SCHEDULED") return false;
+    // Online upcoming lesson — 10 min window before start (требование)
+    // For OFFLINE we keep same window for consistency; backend canJoin already false for offline without meeting
+    const start = new Date(lesson.startAt).getTime();
+    const diff = start - Date.now();
+    return diff < 10 * 60 * 1000 && diff > -30 * 60 * 1000;
+  })();
   const isInProgress = lesson.status === "IN_PROGRESS";
 
   const timeStr = `${formatTimeInTimezone(lesson.startAt, lesson.timezone)}–${formatTimeInTimezone(lesson.endAt, lesson.timezone)}`;

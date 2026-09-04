@@ -28,8 +28,8 @@ describe("useCountdown", () => {
     expect(result.current.isPast).toBe(true);
   });
 
-  it("isSoon within 15 min", () => {
-    const soon = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  it("isSoon within 10 min", () => {
+    const soon = new Date(Date.now() + 9 * 60 * 1000).toISOString();
     const { result } = renderHook(() => useCountdown(soon));
     expect(result.current.isSoon).toBe(true);
   });
@@ -52,7 +52,7 @@ describe("canJoinFromCountdown", () => {
   it("denies non-SCHEDULED", () => {
     expect(canJoinFromCountdown({ isPast: false, isSoon: true } as never, "CANCELLED")).toBe(false);
   });
-  it("allows SCHEDULED within 15min", () => {
+  it("allows SCHEDULED within 10min", () => {
     expect(canJoinFromCountdown({ isPast: false, isSoon: true } as never, "SCHEDULED")).toBe(true);
   });
 });
