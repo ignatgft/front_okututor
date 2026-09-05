@@ -14,9 +14,10 @@ import NewTicketModal from "../components/messages/NewTicketModal";
 import AttachmentRenderer from "../components/attachments/AttachmentRenderer";
 import { Search, Paperclip, Image as ImageIcon, Send, Smile, ArrowLeft, MoreVertical, Reply, Heart, Forward, Trash2, Edit2, X, Check, CheckCheck, Clock3, AlertCircle } from "lucide-react";
 import "../styles/Messages.css";
-import { safeDisplayName, initials, avatarColor, formatChatTime, dayLabel, previewText, isUnread, MAX_ATTACHMENT_SIZE, POLL_INTERVAL } from "../features/messaging/utils/messageHelpers";
+import { safeDisplayName, initials, avatarColor, formatChatTime, dayLabel } from "../features/messaging/utils/messageHelpers";
 import { useConversations } from "../features/messaging/hooks/useConversations";
 import { useMessagingThread } from "../features/messaging/hooks/useMessagingThread";
+import { ConversationList } from "../features/messaging/components/ConversationList";
 
 function TgAvatar({ name, size = 44 }: { name: unknown; size?: number }): JSX.Element {
   const bg = avatarColor(name);
@@ -293,41 +294,6 @@ export default function PgMessages() {
     const after = text.slice(idx + q.length);
     return <>{before}<mark className="tg-highlight">{match}</mark>{after}</>;
   };
-  const filtered = useMemo(() => {
-    const byType = filter === "all" ? conversations : conversations.filter((c) => c.type === filter);
-    const q = normalize(query);
-    if (!q) {
-      // сортировка: непрочитанные наверху, затем по дате
-      return [...byType].sort((a, b) => {
-        const ua = Number(a.unread_count) > 0 ? 1 : 0;
-        const ub = Number(b.unread_count) > 0 ? 1 : 0;
-        if (ua !== ub) return ub - ua;
-        return (b.updated_at || "").localeCompare(a.updated_at || "");
-      });
-    }
-    const tokens = q.split(/\s+/).filter(Boolean);
-    const scored = byType.map((c) => {
-      const name = normalize(c.counterpart_name || c.name || "");
-      const preview = normalize(c.last_message?.body || c.last_message?.text || previewText(c, t) || "");
-      const status = normalize(c.ticket_status || "");
-      const hay = `${name} ${preview} ${status}`;
-      let score = 0;
-      for (const tok of tokens) {
-        if (name === tok) score += 10;
-        else if (name.startsWith(tok)) score += 8;
-        else if (name.includes(tok)) score += 5;
-        else if (preview.includes(tok)) score += 3;
-        else if (hay.includes(tok)) score += 1;
-        else score -= 1;
-      }
-      // бонус за непрочитанные и свежие
-      if (Number(c.unread_count) > 0) score += 2;
-      return { c, score, matched: tokens.every((tok) => hay.includes(tok)) };
-    }).filter((x) => x.matched);
-    scored.sort((a, b) => b.score - a.score || (b.c.updated_at || "").localeCompare(a.c.updated_at || ""));
-    return scored.map((x) => x.c);
-  }, [conversations, filter, query, t]);
-
   const filteredMessages = useMemo(() => {
     if (!query.trim()) return messages;
     const q = normalize(query);
@@ -347,54 +313,19 @@ export default function PgMessages() {
 
   return (
     <div className="tg-page">
-      {/* SIDEBAR */}
-      <aside className={`tg-sidebar ${activeConvo ? "tg-sidebar--hidden-mobile" : ""}`}>
-        <div className="tg-sidebar__header">
-          <div className="tg-search">
-            <Search size={16} className="tg-search__icon" />
-            <input className="tg-search__input" placeholder={t("messages.search_placeholder", "Search")} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={t("messages.search_placeholder", "Search")} />
-            {query && <button type="button" className="tg-search__clear" onClick={() => setQuery("")} aria-label={t("common.clear", "Clear")}><X size={14} /></button>}
-          </div>
-          <div className="tg-filters">
-            <button type="button" className={`tg-chip ${filter === "all" ? "tg-chip--active" : ""}`} onClick={() => setFilter("all")}>{t("messages.all", "All")}</button>
-            <button type="button" className={`tg-chip ${filter === CONVERSATION_TYPES.DIRECT ? "tg-chip--active" : ""}`} onClick={() => setFilter(CONVERSATION_TYPES.DIRECT)}>{t("messages.direct", "Chat")}</button>
-            <button type="button" className={`tg-chip ${filter === CONVERSATION_TYPES.SUPPORT ? "tg-chip--active" : ""}`} onClick={() => setFilter(CONVERSATION_TYPES.SUPPORT)}>{t("messages.support", "Support")}</button>
-            <button type="button" className="tg-new-ticket" onClick={() => setNewTicketOpen(true)} title={t("messages.new_ticket", "New ticket")}>+</button>
-          </div>
-        </div>
-
-        <div className="tg-convo-list" role="list">
-          {loading ? <div className="tg-center"><Spinner label={t("common.loading")} /></div>
-          : error ? <div className="tg-center"><ErrorState message={error} onRetry={loadConversations} /></div>
-          : filtered.length === 0 ? <div className="tg-center"><EmptyState icon="💬" title={t("messages.no_conversations", "No chats yet")} hint={<p className="tg-hint">{t("messages.start_hint", "Chats with tutors and support will appear here.")}</p>} /></div>
-          : filtered.length === 0 && query.trim() ? <div className="tg-center"><EmptyState icon="🔍" title={t("messages.no_search_results", "No results")} hint={<p className="tg-hint">{t("messages.no_search_hint", "Try another keywords")}</p>} /></div>
-          : filtered.map((c) => {
-              const rawName = safeDisplayName(c.counterpart_name || c.name || `#${c.id}`, t);
-              const name = query.trim() ? highlightMatch(rawName, query.trim()) : rawName;
-              const active = activeConvo?.id === c.id;
-              const unread = Number(c.unread_count) || 0;
-              const time = c.updated_at ? formatChatTime(c.updated_at, i18n.language) : "";
-              const rawPreview = previewText(c, t);
-              const preview = query.trim() ? highlightMatch(rawPreview, query.trim()) : rawPreview;
-              return (
-                <button key={c.id} type="button" role="listitem" className={`tg-convo ${active ? "tg-convo--active" : ""} ${c.type === CONVERSATION_TYPES.SUPPORT ? "tg-convo--support" : ""}`} onClick={() => setActiveConvo(c)}>
-                  <TgAvatar name={rawName} size={48} />
-                  <span className={`tg-convo__dot ${c.type === CONVERSATION_TYPES.SUPPORT ? "tg-convo__dot--support" : isUnread(c) ? "tg-convo__dot--unread" : ""}`} aria-hidden="true" />
-                  <span className="tg-convo__main">
-                    <span className="tg-convo__top">
-                      <span className="tg-convo__name">{name}</span>
-                      {time && <span className="tg-convo__time">{time}</span>}
-                    </span>
-                    <span className="tg-convo__bottom">
-                      <span className="tg-convo__preview">{preview}</span>
-                      {unread > 0 && <span className="tg-badge">{unread > 99 ? "99+" : unread}</span>}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-        </div>
-      </aside>
+      <ConversationList
+        conversations={conversations}
+        activeConvo={activeConvo}
+        setActiveConvo={setActiveConvo}
+        filter={filter}
+        setFilter={setFilter}
+        query={query}
+        setQuery={setQuery}
+        loading={loading}
+        error={error}
+        onRetry={loadConversations}
+        onNewTicket={() => setNewTicketOpen(true)}
+      />
 
       {/* CHAT */}
       <section className={`tg-chat ${activeConvo ? "tg-chat--visible-mobile" : "tg-chat--hidden-mobile"}`}>

@@ -59,7 +59,6 @@ const Sidebar = ({ isOpen = false, onClose, collapsed = false }) => {
   const section = getSectionPath(role);
 
   const bottomItems = [
-    { id: "notifications", labelKey: "notifications.title", icon: Bell, path: `${section}/notifications`, badge: unreadCount },
     { id: "settings", labelKey: "navbar.settings", icon: SettingsIcon, path: `${section}/settings` },
   ];
 
@@ -110,6 +109,9 @@ const Sidebar = ({ isOpen = false, onClose, collapsed = false }) => {
                 >
                   <IconComponent className="sidebar-icon" />
                   {!collapsed && <span className="sidebar-label">{t(item.labelKey)}</span>}
+                  {!collapsed && item.id === "notifications" && unreadCount > 0 && (
+                    <span className="sidebar-badge">{unreadCount > 99 ? "99+" : unreadCount}</span>
+                  )}
                 </button>
               </li>
             );
